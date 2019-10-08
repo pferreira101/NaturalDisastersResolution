@@ -1,0 +1,2 @@
+# NaturalDisastersResolution
+Intelligent Agents project
