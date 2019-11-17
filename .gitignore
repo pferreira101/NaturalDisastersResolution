@@ -1,1 +1,6 @@
-.DS_Store
+*.DS_Store
+NaturalDisastersResolution/.idea
+NaturalDisastersResolution/APDescription.txt
+NaturalDisastersResolution/MTPs-MainContainer.txt
+NaturalDisastersResolution/bin
+
