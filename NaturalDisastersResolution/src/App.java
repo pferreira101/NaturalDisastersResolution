@@ -17,18 +17,18 @@ public class App {
 
         mc.startAgenteCentral(mapa);
 
+        posicoesAgentes = mapa.getDistruicaoPosicoes(nDrones);
         for(int i = 0; i < nDrones; i++){
-            posicoesAgentes = mapa.getDistruicaoPosicoes(nDrones);
             mc.startAgenteDrone(id++, mapa, posicoesAgentes.get(i));
         }
 
+        posicoesAgentes = mapa.getDistruicaoPosicoes(nCamioes);
         for(int i = 0; i < nCamioes; i++){
-            posicoesAgentes = mapa.getDistruicaoPosicoes(nCamioes);
             mc.startAgenteCamiao(id++, mapa, posicoesAgentes.get(i));
         }
 
+        posicoesAgentes = mapa.getDistruicaoPosicoes(nAeronaves);
         for(int i = 0; i < nAeronaves; i++){
-            posicoesAgentes = mapa.getDistruicaoPosicoes(nAeronaves);
             mc.startAgenteAeronave(id++, mapa, posicoesAgentes.get(i));
         }
 
