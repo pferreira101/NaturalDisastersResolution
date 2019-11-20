@@ -5,6 +5,7 @@ public class Posicao implements Serializable {
     float pos_x;
     float pos_y;
 
+
     Posicao(float x, float y){
         pos_x = x;
         pos_y = y;
@@ -16,7 +17,23 @@ public class Posicao implements Serializable {
         float x = rand.nextInt(mapSize);
         float y = rand.nextInt(mapSize);
 
-        return  new Posicao(x,y);
+        return new Posicao(x,y);
+    }
+
+    public static Posicao getRandomSidePosition(Posicao pos, int mapSize) {
+        Random rand = new Random();
+        float posx, posy;
+        do{
+            float x = rand.nextInt(3)-1;
+            posx = pos.pos_x + x;
+            //System.out.println("Calculos X: " + posx);
+        } while(posx > mapSize || posx == -1);
+        do{
+            float y = rand.nextInt(3)-1;
+            posy = pos.pos_y + y;
+            //System.out.println("Calculos Y: " + posy);
+        } while(posy > mapSize || posy == -1);
+        return new Posicao(posx,posy);
     }
 
     public static int distanceBetween(Posicao p1, Posicao p2){
