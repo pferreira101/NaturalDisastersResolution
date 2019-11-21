@@ -1,4 +1,6 @@
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class Posicao implements Serializable {
@@ -20,7 +22,32 @@ public class Posicao implements Serializable {
         return new Posicao(x,y);
     }
 
-    public static Posicao getRandomSidePosition(Posicao pos, int mapSize) {
+    public static List<Posicao> getListProporcional(int mapSize, int numPostos) {
+        int dist = mapSize/numPostos;
+        List<Posicao> res = new ArrayList<Posicao>();
+
+        if(numPostos == 1){
+            Posicao p = new Posicao(dist/2,dist/2);
+            res.add(p);
+        }
+
+        if(numPostos == 2){
+            Posicao p1 = new Posicao(dist/2,dist/2);
+            Posicao p2 = new Posicao(mapSize-(dist/2),mapSize-(dist/2));
+            res.add(p1);
+            res.add(p2);
+        }
+        return res;
+    }
+
+    public static Posicao getRandLinePosition(Posicao pos, int mapSize) {
+        float posx = mapSize;
+        if(pos.pos_x+1!=mapSize)
+            posx = pos.pos_x + 1;
+        return new Posicao(posx,pos.pos_y);
+    }
+
+    public static Posicao getRandSidePosition(Posicao pos, int mapSize) {
         Random rand = new Random();
         float posx, posy;
         do{
@@ -39,6 +66,7 @@ public class Posicao implements Serializable {
     public static int distanceBetween(Posicao p1, Posicao p2){
         return (int) Math.sqrt(((Math.pow((p1.pos_x - p2.pos_x), 2)) + (Math.pow((p1.pos_y - p2.pos_y), 2))));
     }
+
 
     @Override
     public boolean equals(Object p){

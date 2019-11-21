@@ -1,5 +1,4 @@
 import java.util.*;
-import java.lang.Math;
 
 public class Mapa {
 
@@ -36,22 +35,42 @@ public class Mapa {
     }
 
     boolean posicaoLivre(Posicao p){
-        boolean flag = true;
-        if(postosCombustivel.contains(p) || postosAgua.contains(p) || habitacoes.contains(p) || floresta.contains(p))
-            flag = false;
-        return flag;
+        return !(postosCombustivel.contains(p) || postosAgua.contains(p) || habitacoes.contains(p) || floresta.contains(p));
     }
 
     public void estabelecePosicaoPontosFixos(){ // falta verificar posicaoLivre nos incendios
         Random rand = new Random();
-        int ladoMapa = (int) Math.sqrt(size);
-        for(int i=0; i<numPostosComb;i++){
-            Posicao p = Posicao.getRandPosition(size);
+
+
+        List<Posicao> list;
+        list = Posicao.getListProporcional(size,numPostosComb);
+        for(Posicao p : list) {
+            System.out.println("POSX: " + p.pos_x);
+            System.out.println("POSY: " + p.pos_y);
             postosCombustivel.add(p);
         }
+
+
         for(int i=0; i<numPostosAgua;i++){
-            Posicao p = Posicao.getRandPosition(size);
+            Posicao p;
+            do{
+                p = Posicao.getRandPosition(size);
+            }while(posicaoLivre(p)==false);
             postosAgua.add(p);
+            //System.out.println("POSX " + i + ": " + p.pos_x);
+            //System.out.println("POSY " + i + ": " + p.pos_y);
+
+            int afluentes = rand.nextInt(4);
+            Posicao pLine = p;
+            for(int j=0; j<afluentes; j++){
+                pLine = Posicao.getRandLinePosition(pLine,size);
+                if(posicaoLivre(pLine)==false) break;
+                postosAgua.add(pLine);
+                i++;
+                if(i==numPostosAgua) break;
+                //System.out.println("Posx (canal): " + pLine.pos_x);
+                //System.out.println("Posy (canal): " + pLine.pos_y);
+            }
         }
 
         for(int i=0; i<numHabitacoes;i++){
@@ -63,17 +82,17 @@ public class Mapa {
             //System.out.println("POSX " + i + ": " + p.pos_x);
             //System.out.println("POSY " + i + ": " + p.pos_y);
 
-            int vizinhos = rand.nextInt(2); // não está preparado para ter mais do que os 8 vizinhos adjacentes
+            int vizinhos = rand.nextInt(4); // não está preparado para ter mais do que os 8 vizinhos adjacentes
             for(int j=0; j<vizinhos; j++){
                 Posicao pSide;
                 do{
-                    pSide = Posicao.getRandomSidePosition(p,size);
+                    pSide = Posicao.getRandSidePosition(p,size);
                 }while(posicaoLivre(pSide)==false);
                 habitacoes.add(pSide);
-                //System.out.println("Posx (vizinho do " + i + "): " + pSide.pos_x);
-                //System.out.println("Posy (vizinho do " + i + "): " + pSide.pos_y);
                 i++;
                 if(i==numHabitacoes) break;
+                //System.out.println("Posx (vizinho " + i + "): " + pSide.pos_x);
+                //System.out.println("Posy (vizinho " + i + "): " + pSide.pos_y);
             }
         }
 
@@ -90,13 +109,13 @@ public class Mapa {
             for(int j=0; j<numPontosFlorestaVizinhos; j++){
                 Posicao pSide;
                 do{
-                    pSide = Posicao.getRandomSidePosition(p,size);
+                    pSide = Posicao.getRandSidePosition(p,size);
                 }while(posicaoLivre(pSide)==false);
                 floresta.add(pSide);
-                //System.out.println("Posx (vizinho do " + i + "): " + pSide.pos_x);
-                //System.out.println("Posy (vizinho do " + i + "): " + pSide.pos_y);
                 i++;
                 if(i==numPontosFloresta) break;
+                //System.out.println("Posx (vizinho " + i + "): " + pSide.pos_x);
+                //System.out.println("Posy (vizinho " + i + "): " + pSide.pos_y);
             }
         }
 
