@@ -5,8 +5,8 @@ public class App {
     static int nDrones = 10;
     static int nCamioes = 5;
     static int nAeronaves = 2;
-    static int tamanhoMapa = 20;
-    static int numPostosComb = 2;
+    static int tamanhoMapa = 100;
+    static int numPostosComb = 6;
     static int numPostosAgua = 10;
     static int numHabitacoes = 20;
     static int numPontosFloresta = 10;

@@ -38,15 +38,15 @@ public class Mapa {
         return !(postosCombustivel.contains(p) || postosAgua.contains(p) || habitacoes.contains(p) || floresta.contains(p));
     }
 
-    public void estabelecePosicaoPontosFixos(){ // falta verificar posicaoLivre nos incendios
+    public void estabelecePosicaoPontosFixos(){
         Random rand = new Random();
 
 
         List<Posicao> list;
         list = Posicao.getListProporcional(size,numPostosComb);
         for(Posicao p : list) {
-            System.out.println("POSX: " + p.pos_x);
-            System.out.println("POSY: " + p.pos_y);
+            //System.out.println("POSX: " + p.pos_x);
+            //System.out.println("POSY: " + p.pos_y);
             postosCombustivel.add(p);
         }
 
@@ -68,8 +68,8 @@ public class Mapa {
                 postosAgua.add(pLine);
                 i++;
                 if(i==numPostosAgua) break;
-                //System.out.println("Posx (canal): " + pLine.pos_x);
-                //System.out.println("Posy (canal): " + pLine.pos_y);
+                System.out.println("Posx (canal): " + pLine.pos_x);
+                System.out.println("Posy (canal): " + pLine.pos_y);
             }
         }
 
