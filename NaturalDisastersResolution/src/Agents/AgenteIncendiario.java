@@ -47,7 +47,6 @@ public class AgenteIncendiario extends Agent {
         ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
         msg.addReceiver(central);
         msg.setContentObject(fa);
-        System.out.println(fa.toString());
         send(msg);
     }
 }

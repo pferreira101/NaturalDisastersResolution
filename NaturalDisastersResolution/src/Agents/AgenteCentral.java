@@ -4,19 +4,20 @@ import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.lang.acl.ACLMessage;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.sql.Time;
+import java.util.*;
 
 public class AgenteCentral extends Agent {
 
     Mapa mapa;
     Map<AID, AgentStatus> agents;
-
+    int taskId;
 
     protected void setup(){
         Object[] args = this.getArguments();
 
         this.mapa = (Mapa) args[0];
+        this.taskId = 0;
 
         DFManager.registerAgent(this, "Central");
 
@@ -49,7 +50,7 @@ public class AgenteCentral extends Agent {
                 else if(sendersName.contains("Agente") && msg.getPerformative() == ACLMessage.INFORM ){
                     try{
                         AgentStatus st = (AgentStatus) msg.getContentObject();
-                        registerStatus(sender, st);
+                        atualizarEstadoAgente(sender, st);
                     }
                     catch (Exception e){
                         e.printStackTrace();
@@ -67,25 +68,32 @@ public class AgenteCentral extends Agent {
     private class AssignTask extends OneShotBehaviour {
 
         private AID agent;
-        private Posicao p; // List<Posicao> no futuro
+        private LinkedList<Tarefa> tarefas; // List<Posicao> no futuro
 
-        public AssignTask(AID agentAID, Posicao p) {
+        public AssignTask(AID agentAID, Tarefa ... tarefas) {
+            this.tarefas = new LinkedList<>();
             this.agent = agentAID;
-            this.p = p;
+
+            Arrays.stream(tarefas).forEach(t -> {
+                this.tarefas.add(t);
+                registaTarefa(agent, t);
+                System.out.println(new Time(System.currentTimeMillis()) +  ": "+ agent.getLocalName() + " --- mandado " + t.toString());
+            });
         }
 
         public void action() {
+
             ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
             msg.addReceiver(agent);
             try {
-                msg.setContentObject(p);
+                msg.setContentObject(this.tarefas);
             } catch (IOException e) {
                 e.printStackTrace();
             }
             send(msg);
-            System.out.println(agent.getLocalName() + " mandado apagar fogo na posicao " + p.toString() + "( " +Posicao.distanceBetween(agents.get(agent).pos, p) +" unidades distancia )");
         }
     }
+
 
     /**
      * Método para registar novo incendio ou expansao de um ja existente e
@@ -105,8 +113,12 @@ public class AgenteCentral extends Agent {
     }
 
 
-    private void registerStatus(AID agent,AgentStatus status) {
-        this.agents.put(agent, status);
+    private void atualizarEstadoAgente(AID agent,AgentStatus status) {
+        AgentStatus as = this.agents.get(agent);
+        if(as != null)
+            as.atualizarEstado(status);
+        else
+            this.agents.put(agent,status);
     }
 
 
@@ -125,7 +137,13 @@ public class AgenteCentral extends Agent {
             }
         }
 
-        this.addBehaviour(new AssignTask(closestAgent, p));
+        Tarefa t = new Tarefa(taskId++, Tarefa.APAGAR, p);
+        Tarefa t2 = new Tarefa(taskId++, Tarefa.ABASTECER, p); // apenas esta aqui para testar se as tarefas no central sao marcadas como resolvidas corretamente
+        this.addBehaviour(new AssignTask(closestAgent, t, t2));
+    }
+
+    private void registaTarefa(AID agent, Tarefa t) {
+        this.agents.get(agent).addTarefa(t);
     }
 
 
