@@ -8,10 +8,10 @@ public class Mapa {
     int numHabitacoes;
     int numPontosFloresta;
 
-    List<Posicao> postosCombustivel;
-    List<Posicao> postosAgua;
-    List<Posicao> habitacoes;
-    List<Posicao> floresta;
+    static List<Posicao> postosCombustivel;
+    static List<Posicao> postosAgua;
+    static List<Posicao> habitacoes;
+    static List<Posicao> floresta;
     Map<Integer, Incendio> incendios;
 
     Mapa(int size, int numPostosComb, int numPostosAgua, int numHabitacoes, int numPontosFloresta){
@@ -130,7 +130,26 @@ public class Mapa {
 
         return posicoes;
     }
-
+    public static boolean postoC(Posicao p) {
+        if (postosCombustivel.contains(p))
+            return true;
+        else return false;
+    }
+    public static boolean postoA(Posicao p) {
+        if (postosAgua.contains(p))
+            return true;
+        else return false;
+    }
+    public static boolean hab(Posicao p) {
+        if (habitacoes.contains(p))
+            return true;
+        else return false;
+    }
+    public static boolean arvore(Posicao p) {
+        if (floresta.contains(p))
+            return true;
+        else return false;
+    }
     public void registaIncendio(FireAlert fa) {
         this.incendios.put(fa.fireID, new Incendio(fa));
     }

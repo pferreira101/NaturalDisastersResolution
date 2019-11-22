@@ -146,5 +146,11 @@ public class AgenteCentral extends Agent {
         this.agents.get(agent).addTarefa(t);
     }
 
+    public Posicao getPosicao(int j, int i){
+        Posicao p = new Posicao(j,i);
+        return p;
+
+    }
+
 
 }
