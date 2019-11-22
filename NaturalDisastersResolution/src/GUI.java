@@ -46,7 +46,7 @@ public class GUI {
 
         frameInitialize(panel, panel_3, panel_4);
 
-        captionInitialize(panel, panel_3);
+        captionInitialize(m, panel, panel_3);
 
         textArea = new JTextArea(10, 20);
         textArea.setEditable(false);
@@ -62,9 +62,9 @@ public class GUI {
      * @param panel main panel
      */
     private void gridInitialize(Mapa m, AgenteCentral agenteCentral, JPanel panel) {
-        grid= new JLabel[ConfigGUI.GRID_WIDTH][ConfigGUI.GRID_HEIGHT];
-        for (int i = 0; i < ConfigGUI.GRID_HEIGHT; i++){
-            for (int j = 0; j < ConfigGUI.GRID_WIDTH; j++){
+        grid= new JLabel[m.size][m.size];
+        for (int i = 0; i < m.size; i++){
+            for (int j = 0; j < m.size; j++){
                 grid[j][i] = new JLabel();
                 grid[j][i].setBorder(new LineBorder(Color.BLACK));
                 grid[j][i].setHorizontalAlignment(SwingConstants.CENTER);
@@ -82,12 +82,12 @@ public class GUI {
      * @param panel main panel
      * @param panel_1 captionPanel
      */
-    private void captionInitialize(JPanel panel, JPanel panel_1) {
+    private void captionInitialize(Mapa m,JPanel panel, JPanel panel_1) {
         panel_3.setLayout(new BorderLayout(1000, 1000));
         JLabel lblCaption = new JLabel("");
         lblCaption.setHorizontalAlignment(SwingConstants.LEFT);
         panel_1.add(lblCaption, BorderLayout.WEST);
-        panel.setLayout(new GridLayout(ConfigGUI.GRID_HEIGHT, ConfigGUI.GRID_WIDTH));
+        panel.setLayout(new GridLayout(m.size, m.size));
     }
 
     /**
@@ -165,8 +165,8 @@ public class GUI {
      * Called on tick to fill the grid with the updated positions of the objects
      */
     public static void fillGrid(Mapa m) {
-        for (int i = 0; i < ConfigGUI.GRID_HEIGHT; i++){
-            for (int j = 0; j < ConfigGUI.GRID_WIDTH; j++){
+        for (int i = 0; i < m.size; i++){
+            for (int j = 0; j <m.size; j++){
                 grid[j][i].setOpaque(true);
                 setCell(m,agenteCentral.getPosicao(j,i), grid[j][i]);
             }
