@@ -12,7 +12,9 @@ public class AgentStatus implements Serializable {
     boolean disponivel;
     List<Tarefa> tarefas;
 
-
+    Posicao getPos() {
+        return this.pos;
+    }
     AgentStatus(AID aid, Posicao pos, int aguaDisponivel, int combustivelDisponivel, boolean disponivel, List<Tarefa> tarefas){
         this.aid = aid;
         this.pos = pos;

@@ -1,6 +1,5 @@
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.GridLayout;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -8,7 +7,6 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.LineBorder;
 
-import java.awt.BorderLayout;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.ImageIcon;
@@ -71,7 +69,7 @@ public class GUI {
                 grid[j][i].setVerticalAlignment(SwingConstants.CENTER);
                 grid[j][i].setOpaque(true);
 
-                setCell(m,agenteCentral.getPosicao(j,i), grid[j][i]);
+                setCell(agenteCentral,m,agenteCentral.getPosicao(j,i), grid[j][i]);
                 panel.add(grid[j][i]);
             }
         }
@@ -118,38 +116,55 @@ public class GUI {
         panel_2.setPreferredSize(new Dimension(800,500));
     }
 
+    private static ImageIcon getScaledImage(ImageIcon srcImg, int w, int h){
+        Image image = srcImg.getImage(); // transform it
+        Image newimg = image.getScaledInstance(w, h,  java.awt.Image.SCALE_SMOOTH); // scale it the smooth way
+        ImageIcon imageIcon = new ImageIcon(newimg);
+        return imageIcon;
+    }
     /**
      * Sets a given cell of the GUI grid
      * @param p cell of the worldMap being processed
      * @param gridCell cell of the grid being processed
      */
-    private static void setCell(Mapa m, Posicao p, JLabel gridCell) {
+    private static void setCell(AgenteCentral a,  Mapa m, Posicao p, JLabel gridCell) {
         if (p != null) {
 
             gridCell.setText(p.toString());
             gridCell.setHorizontalTextPosition(JLabel.CENTER);
             gridCell.setVerticalTextPosition(JLabel.BOTTOM);
 
+            if (a.verificaAgente(p)) {
+                gridCell.setBackground(Color.pink);
+
+            }
+
+
             if (m.onFire(p)) {
                 gridCell.setBackground(Color.orange);
+                gridCell.setIcon(getScaledImage((new ImageIcon("imgs/fire.png")),794/m.size,642/m.size));
             }
 
             if (m.hab(p)) {
-                gridCell.setBackground(Color.yellow);
+                gridCell.setBackground(Color.gray);
+                gridCell.setIcon(getScaledImage((new ImageIcon("imgs/casa.png")),794/m.size,642/m.size));
 
             }
 
             if (m.postoA(p)) {
                 gridCell.setBackground(Color.cyan);
+                gridCell.setIcon(getScaledImage((new ImageIcon("imgs/agua.png")),794/m.size,642/m.size));
 
             }
 
             if (m.postoC(p)) {
                 gridCell.setBackground(Color.gray);
+                gridCell.setIcon(getScaledImage((new ImageIcon("imgs/gota.png")),794/m.size,642/m.size));;
 
             }
             if (m.arvore(p)) {
                 gridCell.setBackground(Color.green);
+                gridCell.setIcon(getScaledImage((new ImageIcon("imgs/arvore.png")),794/m.size,642/m.size));
 
             }
         }
@@ -168,7 +183,7 @@ public class GUI {
         for (int i = 0; i < m.size; i++){
             for (int j = 0; j <m.size; j++){
                 grid[j][i].setOpaque(true);
-                setCell(m,agenteCentral.getPosicao(j,i), grid[j][i]);
+                setCell(agenteCentral, m,agenteCentral.getPosicao(j,i), grid[j][i]);
             }
         }
     }

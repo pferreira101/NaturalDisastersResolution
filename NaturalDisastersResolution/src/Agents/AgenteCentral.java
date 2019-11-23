@@ -3,6 +3,8 @@ import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.lang.acl.ACLMessage;
+
+import javax.swing.text.Position;
 import java.io.IOException;
 import java.sql.Time;
 import java.util.*;
@@ -150,6 +152,15 @@ public class AgenteCentral extends Agent {
         Posicao p = new Posicao(j,i);
         return p;
 
+    }
+
+    public boolean verificaAgente(Posicao p)  {
+
+        for(Map.Entry<AID,AgentStatus> entry : agents.entrySet()) {
+            AgentStatus value = entry.getValue();
+            if (value.getPos().equals(p)) return true;
+        }
+        return false;
     }
 
 
