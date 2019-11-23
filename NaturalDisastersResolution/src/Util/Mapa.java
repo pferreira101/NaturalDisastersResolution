@@ -68,8 +68,8 @@ public class Mapa {
                 postosAgua.add(pLine);
                 i++;
                 if(i==numPostosAgua) break;
-                System.out.println("Posx (canal): " + pLine.pos_x);
-                System.out.println("Posy (canal): " + pLine.pos_y);
+                //System.out.println("Posx (canal): " + pLine.pos_x);
+                //System.out.println("Posy (canal): " + pLine.pos_y);
             }
         }
 
@@ -82,7 +82,7 @@ public class Mapa {
             //System.out.println("POSX " + i + ": " + p.pos_x);
             //System.out.println("POSY " + i + ": " + p.pos_y);
 
-            int vizinhos = rand.nextInt(4); // não está preparado para ter mais do que os 8 vizinhos adjacentes
+            int vizinhos = rand.nextInt(6); // não está preparado para ter mais do que os 8 vizinhos adjacentes
             for(int j=0; j<vizinhos; j++){
                 Posicao pSide;
                 do{
@@ -105,7 +105,7 @@ public class Mapa {
             //System.out.println("POSX " + i + ": " + p.pos_x);
             //System.out.println("POSY " + i + ": " + p.pos_y);
 
-            int numPontosFlorestaVizinhos = rand.nextInt(2); // não está preparado para ter mais do que os 8 vizinhos adjacentes
+            int numPontosFlorestaVizinhos = rand.nextInt(8); // não está preparado para ter mais do que os 8 vizinhos adjacentes
             for(int j=0; j<numPontosFlorestaVizinhos; j++){
                 Posicao pSide;
                 do{

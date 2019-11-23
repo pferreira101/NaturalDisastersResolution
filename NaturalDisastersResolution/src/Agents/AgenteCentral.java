@@ -154,14 +154,14 @@ public class AgenteCentral extends Agent {
 
     }
 
-    public boolean verificaAgente(Posicao p)  {
+    /*public boolean verificaAgente(Posicao p)  {
 
         for(Map.Entry<AID,AgentStatus> entry : agents.entrySet()) {
             AgentStatus value = entry.getValue();
             if (value.getPos().equals(p)) return true;
         }
         return false;
-    }
+    }*/
 
 
 }

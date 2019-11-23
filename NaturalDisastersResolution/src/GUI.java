@@ -134,10 +134,10 @@ public class GUI {
             gridCell.setHorizontalTextPosition(JLabel.CENTER);
             gridCell.setVerticalTextPosition(JLabel.BOTTOM);
 
-            if (a.verificaAgente(p)) {
+            /*if (a.verificaAgente(p)) {
                 gridCell.setBackground(Color.pink);
 
-            }
+            }*/
 
 
             if (m.onFire(p)) {
