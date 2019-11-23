@@ -26,7 +26,7 @@ public class Posicao implements Serializable {
     public static List<Posicao> getListProporcional(int mapSize, int numPostos) {
         Random rand = new Random();
 
-        List<Posicao> res = new ArrayList<Posicao>();
+        List<Posicao> res = new ArrayList<>();
 
         if(numPostos == 1){
             Posicao p = new Posicao(mapSize/2,mapSize/2);

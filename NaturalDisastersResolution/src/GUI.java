@@ -11,7 +11,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.ImageIcon;
 
-
+import java.util.List;
 
 public class GUI {
 
@@ -32,8 +32,10 @@ public class GUI {
      * Interface Gráfica
      * @param agenteCentral o Agente Central
      */
-    public GUI(Mapa m, AgenteCentral agenteCentral) {
+    public GUI(Mapa mapa, AgenteCentral agenteCentral) {
         GUI.agenteCentral = agenteCentral;
+
+        this.m = mapa;
 
         JPanel panel = new JPanel();
         panel.setBounds(10, 10, 794, 642);
@@ -41,7 +43,6 @@ public class GUI {
         panel_3.setBounds(9, 660, 1095, 93);
         panel_4 = new JPanel();
         panel_4.setBounds(810, 10, 762, 642);
-
         frameInitialize(panel, panel_3, panel_4);
 
         captionInitialize(m, panel, panel_3);
@@ -50,17 +51,16 @@ public class GUI {
         textArea.setEditable(false);
 
         scrollPaneInitialize(panel_4);
-        gridInitialize(m, agenteCentral, panel);
+        initializeMapGrid(m, panel);
 
     }
 
     /**
      * Initializes the grid
-     * @param agenteCentral world agent
      * @param panel main panel
      */
-    private void gridInitialize(Mapa m, AgenteCentral agenteCentral, JPanel panel) {
-        grid= new JLabel[m.size][m.size];
+    private void initializeMapGrid(Mapa m, JPanel panel) {
+        grid = new JLabel[m.size][m.size];
         for (int i = 0; i < m.size; i++){
             for (int j = 0; j < m.size; j++){
                 grid[j][i] = new JLabel();
@@ -69,9 +69,102 @@ public class GUI {
                 grid[j][i].setVerticalAlignment(SwingConstants.CENTER);
                 grid[j][i].setOpaque(true);
 
-                setCell(agenteCentral,m,agenteCentral.getPosicao(j,i), grid[j][i]);
+                grid[j][i].setText("(" + i +","+ j +")");
+                grid[j][i].setHorizontalTextPosition(JLabel.CENTER);
+                grid[j][i].setVerticalTextPosition(JLabel.BOTTOM);
+
                 panel.add(grid[j][i]);
             }
+        }
+
+        drawFlorests(grid, m.floresta);
+        drawHouses(grid, m.habitacoes);
+        drawFuelStations(grid, m.postosCombustivel);
+        drawWaterSources(grid, m.postosAgua);
+    }
+
+    private static void drawFlorests(JLabel[][] mapGrid, List<Posicao> floresta){
+        for(Posicao p : floresta){
+            System.out.println(p);
+            JLabel gridCell =  mapGrid[(int)p.pos_x][(int)p.pos_y];
+            gridCell.setBackground(Color.green);
+            gridCell.setIcon(getScaledImage((new ImageIcon("imgs/arvore.png")),794/m.size,642/m.size));
+        }
+    }
+
+    private static void drawHouses(JLabel[][] mapGrid, List<Posicao> casas){
+        for(Posicao p : casas){
+            System.out.println(p);
+            JLabel gridCell =  mapGrid[(int)p.pos_x][(int)p.pos_y];
+            gridCell.setBackground(Color.green);
+            gridCell.setIcon(getScaledImage((new ImageIcon("imgs/casa.png")),794/m.size,642/m.size));
+        }
+    }
+
+    private static void drawFuelStations(JLabel[][] mapGrid, List<Posicao> postosAbastecimentoCombustivel){
+        for(Posicao p : postosAbastecimentoCombustivel){
+            System.out.println(p);
+            JLabel gridCell =  mapGrid[(int)p.pos_x][(int)p.pos_y];
+            gridCell.setBackground(Color.green);
+            gridCell.setIcon(getScaledImage((new ImageIcon("imgs/gota.png")),794/m.size,642/m.size));
+        }
+    }
+
+    private static void drawWaterSources(JLabel[][] mapGrid, List<Posicao> postosAbastecimentoAgua){
+        for(Posicao p : postosAbastecimentoAgua){
+            System.out.println(p);
+            JLabel gridCell =  mapGrid[(int)p.pos_x][(int)p.pos_y];
+            gridCell.setBackground(Color.green);
+            gridCell.setIcon(getScaledImage((new ImageIcon("imgs/agua.png")),794/m.size,642/m.size));
+        }
+    }
+
+    /**
+     * Sets a given cell of the GUI grid
+     * @param p cell of the worldMap being processed
+     * @param gridCell cell of the grid being processed
+     */
+    private static void setCell(AgenteCentral a,  Mapa m, Posicao p, JLabel gridCell) {
+        if (p != null) {
+
+            /*if (a.verificaAgente(p)) {
+                gridCell.setBackground(Color.pink);
+
+            }*/
+
+
+            if (m.onFire(p)) {
+                gridCell.setBackground(Color.orange);
+                gridCell.setIcon(getScaledImage((new ImageIcon("imgs/fire.png")),794/m.size,642/m.size));
+            }
+
+            if (m.hab(p)) {
+                gridCell.setBackground(Color.gray);
+                gridCell.setIcon(getScaledImage((new ImageIcon("imgs/casa.png")),794/m.size,642/m.size));
+
+            }
+
+            if (m.postoA(p)) {
+                gridCell.setBackground(Color.cyan);
+                gridCell.setIcon(getScaledImage((new ImageIcon("imgs/agua.png")),794/m.size,642/m.size));
+
+            }
+
+            if (m.postoC(p)) {
+                gridCell.setBackground(Color.gray);
+                gridCell.setIcon(getScaledImage((new ImageIcon("imgs/gota.png")),794/m.size,642/m.size));;
+
+            }
+            if (m.arvore(p)) {
+                gridCell.setBackground(Color.green);
+                gridCell.setIcon(getScaledImage((new ImageIcon("imgs/arvore.png")),794/m.size,642/m.size));
+
+            }
+        }
+        else {
+            gridCell.setBackground(null);
+            gridCell.setIcon(null);
+            gridCell.setText("");
         }
     }
 
@@ -122,59 +215,6 @@ public class GUI {
         ImageIcon imageIcon = new ImageIcon(newimg);
         return imageIcon;
     }
-    /**
-     * Sets a given cell of the GUI grid
-     * @param p cell of the worldMap being processed
-     * @param gridCell cell of the grid being processed
-     */
-    private static void setCell(AgenteCentral a,  Mapa m, Posicao p, JLabel gridCell) {
-        if (p != null) {
-
-            gridCell.setText(p.toString());
-            gridCell.setHorizontalTextPosition(JLabel.CENTER);
-            gridCell.setVerticalTextPosition(JLabel.BOTTOM);
-
-            /*if (a.verificaAgente(p)) {
-                gridCell.setBackground(Color.pink);
-
-            }*/
-
-
-            if (m.onFire(p)) {
-                gridCell.setBackground(Color.orange);
-                gridCell.setIcon(getScaledImage((new ImageIcon("imgs/fire.png")),794/m.size,642/m.size));
-            }
-
-            if (m.hab(p)) {
-                gridCell.setBackground(Color.gray);
-                gridCell.setIcon(getScaledImage((new ImageIcon("imgs/casa.png")),794/m.size,642/m.size));
-
-            }
-
-            if (m.postoA(p)) {
-                gridCell.setBackground(Color.cyan);
-                gridCell.setIcon(getScaledImage((new ImageIcon("imgs/agua.png")),794/m.size,642/m.size));
-
-            }
-
-            if (m.postoC(p)) {
-                gridCell.setBackground(Color.gray);
-                gridCell.setIcon(getScaledImage((new ImageIcon("imgs/gota.png")),794/m.size,642/m.size));;
-
-            }
-            if (m.arvore(p)) {
-                gridCell.setBackground(Color.green);
-                gridCell.setIcon(getScaledImage((new ImageIcon("imgs/arvore.png")),794/m.size,642/m.size));
-
-            }
-        }
-        else {
-            gridCell.setBackground(null);
-            gridCell.setIcon(null);
-            gridCell.setText("");
-        }
-    }
-
 
     /**
      * Called on tick to fill the grid with the updated positions of the objects
