@@ -58,6 +58,9 @@ public class AgenteCentral extends Agent {
                         e.printStackTrace();
                     }
                 }
+                else if(sendersName.equals("Interface") && msg.getPerformative() == ACLMessage.QUERY_REF){
+                    sendSimulationInfo(msg);
+                }
             }
             else{
                 block();
@@ -65,7 +68,6 @@ public class AgenteCentral extends Agent {
         }
 
     }
-
 
     private class AssignTask extends OneShotBehaviour {
 
@@ -148,11 +150,21 @@ public class AgenteCentral extends Agent {
         this.agents.get(agent).addTarefa(t);
     }
 
-    public Posicao getPosicao(int j, int i){
-        Posicao p = new Posicao(j,i);
-        return p;
 
+
+    private void sendSimulationInfo(ACLMessage msg) {
+        SimulationStatus status = new SimulationStatus(this.mapa.incendios.values(), this.agents.values());
+        ACLMessage reply = msg.createReply();
+        reply.setPerformative(ACLMessage.INFORM);
+        try {
+            reply.setContentObject(status);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        send(reply);
     }
+
+
 
     /*public boolean verificaAgente(Posicao p)  {
 

@@ -1,29 +1,18 @@
-import jade.core.Profile;
-import jade.core.ProfileImpl;
-import jade.core.Runtime;
-import jade.wrapper.ContainerController;
-import jade.wrapper.ControllerException;
-import jade.wrapper.StaleProxyException;
-
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.List;
 
 public class App {
 
-    static GUI gui ;
     static int nDrones = 10;
     static int nCamioes = 5;
     static int nAeronaves = 2;
-    static int tamanhoMapa = 10;
-    static int numPostosComb = 6;
-    static int numPostosAgua = 10;
-    static int numHabitacoes = 20;
-    static int numPontosFloresta = 10;
+    static int tamanhoMapa = 15;
+    static int numPostosComb = 1;
+    static int numPostosAgua = 1;
+    static int numHabitacoes = 1;
+    static int numPontosFloresta = 1;
 
     public static void main(String[] args) throws Exception {
 
-        gui = new GUI();
         run();
     }
 
@@ -32,7 +21,12 @@ public class App {
 
         Mapa mapa = new Mapa(tamanhoMapa, numPostosComb, numPostosAgua, numHabitacoes, numPontosFloresta);
 
+        System.out.println("0.1");
+
         mapa.estabelecePosicaoPontosFixos();
+
+        System.out.println("0.11");
+
 
         List<Posicao> posicoesAgentes;
         int id = 0;
@@ -40,31 +34,38 @@ public class App {
         AgenteCentral agenteCentral = new AgenteCentral();
 
 
-        gui = new GUI(mapa,agenteCentral);
-        gui.getFrame().setVisible(true);
 
         try {
-            gui.getFrame().setVisible(true);
-
+            System.out.println("1");
 
             MainContainer mc = new MainContainer();
 
             mc.startAgenteCentral(mapa);
+
+            System.out.println("2");
 
             posicoesAgentes = mapa.getDistribuicaoPosicoes(nDrones);
             for(int i = 0; i < nDrones; i++){
                 mc.startAgenteDrone(id++, mapa, posicoesAgentes.get(i));
             }
 
+            System.out.println("3");
+
             posicoesAgentes = mapa.getDistribuicaoPosicoes(nCamioes);
             for(int i = 0; i < nCamioes; i++){
                 mc.startAgenteCamiao(id++, mapa, posicoesAgentes.get(i));
             }
 
+            System.out.println("4");
+
             posicoesAgentes = mapa.getDistribuicaoPosicoes(nAeronaves);
             for(int i = 0; i < nAeronaves; i++){
                 mc.startAgenteAeronave(id++, mapa, posicoesAgentes.get(i));
             }
+
+            System.out.println("5");
+
+            mc.startInterface(mapa);
 
             Thread.sleep(1000);
             mc.startIncendiario(mapa);

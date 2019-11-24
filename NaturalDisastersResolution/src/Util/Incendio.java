@@ -1,8 +1,9 @@
+import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Incendio {
+public class Incendio implements Serializable {
 
     int gravidade;
     Timestamp inicio;

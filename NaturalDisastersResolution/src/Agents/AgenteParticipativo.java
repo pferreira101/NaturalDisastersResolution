@@ -49,10 +49,10 @@ public class AgenteParticipativo extends Agent {
 
         sendCurrentStatus(); // informa no setup para quartel ter conhecimento de todos os agentes antes do agente incendiario comecar a corre
 
-        this.addBehaviour(new Receiver());
+        this.addBehaviour(new TaskReceiver());
     }
 
-    class Receiver extends CyclicBehaviour {
+    class TaskReceiver extends CyclicBehaviour {
         public void action() {
             ACLMessage msg = receive();
             if (msg != null) {
@@ -108,7 +108,7 @@ public class AgenteParticipativo extends Agent {
 
         int distancia = Posicao.distanceBetween(this.pos, p);
         this.disponivel = false;
-        Thread.sleep(1000);
+        Thread.sleep(2000);
 
         this.pos = p;
         this.disponivel = true;
@@ -127,7 +127,7 @@ public class AgenteParticipativo extends Agent {
 
         int distancia = Posicao.distanceBetween(this.pos, p);
         this.disponivel = false;
-        Thread.sleep(1000);
+        Thread.sleep(2000);
 
         this.pos = p;
         this.disponivel = true;

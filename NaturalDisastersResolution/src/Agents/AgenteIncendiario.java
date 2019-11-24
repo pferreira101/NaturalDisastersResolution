@@ -10,6 +10,7 @@ public class AgenteIncendiario extends Agent {
     Mapa mapa;
     int fireId;
     AID centralAgent;
+    int freqIncendio = 1500; // 1 incendio novo a cada x ms
 
     protected void setup(){
         Object[] args = this.getArguments();
@@ -17,15 +18,23 @@ public class AgenteIncendiario extends Agent {
         this.mapa = (Mapa) args[0];
         this.fireId=0;
         this.centralAgent = DFManager.findAgent(this, "Central");
-        addBehaviour(new TickerBehaviour(this, 1000) {
-            protected void onTick(){
-                placeFire();
-            }
-        });
+        addBehaviour(new PlaceFire(this, this.freqIncendio));
+    }
+
+    class PlaceFire extends TickerBehaviour{
+
+        public PlaceFire(Agent a, long period) {
+            super(a, period);
+        }
+
+        @Override
+        protected void onTick() {
+            placeFire();
+        }
     }
 
     private void placeFire() {
-        Posicao p =  null;
+        Posicao p;
 
         do{
             p = Posicao.getRandPosition(mapa.size);

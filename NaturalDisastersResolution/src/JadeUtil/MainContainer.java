@@ -84,4 +84,8 @@ public class MainContainer {
 	public void startIncendiario(Mapa mapa) {
 		this.startAgentInPlatform("Incendiario", "AgenteIncendiario",new Object[] {mapa});
 	}
+
+	public void startInterface(Mapa mapa) {
+		this.startAgentInPlatform("Interface", "AgenteInterface",new Object[] {mapa});
+	}
 }
