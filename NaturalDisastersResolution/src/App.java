@@ -6,10 +6,10 @@ public class App {
     static int nCamioes = 5;
     static int nAeronaves = 2;
     static int tamanhoMapa = 15;
-    static int numPostosComb = 1;
-    static int numPostosAgua = 1;
-    static int numHabitacoes = 1;
-    static int numPontosFloresta = 1;
+    static int numPostosComb = 6;
+    static int numPostosAgua = 15;
+    static int numHabitacoes = 20;
+    static int numPontosFloresta = 20;
 
     public static void main(String[] args) throws Exception {
 

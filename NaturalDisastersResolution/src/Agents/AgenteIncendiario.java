@@ -35,9 +35,8 @@ public class AgenteIncendiario extends Agent {
 
     private void placeFire() {
         Posicao p;
-
         do{
-            p = Posicao.getRandPosition(mapa.size);
+            p = mapa.getRandPosition();
         }while(mapa.onFire(p) == true);
 
         Date date = new java.util.Date();
