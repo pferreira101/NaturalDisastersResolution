@@ -64,8 +64,6 @@ public class Mapa {
         List<Posicao> list;
         list = getPosicoesProporcional(numPostosComb);
         for(Posicao p : list) {
-            //System.out.println("POSX: " + p.pos_x);
-            //System.out.println("POSY: " + p.pos_y);
             postosCombustivel.add(p);
         }
 
@@ -74,24 +72,19 @@ public class Mapa {
             Posicao p;
             do{
                 p = getRandPosition();
-            }while(posicaoLivre(p)==false);
+            }while(!posicaoLivre(p));
             postosAgua.add(p);
             i++;
             if(i==numPostosAgua) break;
-            //System.out.println("POSX " + i + ": " + p.pos_x);
-            //System.out.println("POSY " + i + ": " + p.pos_y);
 
             int afluentes = rand.nextInt(10);
             Posicao pLine = p;
             for(int j=0; j<afluentes; j++){
                 pLine = getRandLinePosition(pLine);
-                if(!insideDimensoes(pLine)) break;
-                if(posicaoLivre(pLine)==false) break;
+                if(!posicaoLivre(pLine) || !insideDimensoes(pLine)) break;
                 postosAgua.add(pLine);
                 i++;
                 if(i==numPostosAgua) break;
-                //System.out.println("Posx (canal): " + pLine.pos_x);
-                //System.out.println("Posy (canal): " + pLine.pos_y);
             }
         }
 
@@ -100,28 +93,21 @@ public class Mapa {
             Posicao p;
             do{
                 p = getRandPosition();
-            }while(posicaoLivre(p)==false);
+            }while(!posicaoLivre(p));
             habitacoes.add(p);
             i++;
             if(i==numHabitacoes) break;
-            //System.out.println("POSX " + i + ": " + p.pos_x);
-            //System.out.println("POSY " + i + ": " + p.pos_y);
 
             int vizinhos = rand.nextInt(8); // não está preparado para ter mais do que os 8 vizinhos adjacentes
             for(int j=0; j<vizinhos; j++){
                 Posicao pSide;
                 do{
                     pSide = getRandSidePosition(p);
-                    if(!insideDimensoes(pSide)) break;
-                    if(!posicoesAdjacentesLivres(pSide)) break;
-                }while(posicaoLivre(pSide)==false);
-                if(!insideDimensoes(pSide)) break;
-                if(!posicoesAdjacentesLivres(pSide)) break;
+                }while(!posicaoLivre(pSide) && p.equals(pSide) && !insideDimensoes(pSide) && !posicoesAdjacentesLivres(p));
+                if(!posicaoLivre(pSide) || p.equals(pSide) || !insideDimensoes(pSide) || !posicoesAdjacentesLivres(p)) break;
                 habitacoes.add(pSide);
                 i++;
                 if(i==numHabitacoes) break;
-                //System.out.println("Posx (vizinho " + i + "): " + pSide.pos_x);
-                //System.out.println("Posy (vizinho " + i + "): " + pSide.pos_y);
             }
         }
 
@@ -130,28 +116,21 @@ public class Mapa {
             Posicao p;
             do{
                 p = getRandPosition();
-            }while(posicaoLivre(p)==false);
+            }while(!posicaoLivre(p));
             floresta.add(p);
             i++;
             if(i==numPontosFloresta) break;
-            //System.out.println("POSX " + i + ": " + p.pos_x);
-            //System.out.println("POSY " + i + ": " + p.pos_y);
 
             int numPontosFlorestaVizinhos = rand.nextInt(8); // não está preparado para ter mais do que os 8 vizinhos adjacentes
             for(int j=0; j<numPontosFlorestaVizinhos; j++){
                 Posicao pSide;
                 do{
                     pSide = getRandSidePosition(p);
-                    if(!insideDimensoes(pSide)) break;
-                    if(!posicoesAdjacentesLivres(pSide)) break;
-                }while(posicaoLivre(pSide)==false);
-                if(!insideDimensoes(pSide)) break;
-                if(!posicoesAdjacentesLivres(pSide)) break;
+                }while(!posicaoLivre(pSide) && p.equals(pSide) && !insideDimensoes(pSide) && !posicoesAdjacentesLivres(p));
+                if(!posicaoLivre(pSide) || p.equals(pSide) || !insideDimensoes(pSide) || !posicoesAdjacentesLivres(p)) break;
                 floresta.add(pSide);
                 i++;
                 if(i==numPontosFloresta) break;
-                //System.out.println("Posx (vizinho " + i + "): " + pSide.pos_x);
-                //System.out.println("Posy (vizinho " + i + "): " + pSide.pos_y);
             }
         }
 
@@ -246,12 +225,10 @@ public class Mapa {
         do{
             float x = rand.nextInt(3)-1;
             posx = pos.pos_x + x;
-            //System.out.println("Calculos X: " + posx);
         } while(posx > size || posx == -1);
         do{
             float y = rand.nextInt(3)-1;
             posy = pos.pos_y + y;
-            //System.out.println("Calculos Y: " + posy);
         } while(posy > size || posy == -1);
         return new Posicao(posx,posy);
     }
