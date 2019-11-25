@@ -13,6 +13,11 @@ public class FireAlert implements Serializable {
         this.inicioFogo = t;
     }
 
+    FireAlert(int id, Posicao p){
+        this.fireID = id;
+        this.celulaIgnicao = p;
+    }
+
     @Override
     public String toString() {
         return "Fogo "+ fireID +" iniciado na célula " + celulaIgnicao.toString() +", no momento " + inicioFogo.toString();

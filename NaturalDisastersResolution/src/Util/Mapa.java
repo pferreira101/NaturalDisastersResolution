@@ -39,7 +39,8 @@ public class Mapa {
         return !(postosCombustivel.contains(p) || postosAgua.contains(p) || habitacoes.contains(p) || floresta.contains(p));
     }
 
-    boolean posicoesAdjacentesLivres(Posicao pos){
+    List<Posicao> posicoesAdjacentesLivres(Posicao pos){
+        List<Posicao> res = new ArrayList<>();
         Posicao p1 = new Posicao (pos.pos_x-1,pos.pos_y+1);
         Posicao p2 = new Posicao (pos.pos_x,pos.pos_y+1);
         Posicao p3 = new Posicao (pos.pos_x+1,pos.pos_y+1);
@@ -49,7 +50,16 @@ public class Mapa {
         Posicao p7 = new Posicao (pos.pos_x,pos.pos_y-1);
         Posicao p8 = new Posicao (pos.pos_x+1,pos.pos_y-1);
 
-        return (posicaoLivre(p1) || posicaoLivre(p2) || posicaoLivre(p3) || posicaoLivre(p4) || posicaoLivre(p5) || posicaoLivre(p6) || posicaoLivre(p7) || posicaoLivre(p8));
+        if(insideDimensoes(p1) && posicaoLivre(p1)) res.add(p1);
+        if(insideDimensoes(p2) && posicaoLivre(p2)) res.add(p2);
+        if(insideDimensoes(p3) && posicaoLivre(p3)) res.add(p3);
+        if(insideDimensoes(p4) && posicaoLivre(p4)) res.add(p4);
+        if(insideDimensoes(p5) && posicaoLivre(p5)) res.add(p5);
+        if(insideDimensoes(p6) && posicaoLivre(p6)) res.add(p6);
+        if(insideDimensoes(p7) && posicaoLivre(p7)) res.add(p7);
+        if(insideDimensoes(p8) && posicaoLivre(p8)) res.add(p8);
+
+        return res;
     }
 
     boolean insideDimensoes(Posicao pos){
@@ -100,11 +110,13 @@ public class Mapa {
 
             int vizinhos = rand.nextInt(8); // não está preparado para ter mais do que os 8 vizinhos adjacentes
             for(int j=0; j<vizinhos; j++){
+                List<Posicao> adj;
+                if((adj = posicoesAdjacentesLivres(p)).isEmpty()) break;
                 Posicao pSide;
                 do{
-                    pSide = getRandSidePosition(p);
-                }while(!posicaoLivre(pSide) && p.equals(pSide) && !insideDimensoes(pSide) && !posicoesAdjacentesLivres(p));
-                if(!posicaoLivre(pSide) || p.equals(pSide) || !insideDimensoes(pSide) || !posicoesAdjacentesLivres(p)) break;
+                    pSide = getRandAdjacentPositions(adj);
+                    if(habitacoes.containsAll(adj)) break;
+                }while(!posicaoLivre(pSide));
                 habitacoes.add(pSide);
                 i++;
                 if(i==numHabitacoes) break;
@@ -121,13 +133,15 @@ public class Mapa {
             i++;
             if(i==numPontosFloresta) break;
 
-            int numPontosFlorestaVizinhos = rand.nextInt(8); // não está preparado para ter mais do que os 8 vizinhos adjacentes
-            for(int j=0; j<numPontosFlorestaVizinhos; j++){
+            int vizinhos = rand.nextInt(8); // não está preparado para ter mais do que os 8 vizinhos adjacentes
+            for(int j=0; j<vizinhos; j++){
+                List<Posicao> adj;
+                if((adj = posicoesAdjacentesLivres(p)).isEmpty()) break;
                 Posicao pSide;
                 do{
-                    pSide = getRandSidePosition(p);
-                }while(!posicaoLivre(pSide) && p.equals(pSide) && !insideDimensoes(pSide) && !posicoesAdjacentesLivres(p));
-                if(!posicaoLivre(pSide) || p.equals(pSide) || !insideDimensoes(pSide) || !posicoesAdjacentesLivres(p)) break;
+                    pSide = getRandAdjacentPositions(adj);
+                    if(floresta.containsAll(adj)) break;
+                }while(!posicaoLivre(pSide));
                 floresta.add(pSide);
                 i++;
                 if(i==numPontosFloresta) break;
@@ -219,17 +233,26 @@ public class Mapa {
         }
     }
 
-    public Posicao getRandSidePosition(Posicao pos) {
+    public Posicao getRandAdjacentPositions(List<Posicao> list){
+        Random rand = new Random();
+        Posicao res = list.get(rand.nextInt(list.size()));
+        return res;
+    }
+
+
+    public Posicao getRandAdjacentPosition(Posicao pos) {
         Random rand = new Random();
         float posx, posy;
-        do{
-            float x = rand.nextInt(3)-1;
-            posx = pos.pos_x + x;
-        } while(posx > size || posx == -1);
-        do{
-            float y = rand.nextInt(3)-1;
-            posy = pos.pos_y + y;
-        } while(posy > size || posy == -1);
+        do {
+            do {
+                float x = rand.nextInt(3) - 1;
+                posx = pos.pos_x + x;
+            } while (posx > size || posx == -1);
+            do {
+                float y = rand.nextInt(3) - 1;
+                posy = pos.pos_y + y;
+            } while (posy > size || posy == -1);
+        }while(posx == 0 && posy == 0);
         return new Posicao(posx,posy);
     }
 

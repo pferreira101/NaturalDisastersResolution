@@ -2,15 +2,19 @@ import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
+
+import java.util.ArrayList;
 import java.util.Date;
 import java.sql.Timestamp;
+import java.util.List;
 
 public class AgenteIncendiario extends Agent {
 
     Mapa mapa;
     int fireId;
     AID centralAgent;
-    int freqIncendio = 1500; // 1 incendio novo a cada x ms
+    int freqIncendio = 3000; // 1 incendio novo a cada x ms
+    int freqExpansao = 2000;
 
     protected void setup(){
         Object[] args = this.getArguments();
@@ -37,12 +41,13 @@ public class AgenteIncendiario extends Agent {
         Posicao p;
         do{
             p = mapa.getRandPosition();
-        }while(mapa.onFire(p) == true);
+        }while(mapa.onFire(p) || !mapa.posicaoLivre(p));
 
         Date date = new java.util.Date();
         Timestamp ts = new Timestamp(date.getTime());
-        FireAlert fa = new FireAlert(this.fireId++, p, ts);
-
+        FireAlert fa = new FireAlert(this.fireId, p, ts);
+        addBehaviour(new ExpansionFire(this, this.freqExpansao, p, this.fireId));
+        fireId++;
         try {
             sendAlert(centralAgent, fa);
         } catch (Exception e) {
@@ -50,6 +55,48 @@ public class AgenteIncendiario extends Agent {
         }
     }
 
+    class ExpansionFire extends TickerBehaviour{
+
+        int fireId;
+        List<Posicao> ultimasCelulasIncendiadas;
+
+
+        public ExpansionFire(Agent a, long period, Posicao celulaInicial ,int fireId) {
+            super(a, period);
+            this.ultimasCelulasIncendiadas = new ArrayList<>();
+            this.ultimasCelulasIncendiadas.add(celulaInicial);
+            this.fireId = fireId;
+        }
+
+        @Override
+        protected void onTick() {
+            expansionFire();
+        }
+
+        private void expansionFire(){
+            List<Posicao> celulasIncendiadas = new ArrayList<>();
+            Posicao pSide;
+
+            for(Posicao p : this.ultimasCelulasIncendiadas) {
+                do {
+                    pSide = mapa.getRandAdjacentPosition(p);
+                } while (mapa.onFire(pSide) || !mapa.insideDimensoes(pSide));
+
+                celulasIncendiadas.add(pSide);
+
+                // tirar para fora
+                FireAlert fa = new FireAlert(this.fireId, pSide);
+
+                try {
+                    sendAlert(centralAgent, fa);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            this.ultimasCelulasIncendiadas = celulasIncendiadas;
+
+        }
+    }
 
     private void sendAlert(AID central, FireAlert fa) throws Exception{
         ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
