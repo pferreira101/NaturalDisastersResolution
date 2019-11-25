@@ -112,12 +112,12 @@ public class Mapa {
             for(int j=0; j<vizinhos; j++){
                 List<Posicao> adj;
                 if((adj = posicoesAdjacentesLivres(p)).isEmpty()) break;
-                Posicao pSide;
+                Posicao pAdjacent;
                 do{
-                    pSide = getRandAdjacentPositions(adj);
+                    pAdjacent = getRandAdjacentPositions(adj);
                     if(habitacoes.containsAll(adj)) break;
-                }while(!posicaoLivre(pSide));
-                habitacoes.add(pSide);
+                }while(!posicaoLivre(pAdjacent));
+                habitacoes.add(pAdjacent);
                 i++;
                 if(i==numHabitacoes) break;
             }
@@ -137,12 +137,12 @@ public class Mapa {
             for(int j=0; j<vizinhos; j++){
                 List<Posicao> adj;
                 if((adj = posicoesAdjacentesLivres(p)).isEmpty()) break;
-                Posicao pSide;
+                Posicao pAdjacent;
                 do{
-                    pSide = getRandAdjacentPositions(adj);
+                    pAdjacent = getRandAdjacentPositions(adj);
                     if(floresta.containsAll(adj)) break;
-                }while(!posicaoLivre(pSide));
-                floresta.add(pSide);
+                }while(!posicaoLivre(pAdjacent));
+                floresta.add(pAdjacent);
                 i++;
                 if(i==numPontosFloresta) break;
             }

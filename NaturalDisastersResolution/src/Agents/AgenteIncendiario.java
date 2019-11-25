@@ -75,17 +75,17 @@ public class AgenteIncendiario extends Agent {
 
         private void expansionFire(){
             List<Posicao> celulasIncendiadas = new ArrayList<>();
-            Posicao pSide;
+            Posicao pAdjacent;
 
             for(Posicao p : this.ultimasCelulasIncendiadas) {
                 do {
-                    pSide = mapa.getRandAdjacentPosition(p);
-                } while (mapa.onFire(pSide) || !mapa.insideDimensoes(pSide));
+                    pAdjacent = mapa.getRandAdjacentPosition(p);
+                } while (mapa.onFire(pAdjacent) || !mapa.insideDimensoes(pAdjacent));
 
-                celulasIncendiadas.add(pSide);
+                celulasIncendiadas.add(pAdjacent);
 
                 // tirar para fora
-                FireAlert fa = new FireAlert(this.fireId, pSide);
+                FireAlert fa = new FireAlert(this.fireId, pAdjacent);
 
                 try {
                     sendAlert(centralAgent, fa);
