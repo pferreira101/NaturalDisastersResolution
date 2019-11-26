@@ -5,10 +5,6 @@ import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
 
 import java.sql.Time;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
 
 
 public class AgenteInterface extends Agent {
@@ -44,7 +40,7 @@ public class AgenteInterface extends Agent {
                     System.out.println(new Time(System.currentTimeMillis()) + ": Resposta recebida");
 
                     try {
-                        SimulationStatus stats = (SimulationStatus) msg.getContentObject();
+                        DeltaSimulationStatus stats = (DeltaSimulationStatus) msg.getContentObject();
                         updateGui(stats);
                     }
                     catch (Exception e){
@@ -80,7 +76,7 @@ public class AgenteInterface extends Agent {
         send(msg);
     }
 
-    private void updateGui(SimulationStatus stats) {
+    private void updateGui(DeltaSimulationStatus stats) {
         this.gui.mapGrid.updateGrid(stats);
     }
 }

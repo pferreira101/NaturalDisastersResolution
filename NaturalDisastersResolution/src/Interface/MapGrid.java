@@ -1,7 +1,6 @@
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import java.awt.*;
-import java.sql.Time;
 import java.util.List;
 
 public class MapGrid {
@@ -63,9 +62,9 @@ public class MapGrid {
     }
 
 
-    public void updateGrid(SimulationStatus stats) {
-        // so incendios por enquanto
-        stats.incendiosAtivos.stream().forEach(incendio -> drawMapObjects(FOGO, incendio.areaAfetada));
+    public void updateGrid(DeltaSimulationStatus stats) {
+        drawMapObjects(FOGO, stats.novosIncendios);
+        drawMapObjects(AGUA, stats.celulasApagadas);
     }
 
 }

@@ -4,7 +4,6 @@ import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.lang.acl.ACLMessage;
 
-import javax.swing.text.Position;
 import java.io.IOException;
 import java.sql.Time;
 import java.util.*;
@@ -13,6 +12,7 @@ public class AgenteCentral extends Agent {
 
     Mapa mapa;
     Map<AID, AgentStatus> agents;
+    DeltaSimulationStatus dss;
     int taskId;
 
     protected void setup(){
@@ -25,6 +25,7 @@ public class AgenteCentral extends Agent {
 
         addBehaviour(new ReceiveInfo());
         this.agents = new HashMap<>();
+        this.dss = new DeltaSimulationStatus();
     }
 
     /**
@@ -113,12 +114,20 @@ public class AgenteCentral extends Agent {
             this.mapa.atualizaIncendio(fa);
         }
 
+        this.dss.novosIncendios.add(fa.celulaIgnicao);
+
         alocaRecursos(this.mapa.incendios.get(fa.fireID));
     }
 
 
-    private void atualizarEstadoAgente(AID agent,AgentStatus status) {
+    private void atualizarEstadoAgente(AID agent, AgentStatus status) {
+        // registar celulas apagadas
+        status.tarefas.stream().
+                filter(tarefa -> tarefa.tipo == Tarefa.APAGAR).
+                forEach(tarefa -> this.dss.celulasApagadas.add(tarefa.posicao));
+
         AgentStatus as = this.agents.get(agent);
+
         if(as != null)
             as.atualizarEstado(status);
         else
@@ -153,15 +162,15 @@ public class AgenteCentral extends Agent {
 
 
     private void sendSimulationInfo(ACLMessage msg) {
-        SimulationStatus status = new SimulationStatus(this.mapa.incendios.values(), this.agents.values());
         ACLMessage reply = msg.createReply();
         reply.setPerformative(ACLMessage.INFORM);
         try {
-            reply.setContentObject(status);
+            reply.setContentObject(this.dss);
         } catch (IOException e) {
             e.printStackTrace();
         }
         send(reply);
+        this.dss = new DeltaSimulationStatus(); // reset ao objeto para guardar apenas novas alteracoes
     }
 
 
