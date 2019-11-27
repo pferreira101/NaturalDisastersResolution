@@ -1,23 +1,12 @@
 import javax.swing.*;
-import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.util.List;
 
 public class MapGrid {
 
-    static final String CASA = "imgs/casa.png";
-    static final String FLORESTA = "imgs/arvore.png";
-    static final String AGUA = "imgs/agua.png" ;
-    static final String COMBUSTIVEL = "imgs/gota.png";
-    static final String FOGO = "imgs/fogo.png";
-    static final String AERONAVE = "imgs/aeronave.png";
-    static final String CAMIAO = "imgs/camiao.png";
-    static final String DRONE = "imgs/drone.png";
-    static final String FOGOAPAGADO = "imgs/fogoapagado.png";
-
 
     JPanel panel;
-    JLabel[][] grid;
+    GridCell[][] grid;
     Mapa mapa;
 
     MapGrid(Mapa mapa){
@@ -25,7 +14,7 @@ public class MapGrid {
         this.panel = new JPanel();
         this.panel.setLayout(new GridLayout(this.mapa.size, this.mapa.size));
         this.panel.setBounds(GUIConfig.MAP_GRID_X_POS, GUIConfig.MAP_GRID_Y_POS, GUIConfig.MAP_GRID_WIDTH, GUIConfig.MAP_GRID_HEIGHT);
-        this.grid = new JLabel[this.mapa.size][this.mapa.size];
+        this.grid = new GridCell[this.mapa.size][this.mapa.size];
 
         initializeMapGrid();
     }
@@ -33,27 +22,23 @@ public class MapGrid {
     private void initializeMapGrid(){
         for (int i = 0; i < this.mapa.size; i++){
             for (int j = 0; j < this.mapa.size; j++){
-                grid[i][j] = new JLabel();
-                grid[i][j].setBorder(new LineBorder(Color.BLACK));
-                grid[i][j].setHorizontalAlignment(SwingConstants.CENTER);
-                grid[i][j].setVerticalAlignment(SwingConstants.CENTER);
-                grid[i][j].setOpaque(true);
-                // grid[i][j].setText("(" + i +","+ j +")"); // descomentar esta linha para mostrar indice das células
-                panel.add(grid[i][j]);
+                grid[i][j] = new GridCell(this.mapa.size);
+                //grid[i][j].setText("(" + i +","+ j +")"); // descomentar esta linha para mostrar indice das células
+                panel.add(grid[i][j].gridCell);
             }
         }
 
-        drawMapObjects(CASA, mapa.habitacoes);
-        drawMapObjects(FLORESTA, mapa.floresta);
-        drawMapObjects(COMBUSTIVEL, mapa.postosCombustivel);
-        drawMapObjects(AGUA, mapa.postosAgua);
+        drawMapObjects(GridCell.CASA, mapa.habitacoes);
+        drawMapObjects(GridCell.FLORESTA, mapa.floresta);
+        drawMapObjects(GridCell.COMBUSTIVEL, mapa.postosCombustivel);
+        drawMapObjects(GridCell.AGUA, mapa.postosAgua);
     }
 
     private void drawMapObjects(String objectType, List<Posicao> objectPositions){
         for(Posicao p : objectPositions){
-            JLabel gridCell =  this.grid[(int)p.pos_x][(int)p.pos_y];
+            GridCell gridCell =  this.grid[(int)p.pos_x][(int)p.pos_y];
             gridCell.setText("");
-            gridCell.setIcon(scaleImage((new ImageIcon(objectType)),794/mapa.size,642/mapa.size));
+            gridCell.setBaseImage(objectType);
         }
     }
 
@@ -61,39 +46,46 @@ public class MapGrid {
         String objectType = null;
         for(AgentStatus  as : agentStatus){
             if(as.ultimaPosicao != null){
-                JLabel previousGridCell =  this.grid[(int)as.ultimaPosicao.pos_x][(int)as.ultimaPosicao.pos_y];
-                previousGridCell.setIcon(scaleImage((new ImageIcon(AERONAVE)),794/mapa.size,642/mapa.size));
+                GridCell previousGridCell =  this.grid[(int)as.ultimaPosicao.pos_x][(int)as.ultimaPosicao.pos_y];
+                previousGridCell.restoreImage();// colocar a imagem que la estava antes da passagem do agente
             }
 
-            JLabel gridCell =  this.grid[(int)as.posAtual.pos_x][(int)as.posAtual.pos_y];
+            GridCell gridCell =  this.grid[(int)as.posAtual.pos_x][(int)as.posAtual.pos_y];
             gridCell.setText("");
             switch(as.tipo) {
-                case 0: objectType=AERONAVE;
+                case 0: objectType = GridCell.AERONAVE;
                         break;
-                case 1: objectType=CAMIAO;
+                case 1: objectType = GridCell.CAMIAO;
                     break;
-                case 2: objectType=DRONE;
+                case 2: objectType = GridCell.DRONE;
                     break;   
             }
             
-            gridCell.setIcon(scaleImage((new ImageIcon(objectType)),794/mapa.size,642/mapa.size));
+            gridCell.setImage(objectType);
         }
         
     }
 
-
-
-    private static ImageIcon scaleImage(ImageIcon srcImg, int w, int h){
-        Image image = srcImg.getImage(); // transform it
-        Image newimg = image.getScaledInstance(w, h,  java.awt.Image.SCALE_SMOOTH); // scale it the smooth way
-        ImageIcon imageIcon = new ImageIcon(newimg);
-        return imageIcon;
+    private void drawNewFires(List<Posicao> celulas) {
+        for(Posicao p : celulas){
+            GridCell gridCell =  this.grid[(int)p.pos_x][(int)p.pos_y];
+            gridCell.setFireImage();
+        }
     }
 
+    private void drawExtinguishedFires(List<Posicao> celulasApagadas) {
+        for(Posicao p : celulasApagadas){
+            GridCell gridCell =  this.grid[(int)p.pos_x][(int)p.pos_y];
+            gridCell.setBurntImage();
+        }
+    }
+
+
+
     public void updateGrid(DeltaSimulationStatus stats) {
-        drawMapObjects(FOGO, stats.novosIncendios);
+        drawNewFires(stats.novosIncendios);
         drawAgents(stats.estadoAgentes);
-        drawMapObjects(FOGOAPAGADO, stats.celulasApagadas);
+        drawExtinguishedFires(stats.celulasApagadas);
     }
 
 }

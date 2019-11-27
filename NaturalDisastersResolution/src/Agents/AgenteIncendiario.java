@@ -11,8 +11,8 @@ public class AgenteIncendiario extends Agent {
     Mapa mapa;
     int fireId;
     AID centralAgent;
-    int freqIncendio = 3000; // 1 incendio novo a cada x ms
-    int freqExpansao = 2000;
+    int freqIncendio = 5000; // 1 incendio novo a cada x ms
+    int freqExpansao = 90000;
     Set<Integer> incendiosAtivos;
 
     protected void setup(){
@@ -43,7 +43,7 @@ public class AgenteIncendiario extends Agent {
 
         do{
             p = mapa.getRandPosition();
-        }while(mapa.onFire(p) || !mapa.posicaoLivre(p));
+        }while(mapa.onFire(p) /*|| !mapa.posicaoLivre(p)*/);
 
         Date date = new java.util.Date();
         Timestamp ts = new Timestamp(date.getTime());

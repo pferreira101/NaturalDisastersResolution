@@ -97,8 +97,7 @@ public class AgenteParticipativo extends Agent {
         Random rand = new Random();
         int op = rand.nextInt(2);
 
-        if (op == 1 )Thread.sleep(4000);
-        else Thread.sleep(1000);
+        Thread.sleep(1000);
 
 
         this.disponivel = true;
@@ -163,7 +162,7 @@ public class AgenteParticipativo extends Agent {
                 this.posAtual.pos_y--;
             }
 
-            int tempoDeMovimento = (1/this.velocidade)*1000;
+            int tempoDeMovimento = (4/this.velocidade)*1000;
             Thread.sleep(tempoDeMovimento);
             this.combustivelDisponivel--;
 

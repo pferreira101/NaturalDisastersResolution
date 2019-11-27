@@ -40,6 +40,7 @@ public class AgentStatus implements Serializable {
 
     void atualizarEstado(AgentStatus novoEstado){
         this.posAtual = novoEstado.posAtual;
+        this.ultimaPosicao = novoEstado.ultimaPosicao;
         this.aguaDisponivel = novoEstado.aguaDisponivel;
         this.combustivelDisponivel = novoEstado.combustivelDisponivel;
         this.disponivel = novoEstado.disponivel;

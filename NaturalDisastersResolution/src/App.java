@@ -2,14 +2,14 @@ import java.util.List;
 
 public class App {
 
-    static int nDrones = 0;
+    static int nDrones = 1;
     static int nCamioes = 1;
-    static int nAeronaves = 0;
-    static int tamanhoMapa = 15;
-    static int numPostosComb = 4;
-    static int numPostosAgua = 20;
-    static int numHabitacoes = 30;
-    static int numPontosFloresta = 20;
+    static int nAeronaves = 1;
+    static int tamanhoMapa = 10;
+    static int numPostosComb = 1;
+    static int numPostosAgua = 1;
+    static int numHabitacoes = 5;
+    static int numPontosFloresta = 90;
 
     public static void main(String[] args) throws Exception {
 

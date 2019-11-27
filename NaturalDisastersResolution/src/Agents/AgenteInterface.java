@@ -22,7 +22,7 @@ public class AgenteInterface extends Agent {
 
         this.mapa = (Mapa) args[0];
 
-        this.centralAgent = DFManager.findAgent(this, "Central");
+        //this.centralAgent = DFManager.findAgent(this, "Central");
 
         this.gui = new GUI(mapa);
         gui.getFrame().setVisible(true);
@@ -69,8 +69,9 @@ public class AgenteInterface extends Agent {
     }
 
     private void requestInfo() {
+        AID central = DFManager.findAgent(this, "Central");
         ACLMessage msg = new ACLMessage(ACLMessage.QUERY_REF);
-        msg.addReceiver(this.centralAgent);
+        msg.addReceiver(central);
         msg.setContent("1");
         send(msg);
     }
