@@ -60,7 +60,7 @@ public class MapGrid {
     private void drawAgents(List<AgentStatus> agentStatus){
         String objectType = null;
         for(AgentStatus  as : agentStatus){
-            JLabel gridCell =  this.grid[(int)as.pos.pos_x][(int)as.pos.pos_y];
+            JLabel gridCell =  this.grid[(int)as.posAtual.pos_x][(int)as.posAtual.pos_y];
             gridCell.setText("");
             switch(as.tipo) {
                 case 0: objectType=AERONAVE;

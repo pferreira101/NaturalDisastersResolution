@@ -11,13 +11,20 @@ public class AgenteParticipativo extends Agent {
 
     AID centralAgent;
     Mapa mapa;
-    Posicao pos;
+
+    Posicao posAtual;
+    Posicao posAnterior;
+
     boolean disponivel;
+
     int capacidadeMaxAgua;
     int capacidadeMaxCombustivel;
+
     int aguaDisponivel;
     int combustivelDisponivel;
+
     int velocidade;
+
     Queue<Tarefa> tarefasAgendadas;
     List<Tarefa> tarefasRealizadas;
 
@@ -36,7 +43,7 @@ public class AgenteParticipativo extends Agent {
         Object[] args = this.getArguments();
 
         this.mapa = (Mapa) args[0];
-        this.pos = (Posicao)args[1];
+        this.posAtual = (Posicao)args[1];
 
         this.tarefasAgendadas = new LinkedList<>();
         this.tarefasRealizadas = new ArrayList<>();
@@ -71,28 +78,12 @@ public class AgenteParticipativo extends Agent {
 
     }
 
-    private void sendCurrentStatus() {
-        ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
-        msg.addReceiver(this.centralAgent);
-
-        try{
-            msg.setContentObject(new AgentStatus(this, this.pos, this.aguaDisponivel, this.combustivelDisponivel, this.disponivel, this.tarefasRealizadas));
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
-        send(msg);
-
-        // limpar lista de tarefas realizadas
-        this.tarefasRealizadas = new ArrayList<>();
-    }
-
     // este método nao pode ser assim depois
     private void performTasks(Queue<Tarefa> tarefas) throws Exception {
         while(tarefas.peek() != null) {
             Tarefa t = tarefas.poll();
 
-            movementToPosition(t);
+            moveToPosition(t);
 
             if(t.tipo == Tarefa.APAGAR)
                 apagarFogo(t);
@@ -105,11 +96,6 @@ public class AgenteParticipativo extends Agent {
     private void apagarFogo(Tarefa t) throws Exception{
         Random rand = new Random();
         int op = rand.nextInt(2);
-
-        Posicao p = t.posicao;
-
-        this.disponivel = false;
-
 
         if (op == 1 )Thread.sleep(4000);
         else Thread.sleep(1000);
@@ -130,7 +116,6 @@ public class AgenteParticipativo extends Agent {
 
     private void abastecer(Tarefa t) throws Exception{
 
-        this.disponivel = false;
         Thread.sleep(1000);
 
         this.disponivel = true;
@@ -142,42 +127,64 @@ public class AgenteParticipativo extends Agent {
         this.tarefasRealizadas.add(t);
     }
 
-    private void movementToPosition(Tarefa t) throws InterruptedException {
-        while(!this.pos.equals(t.posicao)){
-            if(this.pos.pos_x == t.posicao.pos_x && this.pos.pos_y > t.posicao.pos_y) {
-                this.pos.pos_y--;
+    private void moveToPosition(Tarefa t) throws InterruptedException {
+        this.disponivel = false;
+
+        while(!this.posAtual.equals(t.posicao)){
+
+            Posicao posAntiga =  new Posicao(this.posAtual.pos_x, this.posAtual.pos_y);
+
+            if(this.posAtual.pos_x == t.posicao.pos_x && this.posAtual.pos_y > t.posicao.pos_y) {
+                this.posAtual.pos_y--;
             }
-            if(this.pos.pos_x == t.posicao.pos_x && this.pos.pos_y < t.posicao.pos_y) {
-                this.pos.pos_y++;
+            if(this.posAtual.pos_x == t.posicao.pos_x && this.posAtual.pos_y < t.posicao.pos_y) {
+                this.posAtual.pos_y++;
             }
-            if(this.pos.pos_x > t.posicao.pos_x && this.pos.pos_y == t.posicao.pos_y) {
-                this.pos.pos_x--;
+            if(this.posAtual.pos_x > t.posicao.pos_x && this.posAtual.pos_y == t.posicao.pos_y) {
+                this.posAtual.pos_x--;
             }
-            if(this.pos.pos_x < t.posicao.pos_x && this.pos.pos_y == t.posicao.pos_y) {
-                this.pos.pos_x++;
+            if(this.posAtual.pos_x < t.posicao.pos_x && this.posAtual.pos_y == t.posicao.pos_y) {
+                this.posAtual.pos_x++;
             }
-            if(this.pos.pos_x > t.posicao.pos_x && this.pos.pos_y > t.posicao.pos_y) {
-                this.pos.pos_x++;
-                this.pos.pos_y++;
+            if(this.posAtual.pos_x > t.posicao.pos_x && this.posAtual.pos_y > t.posicao.pos_y) {
+                this.posAtual.pos_x++;
+                this.posAtual.pos_y++;
             }
-            if(this.pos.pos_x < t.posicao.pos_x && this.pos.pos_y < t.posicao.pos_y) {
-                this.pos.pos_x--;
-                this.pos.pos_y--;
+            if(this.posAtual.pos_x < t.posicao.pos_x && this.posAtual.pos_y < t.posicao.pos_y) {
+                this.posAtual.pos_x--;
+                this.posAtual.pos_y--;
             }
-            if(this.pos.pos_x > t.posicao.pos_x && this.pos.pos_y < t.posicao.pos_y) {
-                this.pos.pos_x--;
-                this.pos.pos_y++;
+            if(this.posAtual.pos_x > t.posicao.pos_x && this.posAtual.pos_y < t.posicao.pos_y) {
+                this.posAtual.pos_x--;
+                this.posAtual.pos_y++;
             }
-            if(this.pos.pos_x < t.posicao.pos_x && this.pos.pos_y > t.posicao.pos_y) {
-                this.pos.pos_x++;
-                this.pos.pos_y--;
+            if(this.posAtual.pos_x < t.posicao.pos_x && this.posAtual.pos_y > t.posicao.pos_y) {
+                this.posAtual.pos_x++;
+                this.posAtual.pos_y--;
             }
 
             Thread.sleep(500);
             this.combustivelDisponivel--;
 
+
             sendCurrentStatus();
         }
+    }
+
+    private void sendCurrentStatus() {
+        ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+        msg.addReceiver(this.centralAgent);
+
+        try{
+            msg.setContentObject(new AgentStatus(this));
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        send(msg);
+
+        // limpar lista de tarefas realizadas
+        this.tarefasRealizadas = new ArrayList<>();
     }
 
     private void addOperacao(Tarefa p){

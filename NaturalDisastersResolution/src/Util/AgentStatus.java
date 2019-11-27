@@ -7,30 +7,23 @@ import java.util.List;
 public class AgentStatus implements Serializable {
 
     AID aid;
-    Posicao pos;
+    Posicao posAtual;
+    Posicao ultimaPosicao;
     int aguaDisponivel;
     int combustivelDisponivel;
     boolean disponivel;
     List<Tarefa> tarefas;
     int tipo;
-/*
-tipos de agente
-0 = aeronave
-1 = camiao
-2 = drone
- */
-    Posicao getPos() {
-        return this.pos;
-    }
 
 
-    AgentStatus(Agent agent, Posicao pos, int aguaDisponivel, int combustivelDisponivel, boolean disponivel, List<Tarefa> tarefas){
+    AgentStatus(AgenteParticipativo agent){
         this.aid = agent.getAID();
-        this.pos = pos;
-        this.aguaDisponivel = aguaDisponivel;
-        this.combustivelDisponivel = combustivelDisponivel;
-        this.disponivel = disponivel;
-        this.tarefas = tarefas;
+        this.posAtual = agent.posAtual;
+        this.ultimaPosicao = agent.posAnterior;
+        this.aguaDisponivel = agent.aguaDisponivel;
+        this.combustivelDisponivel = agent.combustivelDisponivel;
+        this.disponivel = agent.disponivel;
+        this.tarefas = agent.tarefasRealizadas;
 
         if(agent instanceof Aeronave)
             tipo = 0;
@@ -45,7 +38,7 @@ tipos de agente
     }
 
     void atualizarEstado(AgentStatus novoEstado){
-        this.pos = novoEstado.pos;
+        this.posAtual = novoEstado.posAtual;
         this.aguaDisponivel = novoEstado.aguaDisponivel;
         this.combustivelDisponivel = novoEstado.combustivelDisponivel;
         this.disponivel = novoEstado.disponivel;

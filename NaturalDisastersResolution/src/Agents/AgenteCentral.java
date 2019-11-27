@@ -139,7 +139,7 @@ public class AgenteCentral extends Agent {
         Posicao p = incendio.areaAfetada.get(0);
 
         for (AgentStatus ap : this.agents.values()) {
-            int distance = Posicao.distanceBetween(ap.pos, p);
+            int distance = Posicao.distanceBetween(ap.posAtual, p);
             if (ap.disponivel && distance < minDistance) {
                 minDistance = distance;
                 closestAgent = ap.aid;
