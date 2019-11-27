@@ -147,12 +147,12 @@ public class AgenteParticipativo extends Agent {
                 this.posAtual.pos_x++;
             }
             if(this.posAtual.pos_x > t.posicao.pos_x && this.posAtual.pos_y > t.posicao.pos_y) {
-                this.posAtual.pos_x++;
-                this.posAtual.pos_y++;
-            }
-            if(this.posAtual.pos_x < t.posicao.pos_x && this.posAtual.pos_y < t.posicao.pos_y) {
                 this.posAtual.pos_x--;
                 this.posAtual.pos_y--;
+            }
+            if(this.posAtual.pos_x < t.posicao.pos_x && this.posAtual.pos_y < t.posicao.pos_y) {
+                this.posAtual.pos_x++;
+                this.posAtual.pos_y++;
             }
             if(this.posAtual.pos_x > t.posicao.pos_x && this.posAtual.pos_y < t.posicao.pos_y) {
                 this.posAtual.pos_x--;
@@ -163,7 +163,8 @@ public class AgenteParticipativo extends Agent {
                 this.posAtual.pos_y--;
             }
 
-            Thread.sleep(500);
+            int tempoDeMovimento = (1/this.velocidade)*1000;
+            Thread.sleep(tempoDeMovimento);
             this.combustivelDisponivel--;
 
 

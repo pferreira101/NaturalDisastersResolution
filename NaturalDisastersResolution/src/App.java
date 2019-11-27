@@ -2,9 +2,9 @@ import java.util.List;
 
 public class App {
 
-    static int nDrones = 10;
-    static int nCamioes = 5;
-    static int nAeronaves = 2;
+    static int nDrones = 0;
+    static int nCamioes = 1;
+    static int nAeronaves = 0;
     static int tamanhoMapa = 15;
     static int numPostosComb = 4;
     static int numPostosAgua = 20;
