@@ -20,6 +20,6 @@ public class FireAlert implements Serializable {
 
     @Override
     public String toString() {
-        return "Fogo "+ fireID +" iniciado na célula " + celulaIgnicao.toString() +", no momento " + inicioFogo.toString();
+        return "Fogo "+ fireID +" iniciado na célula " + celulaIgnicao.toString();
     }
 }

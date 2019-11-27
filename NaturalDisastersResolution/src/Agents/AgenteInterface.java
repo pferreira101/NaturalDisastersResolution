@@ -37,7 +37,6 @@ public class AgenteInterface extends Agent {
             if (msg != null) {
                 String sendersName = msg.getSender().getLocalName();
                 if (sendersName.equals("Central") && msg.getPerformative() == ACLMessage.INFORM) {
-                    System.out.println(new Time(System.currentTimeMillis()) + ": Resposta recebida");
 
                     try {
                         DeltaSimulationStatus stats = (DeltaSimulationStatus) msg.getContentObject();

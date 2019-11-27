@@ -47,7 +47,6 @@ public class MapGrid {
 
     private void drawMapObjects(String objectType, List<Posicao> objectPositions){
         for(Posicao p : objectPositions){
-            System.out.println(p + " " + objectType);
             JLabel gridCell =  this.grid[(int)p.pos_x][(int)p.pos_y];
             gridCell.setText("");
             gridCell.setIcon(scaleImage((new ImageIcon(objectType)),794/mapa.size,642/mapa.size));
