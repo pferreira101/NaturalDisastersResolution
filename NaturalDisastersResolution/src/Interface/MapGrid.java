@@ -13,6 +13,8 @@ public class MapGrid {
     static final String AERONAVE = "imgs/aeronave.png";
     static final String CAMIAO = "imgs/camiao.png";
     static final String DRONE = "imgs/drone.png";
+    static final String FOGOAPAGADO = "imgs/fogoapagado.png";
+
 
     JPanel panel;
     JLabel[][] grid;
@@ -86,8 +88,8 @@ public class MapGrid {
 
     public void updateGrid(DeltaSimulationStatus stats) {
         drawMapObjects(FOGO, stats.novosIncendios);
-        drawMapObjects(AGUA, stats.celulasApagadas);
         drawAgents(stats.estadoAgentes);
+        drawMapObjects(FOGOAPAGADO, stats.celulasApagadas);
     }
 
 }
