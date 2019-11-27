@@ -5,12 +5,20 @@ public class Tarefa implements Serializable {
     final static int ABASTECER = 1;
     final static int APAGAR = 2;
 
-    int id;
+    int taskId;
     int tipo;
+    int fireId;
     Posicao posicao;
 
     Tarefa(int id, int op, Posicao p){
-        this.id = id;
+        this.taskId = id;
+        this.tipo = op;
+        this.posicao = p;
+    }
+
+    Tarefa(int id, int op, int fireId, Posicao p){
+        this.taskId = id;
+        this.fireId = fireId;
         this.tipo = op;
         this.posicao = p;
     }
@@ -24,7 +32,7 @@ public class Tarefa implements Serializable {
     public boolean equals(Object o){
         if(o instanceof Tarefa){
             Tarefa t = (Tarefa) o;
-            return this.id == t.id;
+            return this.taskId == t.taskId;
         }
         else return false;
     }

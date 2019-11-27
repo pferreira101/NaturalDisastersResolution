@@ -23,6 +23,7 @@ tipos de agente
         return this.pos;
     }
 
+
     AgentStatus(Agent agent, Posicao pos, int aguaDisponivel, int combustivelDisponivel, boolean disponivel, List<Tarefa> tarefas){
         this.aid = agent.getAID();
         this.pos = pos;

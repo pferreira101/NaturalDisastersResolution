@@ -68,7 +68,7 @@ public class AgenteCentral extends Agent {
     private class AssignTask extends OneShotBehaviour {
 
         private AID agent;
-        private LinkedList<Tarefa> tarefas; // List<Posicao> no futuro
+        private LinkedList<Tarefa> tarefas;
 
         public AssignTask(AID agentAID, Tarefa... tarefas) {
             this.tarefas = new LinkedList<>();
@@ -77,7 +77,9 @@ public class AgenteCentral extends Agent {
             Arrays.stream(tarefas).forEach(t -> {
                 this.tarefas.add(t);
                 registaTarefa(agent, t);
-                System.out.println(new Time(System.currentTimeMillis()) + ": " + agent.getLocalName() + " --- mandado " + t.toString());
+
+                //System.out.println(new Time(System.currentTimeMillis()) +  ": "+ agent.getLocalName() + " --- mandado " + t.toString());
+
             });
         }
 
@@ -101,8 +103,8 @@ public class AgenteCentral extends Agent {
      */
 
     private void processFireAlert(FireAlert fa) {
-
-        if (this.mapa.incendios.get(fa.fireID) == null) {
+        System.out.println(fa.toString());
+        if(this.mapa.incendios.get(fa.fireID) == null){
             this.mapa.registaIncendio(fa);
         } else {
             this.mapa.atualizaIncendio(fa);
@@ -144,7 +146,7 @@ public class AgenteCentral extends Agent {
             }
         }
 
-        Tarefa t = new Tarefa(taskId++, Tarefa.APAGAR, p);
+        Tarefa t = new Tarefa(taskId++, Tarefa.APAGAR, incendio.fireId, p);
         Tarefa t2 = new Tarefa(taskId++, Tarefa.ABASTECER, p); // apenas esta aqui para testar se as tarefas no central sao marcadas como resolvidas corretamente
         this.addBehaviour(new AssignTask(closestAgent, t, t2));
     }

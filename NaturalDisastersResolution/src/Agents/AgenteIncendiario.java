@@ -3,10 +3,8 @@ import jade.core.Agent;
 import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
 
-import java.util.ArrayList;
-import java.util.Date;
+import java.util.*;
 import java.sql.Timestamp;
-import java.util.List;
 
 public class AgenteIncendiario extends Agent {
 
@@ -15,6 +13,7 @@ public class AgenteIncendiario extends Agent {
     AID centralAgent;
     int freqIncendio = 3000; // 1 incendio novo a cada x ms
     int freqExpansao = 2000;
+    Set<Integer> incendiosAtivos;
 
     protected void setup(){
         Object[] args = this.getArguments();
@@ -22,6 +21,8 @@ public class AgenteIncendiario extends Agent {
         this.mapa = (Mapa) args[0];
         this.fireId=0;
         this.centralAgent = DFManager.findAgent(this, "Central");
+        this.incendiosAtivos = new TreeSet<>();
+
         addBehaviour(new PlaceFire(this, this.freqIncendio));
     }
 
@@ -39,6 +40,7 @@ public class AgenteIncendiario extends Agent {
 
     private void placeFire() {
         Posicao p;
+
         do{
             p = mapa.getRandPosition();
         }while(mapa.onFire(p) || !mapa.posicaoLivre(p));
@@ -46,34 +48,49 @@ public class AgenteIncendiario extends Agent {
         Date date = new java.util.Date();
         Timestamp ts = new Timestamp(date.getTime());
         FireAlert fa = new FireAlert(this.fireId, p, ts);
-        addBehaviour(new ExpansionFire(this, this.freqExpansao, p, this.fireId));
-        fireId++;
+
+        System.out.println("****** a iniciar fogo "+ this.fireId);
+
         try {
             sendAlert(centralAgent, fa);
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        addBehaviour(new SpreadFire(this, this.freqExpansao, p, this.fireId));
+        this.incendiosAtivos.add(fireId);
+
+        fireId++;
     }
 
-    class ExpansionFire extends TickerBehaviour{
+    class SpreadFire extends TickerBehaviour {
 
+        AgenteIncendiario agenteIncendiario;
         int fireId;
         List<Posicao> ultimasCelulasIncendiadas;
 
 
-        public ExpansionFire(Agent a, long period, Posicao celulaInicial ,int fireId) {
+        public SpreadFire(AgenteIncendiario a, long period, Posicao celulaInicial , int fireId) {
             super(a, period);
+            this.agenteIncendiario = a;
             this.ultimasCelulasIncendiadas = new ArrayList<>();
             this.ultimasCelulasIncendiadas.add(celulaInicial);
             this.fireId = fireId;
         }
 
         @Override
-        protected void onTick() {
-            expansionFire();
+        protected void onTick(){
+            if(mapa.isFireActive(this.fireId)){
+                spreadFire();
+                System.out.println("****** a expandir fogo "+ this.fireId);
+            }
+            else {
+                System.out.println("****** a parar de expandir fogo "+ this.fireId);
+                agenteIncendiario.removeBehaviour(this);
+            }
         }
 
-        private void expansionFire(){
+        private void spreadFire(){
             List<Posicao> celulasIncendiadas = new ArrayList<>();
             Posicao pAdjacent;
 
@@ -97,6 +114,7 @@ public class AgenteIncendiario extends Agent {
                     e.printStackTrace();
                 }
             }
+
             this.ultimasCelulasIncendiadas = celulasIncendiadas;
 
         }

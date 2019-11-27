@@ -4,10 +4,7 @@ import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 
 import java.sql.Time;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 
 
 public class AgenteParticipativo extends Agent {
@@ -106,15 +103,24 @@ public class AgenteParticipativo extends Agent {
     }
 
     private void apagarFogo(Tarefa t) throws Exception{
+        Random rand = new Random();
+        int op = rand.nextInt(2);
 
         this.disponivel = false;
-        Thread.sleep(1000);
+
+
+        if (op == 1 )Thread.sleep(4000);
+        else Thread.sleep(1000);
+
 
         this.disponivel = true;
         this.aguaDisponivel--;
 
-        System.out.println(new Time(System.currentTimeMillis()) + ": "+this.getAID().getLocalName()  + " --- Apagou célula " + this.pos.toString() + " (agua: " + this.aguaDisponivel + " ,combustivel: " + this.combustivelDisponivel + ")");
 
+        // System.out.println(new Time(System.currentTimeMillis()) + ": "+this.getAID().getLocalName()  + " --- Apagou célula " + p.toString() + " (agua: " + this.aguaDisponivel + " ,combustivel: " + this.combustivelDisponivel + ")");
+
+        System.out.println("Agente a registar que apagou a celula " + t.posicao + ", no fogo "+t.fireId);
+        this.mapa.registaCelulaApagada(t.fireId, t.posicao);
         this.tarefasRealizadas.add(t);
     }
 
@@ -129,7 +135,7 @@ public class AgenteParticipativo extends Agent {
         this.aguaDisponivel = this.capacidadeMaxAgua;
         this.combustivelDisponivel = this.capacidadeMaxCombustivel;
 
-        System.out.println(new Time(System.currentTimeMillis()) + ": "+this.getAID().getLocalName()  + " --- Abasteceu em " + this.pos.toString() + " (agua: " + this.aguaDisponivel + " ,combustivel: " + this.combustivelDisponivel + ")");
+        //System.out.println(new Time(System.currentTimeMillis()) + ": "+this.getAID().getLocalName()  + " --- Abasteceu em " + p.toString() + " (agua: " + this.aguaDisponivel + " ,combustivel: " + this.combustivelDisponivel + ")");
 
         this.tarefasRealizadas.add(t);
     }

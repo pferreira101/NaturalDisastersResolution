@@ -274,6 +274,10 @@ public class Mapa {
         return posicoes;
     }
 
+    boolean isFireActive(int fireId){
+        return this.incendios.get(fireId).areaAfetada.size() != 0;
+    }
+
     public boolean postoC(Posicao p) {
         if (postosCombustivel.contains(p))
             return true;
@@ -304,5 +308,9 @@ public class Mapa {
 
     public void atualizaIncendio(FireAlert fa) {
         this.incendios.get(fa.fireID).registaExpansao(fa);
+    }
+
+    public void registaCelulaApagada(int fireId, Posicao posicao) {
+        this.incendios.get(fireId).registaCelulaApagada(posicao);
     }
 }
