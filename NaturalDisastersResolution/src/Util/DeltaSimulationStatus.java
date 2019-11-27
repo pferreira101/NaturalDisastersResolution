@@ -1,7 +1,6 @@
+import javax.swing.text.Position;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 public class DeltaSimulationStatus implements Serializable {
 
@@ -20,4 +19,8 @@ public class DeltaSimulationStatus implements Serializable {
         this.novosIncendios = new ArrayList<>(incendios);
         this.estadoAgentes = new ArrayList<>(agentes);
     }
+
+
+
 }
+

@@ -76,7 +76,7 @@ public class AgenteParticipativo extends Agent {
         msg.addReceiver(this.centralAgent);
 
         try{
-            msg.setContentObject(new AgentStatus(this.getAID(), this.pos, this.aguaDisponivel, this.combustivelDisponivel, this.disponivel, this.tarefasRealizadas));
+            msg.setContentObject(new AgentStatus(this, this.pos, this.aguaDisponivel, this.combustivelDisponivel, this.disponivel, this.tarefasRealizadas));
         }
         catch (Exception e){
             e.printStackTrace();
@@ -92,6 +92,8 @@ public class AgenteParticipativo extends Agent {
         while(tarefas.peek() != null) {
             Tarefa t = tarefas.poll();
 
+            movementToPosition(t);
+
             if(t.tipo == Tarefa.APAGAR)
                 apagarFogo(t);
             else
@@ -106,16 +108,16 @@ public class AgenteParticipativo extends Agent {
 
         Posicao p = t.posicao;
 
-        int distancia = Posicao.distanceBetween(this.pos, p);
         this.disponivel = false;
+
 
         if (op == 1 )Thread.sleep(4000);
         else Thread.sleep(1000);
 
-        this.pos = p;
+
         this.disponivel = true;
         this.aguaDisponivel--;
-        this.combustivelDisponivel -= distancia;
+
 
         // System.out.println(new Time(System.currentTimeMillis()) + ": "+this.getAID().getLocalName()  + " --- Apagou célula " + p.toString() + " (agua: " + this.aguaDisponivel + " ,combustivel: " + this.combustivelDisponivel + ")");
 
@@ -127,13 +129,10 @@ public class AgenteParticipativo extends Agent {
 
 
     private void abastecer(Tarefa t) throws Exception{
-        Posicao p = t.posicao;
 
-        int distancia = Posicao.distanceBetween(this.pos, p);
         this.disponivel = false;
-        Thread.sleep(2000);
+        Thread.sleep(1000);
 
-        this.pos = p;
         this.disponivel = true;
         this.aguaDisponivel = this.capacidadeMaxAgua;
         this.combustivelDisponivel = this.capacidadeMaxCombustivel;
@@ -141,6 +140,44 @@ public class AgenteParticipativo extends Agent {
         //System.out.println(new Time(System.currentTimeMillis()) + ": "+this.getAID().getLocalName()  + " --- Abasteceu em " + p.toString() + " (agua: " + this.aguaDisponivel + " ,combustivel: " + this.combustivelDisponivel + ")");
 
         this.tarefasRealizadas.add(t);
+    }
+
+    private void movementToPosition(Tarefa t) throws InterruptedException {
+        while(!this.pos.equals(t.posicao)){
+            if(this.pos.pos_x == t.posicao.pos_x && this.pos.pos_y > t.posicao.pos_y) {
+                this.pos.pos_y--;
+            }
+            if(this.pos.pos_x == t.posicao.pos_x && this.pos.pos_y < t.posicao.pos_y) {
+                this.pos.pos_y++;
+            }
+            if(this.pos.pos_x > t.posicao.pos_x && this.pos.pos_y == t.posicao.pos_y) {
+                this.pos.pos_x--;
+            }
+            if(this.pos.pos_x < t.posicao.pos_x && this.pos.pos_y == t.posicao.pos_y) {
+                this.pos.pos_x++;
+            }
+            if(this.pos.pos_x > t.posicao.pos_x && this.pos.pos_y > t.posicao.pos_y) {
+                this.pos.pos_x++;
+                this.pos.pos_y++;
+            }
+            if(this.pos.pos_x < t.posicao.pos_x && this.pos.pos_y < t.posicao.pos_y) {
+                this.pos.pos_x--;
+                this.pos.pos_y--;
+            }
+            if(this.pos.pos_x > t.posicao.pos_x && this.pos.pos_y < t.posicao.pos_y) {
+                this.pos.pos_x--;
+                this.pos.pos_y++;
+            }
+            if(this.pos.pos_x < t.posicao.pos_x && this.pos.pos_y > t.posicao.pos_y) {
+                this.pos.pos_x++;
+                this.pos.pos_y--;
+            }
+
+            Thread.sleep(500);
+            this.combustivelDisponivel--;
+
+            sendCurrentStatus();
+        }
     }
 
     private void addOperacao(Tarefa p){

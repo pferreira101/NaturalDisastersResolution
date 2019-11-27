@@ -15,7 +15,7 @@ public class AgenteCentral extends Agent {
     DeltaSimulationStatus dss;
     int taskId;
 
-    protected void setup(){
+    protected void setup() {
         Object[] args = this.getArguments();
 
         this.mapa = (Mapa) args[0];
@@ -30,40 +30,35 @@ public class AgenteCentral extends Agent {
 
     /**
      * Behaviour destinado à receção de mensagens.
-     *   - aviso de incêndios por parte do agente incendiário
-     *   - aviso de status dos agentes participativos
+     * - aviso de incêndios por parte do agente incendiário
+     * - aviso de status dos agentes participativos
      */
     private class ReceiveInfo extends CyclicBehaviour {
         public void action() {
             ACLMessage msg = receive();
 
-            if(msg != null){
-                AID sender =  msg.getSender();
+            if (msg != null) {
+                AID sender = msg.getSender();
                 String sendersName = sender.getLocalName();
 
                 if (sendersName.contains("Incendiario") && msg.getPerformative() == ACLMessage.INFORM) {
-                    try{
+                    try {
                         FireAlert fa = (FireAlert) msg.getContentObject();
                         processFireAlert(fa);
-                    }
-                    catch (Exception e){
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
-                }
-                else if(sendersName.contains("Agente") && msg.getPerformative() == ACLMessage.INFORM ){
-                    try{
+                } else if (sendersName.contains("Agente") && msg.getPerformative() == ACLMessage.INFORM) {
+                    try {
                         AgentStatus st = (AgentStatus) msg.getContentObject();
                         atualizarEstadoAgente(sender, st);
-                    }
-                    catch (Exception e){
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
-                }
-                else if(sendersName.equals("Interface") && msg.getPerformative() == ACLMessage.QUERY_REF){
+                } else if (sendersName.equals("Interface") && msg.getPerformative() == ACLMessage.QUERY_REF) {
                     sendSimulationInfo(msg);
                 }
-            }
-            else{
+            } else {
                 block();
             }
         }
@@ -75,14 +70,16 @@ public class AgenteCentral extends Agent {
         private AID agent;
         private LinkedList<Tarefa> tarefas;
 
-        public AssignTask(AID agentAID, Tarefa ... tarefas) {
+        public AssignTask(AID agentAID, Tarefa... tarefas) {
             this.tarefas = new LinkedList<>();
             this.agent = agentAID;
 
             Arrays.stream(tarefas).forEach(t -> {
                 this.tarefas.add(t);
                 registaTarefa(agent, t);
+
                 //System.out.println(new Time(System.currentTimeMillis()) +  ": "+ agent.getLocalName() + " --- mandado " + t.toString());
+
             });
         }
 
@@ -109,8 +106,7 @@ public class AgenteCentral extends Agent {
         System.out.println(fa.toString());
         if(this.mapa.incendios.get(fa.fireID) == null){
             this.mapa.registaIncendio(fa);
-        }
-        else{
+        } else {
             this.mapa.atualizaIncendio(fa);
         }
 
@@ -128,10 +124,10 @@ public class AgenteCentral extends Agent {
 
         AgentStatus as = this.agents.get(agent);
 
-        if(as != null)
+        if (as != null)
             as.atualizarEstado(status);
         else
-            this.agents.put(agent,status);
+            this.agents.put(agent, status);
     }
 
 
@@ -142,7 +138,7 @@ public class AgenteCentral extends Agent {
         // por enquanto so temos uma celula a arder, alocar com base na distancia a essa celula
         Posicao p = incendio.areaAfetada.get(0);
 
-        for(AgentStatus ap : this.agents.values()){
+        for (AgentStatus ap : this.agents.values()) {
             int distance = Posicao.distanceBetween(ap.pos, p);
             if (ap.disponivel && distance < minDistance) {
                 minDistance = distance;
@@ -160,8 +156,8 @@ public class AgenteCentral extends Agent {
     }
 
 
-
     private void sendSimulationInfo(ACLMessage msg) {
+        this.dss.estadoAgentes = new ArrayList<>(this.agents.values());
         ACLMessage reply = msg.createReply();
         reply.setPerformative(ACLMessage.INFORM);
         try {
@@ -172,17 +168,5 @@ public class AgenteCentral extends Agent {
         send(reply);
         this.dss = new DeltaSimulationStatus(); // reset ao objeto para guardar apenas novas alteracoes
     }
-
-
-
-    /*public boolean verificaAgente(Posicao p)  {
-
-        for(Map.Entry<AID,AgentStatus> entry : agents.entrySet()) {
-            AgentStatus value = entry.getValue();
-            if (value.getPos().equals(p)) return true;
-        }
-        return false;
-    }*/
-
-
 }
+
