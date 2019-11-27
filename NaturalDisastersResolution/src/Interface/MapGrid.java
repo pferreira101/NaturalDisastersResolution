@@ -60,6 +60,11 @@ public class MapGrid {
     private void drawAgents(List<AgentStatus> agentStatus){
         String objectType = null;
         for(AgentStatus  as : agentStatus){
+            if(as.ultimaPosicao != null){
+                JLabel previousGridCell =  this.grid[(int)as.ultimaPosicao.pos_x][(int)as.ultimaPosicao.pos_y];
+                previousGridCell.setIcon(scaleImage((new ImageIcon(AERONAVE)),794/mapa.size,642/mapa.size));
+            }
+
             JLabel gridCell =  this.grid[(int)as.posAtual.pos_x][(int)as.posAtual.pos_y];
             gridCell.setText("");
             switch(as.tipo) {

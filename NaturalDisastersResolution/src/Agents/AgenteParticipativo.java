@@ -132,7 +132,7 @@ public class AgenteParticipativo extends Agent {
 
         while(!this.posAtual.equals(t.posicao)){
 
-            Posicao posAntiga =  new Posicao(this.posAtual.pos_x, this.posAtual.pos_y);
+            this.posAnterior  =  new Posicao(this.posAtual.pos_x, this.posAtual.pos_y);
 
             if(this.posAtual.pos_x == t.posicao.pos_x && this.posAtual.pos_y > t.posicao.pos_y) {
                 this.posAtual.pos_y--;

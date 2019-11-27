@@ -20,6 +20,7 @@ public class AgentStatus implements Serializable {
         this.aid = agent.getAID();
         this.posAtual = agent.posAtual;
         this.ultimaPosicao = agent.posAnterior;
+        if ( agent.posAnterior != null) System.out.println(agent.posAnterior.toString());
         this.aguaDisponivel = agent.aguaDisponivel;
         this.combustivelDisponivel = agent.combustivelDisponivel;
         this.disponivel = agent.disponivel;
