@@ -107,7 +107,6 @@ public class AgenteParticipativo extends Agent {
 
     private void apagarFogo(Tarefa t) throws Exception{
 
-
         this.disponivel = false;
         Thread.sleep(1000);
 
@@ -150,12 +149,12 @@ public class AgenteParticipativo extends Agent {
                 this.pos.pos_x++;
             }
             if(this.pos.pos_x > t.posicao.pos_x && this.pos.pos_y > t.posicao.pos_y) {
-                this.pos.pos_x++;
-                this.pos.pos_y++;
-            }
-            if(this.pos.pos_x < t.posicao.pos_x && this.pos.pos_y < t.posicao.pos_y) {
                 this.pos.pos_x--;
                 this.pos.pos_y--;
+            }
+            if(this.pos.pos_x < t.posicao.pos_x && this.pos.pos_y < t.posicao.pos_y) {
+                this.pos.pos_x++;
+                this.pos.pos_y++;
             }
             if(this.pos.pos_x > t.posicao.pos_x && this.pos.pos_y < t.posicao.pos_y) {
                 this.pos.pos_x--;
@@ -166,7 +165,8 @@ public class AgenteParticipativo extends Agent {
                 this.pos.pos_y--;
             }
 
-            Thread.sleep(500);
+            int tempoDeMovimento = (1/this.velocidade)*1000;
+            Thread.sleep(tempoDeMovimento);
             this.combustivelDisponivel--;
 
             sendCurrentStatus();
