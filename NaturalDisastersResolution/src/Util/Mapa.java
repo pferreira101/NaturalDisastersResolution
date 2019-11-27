@@ -39,6 +39,34 @@ public class Mapa {
         return !(postosCombustivel.contains(p) || postosAgua.contains(p) || habitacoes.contains(p) || floresta.contains(p));
     }
 
+    boolean insideDimensoes(Posicao pos){
+        if(pos.pos_x>=0 && pos.pos_x<size && pos.pos_y>=0 && pos.pos_y<size) return true;
+        else return false;
+    }
+
+    List<Posicao> posicoesAdjacentesNotOnFire(Posicao pos){
+        List<Posicao> res = new ArrayList<>();
+        Posicao p1 = new Posicao (pos.pos_x-1,pos.pos_y+1);
+        Posicao p2 = new Posicao (pos.pos_x,pos.pos_y+1);
+        Posicao p3 = new Posicao (pos.pos_x+1,pos.pos_y+1);
+        Posicao p4 = new Posicao (pos.pos_x-1,pos.pos_y);
+        Posicao p5 = new Posicao (pos.pos_x+1,pos.pos_y);
+        Posicao p6 = new Posicao (pos.pos_x-1,pos.pos_y-1);
+        Posicao p7 = new Posicao (pos.pos_x,pos.pos_y-1);
+        Posicao p8 = new Posicao (pos.pos_x+1,pos.pos_y-1);
+
+        if(insideDimensoes(p1) && !onFire(p1)) res.add(p1);
+        if(insideDimensoes(p2) && !onFire(p2)) res.add(p2);
+        if(insideDimensoes(p3) && !onFire(p3)) res.add(p3);
+        if(insideDimensoes(p4) && !onFire(p4)) res.add(p4);
+        if(insideDimensoes(p5) && !onFire(p5)) res.add(p5);
+        if(insideDimensoes(p6) && !onFire(p6)) res.add(p6);
+        if(insideDimensoes(p7) && !onFire(p7)) res.add(p7);
+        if(insideDimensoes(p8) && !onFire(p8)) res.add(p8);
+
+        return res;
+    }
+
     List<Posicao> posicoesAdjacentesLivres(Posicao pos){
         List<Posicao> res = new ArrayList<>();
         Posicao p1 = new Posicao (pos.pos_x-1,pos.pos_y+1);
@@ -60,11 +88,6 @@ public class Mapa {
         if(insideDimensoes(p8) && posicaoLivre(p8)) res.add(p8);
 
         return res;
-    }
-
-    boolean insideDimensoes(Posicao pos){
-        if(pos.pos_x>=0 && pos.pos_x<size && pos.pos_y>=0 && pos.pos_y<size) return true;
-        else return false;
     }
 
     public void estabelecePosicaoPontosFixos(){
@@ -111,7 +134,8 @@ public class Mapa {
             int vizinhos = rand.nextInt(8); // não está preparado para ter mais do que os 8 vizinhos adjacentes
             for(int j=0; j<vizinhos; j++){
                 List<Posicao> adj;
-                if((adj = posicoesAdjacentesLivres(p)).isEmpty()) break;
+                adj = posicoesAdjacentesLivres(p);
+                if(adj.isEmpty()) break;
                 Posicao pAdjacent;
                 do{
                     pAdjacent = getRandAdjacentPositions(adj);
@@ -136,11 +160,12 @@ public class Mapa {
             int vizinhos = rand.nextInt(8); // não está preparado para ter mais do que os 8 vizinhos adjacentes
             for(int j=0; j<vizinhos; j++){
                 List<Posicao> adj;
-                if((adj = posicoesAdjacentesLivres(p)).isEmpty()) break;
+                adj = posicoesAdjacentesLivres(p);
+                if(adj.isEmpty()) break;
                 Posicao pAdjacent;
                 do{
                     pAdjacent = getRandAdjacentPositions(adj);
-                    if(floresta.containsAll(adj)) break;
+                    if(floresta.containsAll(adj)) break; // às vezes dá menos 1, pensar numa ponta do mapa, que possui 3 adjacentes, e dá break, vai adicionar o pAdjacent duas vezes ao mm sitio
                 }while(!posicaoLivre(pAdjacent));
                 floresta.add(pAdjacent);
                 i++;
@@ -238,25 +263,6 @@ public class Mapa {
         Posicao res = list.get(rand.nextInt(list.size()));
         return res;
     }
-
-
-    public Posicao getRandAdjacentPosition(Posicao pos) {
-        Random rand = new Random();
-        float posx, posy;
-        do {
-            do {
-                float x = rand.nextInt(3) - 1;
-                posx = pos.pos_x + x;
-            } while (posx > size || posx == -1);
-            do {
-                float y = rand.nextInt(3) - 1;
-                posy = pos.pos_y + y;
-            } while (posy > size || posy == -1);
-        }while(posx == 0 && posy == 0);
-        return new Posicao(posx,posy);
-    }
-
-
 
     public List<Posicao> getDistribuicaoPosicoes(int nPosicoes){
         List<Posicao> posicoes = new ArrayList<>();

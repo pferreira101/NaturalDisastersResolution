@@ -10,6 +10,7 @@ public class MapGrid {
     static final String AGUA = "imgs/agua.png" ;
     static final String COMBUSTIVEL = "imgs/gota.png";
     static final String FOGO = "imgs/fogo.png";
+    static final String FOGOAPAGADO = "imgs/fogoapagado.png";
 
     JPanel panel;
     JLabel[][] grid;
@@ -64,7 +65,7 @@ public class MapGrid {
 
     public void updateGrid(DeltaSimulationStatus stats) {
         drawMapObjects(FOGO, stats.novosIncendios);
-        drawMapObjects(AGUA, stats.celulasApagadas);
+        drawMapObjects(FOGOAPAGADO, stats.celulasApagadas);
     }
 
 }

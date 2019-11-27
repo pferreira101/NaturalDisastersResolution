@@ -78,9 +78,13 @@ public class AgenteIncendiario extends Agent {
             Posicao pAdjacent;
 
             for(Posicao p : this.ultimasCelulasIncendiadas) {
+                List<Posicao> adj;
+                adj = mapa.posicoesAdjacentesNotOnFire(p);
+                if(adj.isEmpty()) break;
                 do {
-                    pAdjacent = mapa.getRandAdjacentPosition(p);
-                } while (mapa.onFire(pAdjacent) || !mapa.insideDimensoes(pAdjacent));
+                    pAdjacent = mapa.getRandAdjacentPositions(adj);
+                    //if(mapa.posicoesAdjacentesOnFire(p)==true) break;
+                } while (mapa.onFire(pAdjacent)==true);
 
                 celulasIncendiadas.add(pAdjacent);
 
