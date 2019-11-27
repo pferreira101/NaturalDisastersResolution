@@ -10,6 +10,9 @@ public class MapGrid {
     static final String AGUA = "imgs/agua.png" ;
     static final String COMBUSTIVEL = "imgs/gota.png";
     static final String FOGO = "imgs/fogo.png";
+    static final String AERONAVE = "imgs/aeronave.png";
+    static final String CAMIAO = "imgs/camiao.png";
+    static final String DRONE = "imgs/drone.png";
 
     JPanel panel;
     JLabel[][] grid;
@@ -53,6 +56,26 @@ public class MapGrid {
         }
     }
 
+    private void drawAgents(List<AgentStatus> agentStatus){
+        String objectType = null;
+        for(AgentStatus  as : agentStatus){
+            JLabel gridCell =  this.grid[(int)as.pos.pos_x][(int)as.pos.pos_y];
+            gridCell.setText("");
+            switch(as.tipo) {
+                case 0: objectType=AERONAVE;
+                        break;
+                case 1: objectType=CAMIAO;
+                    break;
+                case 2: objectType=DRONE;
+                    break;   
+            }
+            
+            gridCell.setIcon(scaleImage((new ImageIcon(objectType)),794/mapa.size,642/mapa.size));
+        }
+        
+    }
+
+
 
     private static ImageIcon scaleImage(ImageIcon srcImg, int w, int h){
         Image image = srcImg.getImage(); // transform it
@@ -61,10 +84,10 @@ public class MapGrid {
         return imageIcon;
     }
 
-
     public void updateGrid(DeltaSimulationStatus stats) {
         drawMapObjects(FOGO, stats.novosIncendios);
         drawMapObjects(AGUA, stats.celulasApagadas);
+        drawAgents(stats.estadoAgentes);
     }
 
 }

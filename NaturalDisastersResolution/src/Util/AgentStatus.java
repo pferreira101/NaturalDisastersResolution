@@ -1,4 +1,5 @@
 import jade.core.AID;
+import jade.core.Agent;
 
 import java.io.Serializable;
 import java.util.List;
@@ -11,17 +12,31 @@ public class AgentStatus implements Serializable {
     int combustivelDisponivel;
     boolean disponivel;
     List<Tarefa> tarefas;
-
+    int tipo;
+/*
+tipos de agente
+0 = aeronave
+1 = camiao
+2 = drone
+ */
     Posicao getPos() {
         return this.pos;
     }
-    AgentStatus(AID aid, Posicao pos, int aguaDisponivel, int combustivelDisponivel, boolean disponivel, List<Tarefa> tarefas){
-        this.aid = aid;
+
+    AgentStatus(Agent agent, Posicao pos, int aguaDisponivel, int combustivelDisponivel, boolean disponivel, List<Tarefa> tarefas){
+        this.aid = agent.getAID();
         this.pos = pos;
         this.aguaDisponivel = aguaDisponivel;
         this.combustivelDisponivel = combustivelDisponivel;
         this.disponivel = disponivel;
         this.tarefas = tarefas;
+
+        if(agent instanceof Aeronave)
+            tipo = 0;
+        else if(agent instanceof Camiao)
+            tipo = 1;
+        else if(agent instanceof Drone)
+            tipo = 2;
     }
 
     void addTarefa(Tarefa t){

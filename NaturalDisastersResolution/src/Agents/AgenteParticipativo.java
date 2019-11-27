@@ -79,7 +79,7 @@ public class AgenteParticipativo extends Agent {
         msg.addReceiver(this.centralAgent);
 
         try{
-            msg.setContentObject(new AgentStatus(this.getAID(), this.pos, this.aguaDisponivel, this.combustivelDisponivel, this.disponivel, this.tarefasRealizadas));
+            msg.setContentObject(new AgentStatus(this, this.pos, this.aguaDisponivel, this.combustivelDisponivel, this.disponivel, this.tarefasRealizadas));
         }
         catch (Exception e){
             e.printStackTrace();
