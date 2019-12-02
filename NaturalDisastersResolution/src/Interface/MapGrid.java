@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MapGrid {
@@ -23,69 +24,59 @@ public class MapGrid {
         for (int i = 0; i < this.mapa.size; i++){
             for (int j = 0; j < this.mapa.size; j++){
                 grid[i][j] = new GridCell(this.mapa.size);
+                grid[i][j].p = new Posicao(i,j);
                 //grid[i][j].setText("(" + i +","+ j +")"); // descomentar esta linha para mostrar indice das células
                 panel.add(grid[i][j].gridCell);
             }
         }
 
-        drawMapObjects(GridCell.CASA, mapa.habitacoes);
-        drawMapObjects(GridCell.FLORESTA, mapa.floresta);
-        drawMapObjects(GridCell.COMBUSTIVEL, mapa.postosCombustivel);
-        drawMapObjects(GridCell.AGUA, mapa.postosAgua);
+        drawMapObjects(GridCell.HOUSE, mapa.habitacoes);
+        drawMapObjects(GridCell.FOREST, mapa.floresta);
+        drawMapObjects(GridCell.FUEL_STATION, mapa.postosCombustivel);
+        drawMapObjects(GridCell.WATER_SOURCE, mapa.postosAgua);
     }
 
-    private void drawMapObjects(String objectType, List<Posicao> objectPositions){
+    private void drawMapObjects(int objectType, List<Posicao> objectPositions){
         for(Posicao p : objectPositions){
             GridCell gridCell =  this.grid[(int)p.pos_x][(int)p.pos_y];
             gridCell.setText("");
-            gridCell.setBaseImage(objectType);
+            gridCell.setType(objectType);
+            gridCell.setImage();
         }
     }
 
-    private void drawAgents(List<AgentStatus> agentStatus){
-        String objectType = null;
-        for(AgentStatus  as : agentStatus){
+
+    public void updateGridStatus(DeltaSimulationStatus stats) {
+        List<GridCell> posicoesModificadas = new ArrayList<>();
+
+        for(Posicao p : stats.novosIncendios){
+            GridCell gridCell =  this.grid[(int)p.pos_x][(int)p.pos_y];
+            gridCell.setOnFireState();
+            posicoesModificadas.add(gridCell);
+        }
+
+        for(Posicao p : stats.celulasApagadas){
+            GridCell gridCell =  this.grid[(int)p.pos_x][(int)p.pos_y];
+            gridCell.setBurntState();
+            posicoesModificadas.add(gridCell);
+        }
+
+        for(AgentStatus  as : stats.estadoAgentes){
             if(as.ultimaPosicao != null){
                 GridCell previousGridCell =  this.grid[(int)as.ultimaPosicao.pos_x][(int)as.ultimaPosicao.pos_y];
-                previousGridCell.restoreImage();// colocar a imagem que la estava antes da passagem do agente
+                previousGridCell.removeAgent(as.tipo);
+                previousGridCell.setImage();
             }
 
             GridCell gridCell =  this.grid[(int)as.posAtual.pos_x][(int)as.posAtual.pos_y];
-            gridCell.setText("");
-            switch(as.tipo) {
-                case 0: objectType = GridCell.AERONAVE;
-                        break;
-                case 1: objectType = GridCell.CAMIAO;
-                    break;
-                case 2: objectType = GridCell.DRONE;
-                    break;   
-            }
-            
-            gridCell.setImage(objectType);
+            gridCell.addAgent(as.tipo);
+
+            posicoesModificadas.add(gridCell);
         }
-        
-    }
 
-    private void drawNewFires(List<Posicao> celulas) {
-        for(Posicao p : celulas){
-            GridCell gridCell =  this.grid[(int)p.pos_x][(int)p.pos_y];
-            gridCell.setFireImage();
+        for(GridCell g : posicoesModificadas){
+            g.setImage();
         }
-    }
-
-    private void drawExtinguishedFires(List<Posicao> celulasApagadas) {
-        for(Posicao p : celulasApagadas){
-            GridCell gridCell =  this.grid[(int)p.pos_x][(int)p.pos_y];
-            gridCell.setBurntImage();
-        }
-    }
-
-
-
-    public void updateGrid(DeltaSimulationStatus stats) {
-        drawNewFires(stats.novosIncendios);
-        drawAgents(stats.estadoAgentes);
-        drawExtinguishedFires(stats.celulasApagadas);
     }
 
 }

@@ -1,28 +1,24 @@
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import java.awt.*;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GridCell {
 
+    static final int GRASS = 0;
+    static final int HOUSE = 1;
+    static final int FOREST = 2;
+    static final int FUEL_STATION = 3;
+    static final int WATER_SOURCE = 4;
 
-    static final String ERVA = "imgs/grass.png";
-    static final String CASA = "imgs/house2.png";
-    static final String CASAQUEIMADA = "imgs/casa.png";
-    static final String FLORESTA = "imgs/forest.png";
-    static final String FLORESTAQUEIMADA = "imgs/burntForest.png";
-    static final String AGUA = "imgs/waterSource.png" ;
-    static final String COMBUSTIVEL = "imgs/gota.png";
-    static final String FOGO = "imgs/fogo.png";
-    static final String AERONAVE = "imgs/aeronave.png";
-    static final String CAMIAO = "imgs/camiao.png";
-    static final String DRONE = "imgs/drone.png";
-    static final String FOGOAPAGADO = "imgs/fogoapagado.png";
-
-    boolean burnt;
+    Posicao p = new Posicao(-1,-1);
     JLabel gridCell;
-    String baseImage; // serve para restaurar a imagem depois de passar por la alguma coisa
     int mapSize;
+    int tipo; // 0 erva, 1 casa, 2 floresta, 3 bomba de combustivel, 4 fonte de agua
+    int state; //0 - normal, 1 - a arder, 2 - queimada
+    List<String> vehicles;
+
 
 
     GridCell(int mapSize){
@@ -30,50 +26,25 @@ public class GridCell {
         this.gridCell.setHorizontalAlignment(SwingConstants.CENTER);
         this.gridCell.setVerticalAlignment(SwingConstants.CENTER);
         this.gridCell.setOpaque(true);
-        this.burnt = false;
+
         this.mapSize = mapSize;
-        this.setBaseImage(ERVA);
+        this.vehicles = new ArrayList<>();
+
+        this.tipo = GRASS; // default erva
+        this.state = 0;
+
+        this.setImage();
     }
 
     void setText(String s){
         this.gridCell.setText(s);
     }
 
-    void setBaseImage(String icon){
-        this.baseImage = icon;
-        this.setImage(icon);
-    }
 
-    void setImage(String icon){
-        Icon img = scaleImage((new ImageIcon(icon)),794/mapSize,642/mapSize);
+    void setImage(){
+        String icon = ImageManager.whichImage(this);
+        Icon img = scaleImage((new ImageIcon(icon)),GUIConfig.MAP_GRID_WIDTH/mapSize,GUIConfig.MAP_GRID_HEIGHT/mapSize);
         this.gridCell.setIcon(img);
-    }
-
-    void setFireImage() {
-        this.burnt = true;
-        this.setImage(FOGO);
-    }
-
-
-    void setBurntImage(){
-
-        switch (this.baseImage){
-            case FLORESTA:
-                this.setBaseImage(FLORESTAQUEIMADA);
-                System.out.println("#### a colocar floresta queimada");
-                break;
-            case CASA:
-                this.setBaseImage(CASAQUEIMADA);
-                break;
-            case ERVA:
-                this.setBaseImage(ERVA);
-                break;
-        }
-    }
-
-
-    void restoreImage(){
-        this.setImage(baseImage);
     }
 
     private static ImageIcon scaleImage(ImageIcon srcImg, int w, int h){
@@ -84,4 +55,25 @@ public class GridCell {
     }
 
 
+    public void addAgent(String tipo) {
+        System.out.println("A adicionar " + tipo +" de " + p.toString());
+        this.vehicles.add(tipo);
+    }
+
+    public void removeAgent(String tipo) {
+        System.out.println("A remover " + tipo +" de " + p.toString());
+        this.vehicles.remove(tipo);
+    }
+
+    public void setOnFireState(){
+        this.state = 1;
+    }
+
+    public void setBurntState() {
+        this.state = 2;
+    }
+
+    public void setType(int objectType) {
+        this.tipo = objectType;
+    }
 }

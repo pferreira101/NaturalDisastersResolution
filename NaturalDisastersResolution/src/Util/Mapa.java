@@ -313,4 +313,8 @@ public class Mapa {
     public void registaCelulaApagada(int fireId, Posicao posicao) {
         this.incendios.get(fireId).registaCelulaApagada(posicao);
     }
+
+    public boolean isWaterSource(Posicao p) {
+        return this.postosAgua.contains(p);
+    }
 }
