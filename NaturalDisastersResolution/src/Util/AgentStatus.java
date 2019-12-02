@@ -11,6 +11,7 @@ public class AgentStatus implements Serializable {
     Posicao ultimaPosicao;
     int aguaDisponivel;
     int combustivelDisponivel;
+    int velocidade;
     boolean disponivel;
     List<Tarefa> tarefas;
     int tipo;
@@ -23,6 +24,7 @@ public class AgentStatus implements Serializable {
         if ( agent.posAnterior != null) System.out.println(agent.posAnterior.toString());
         this.aguaDisponivel = agent.aguaDisponivel;
         this.combustivelDisponivel = agent.combustivelDisponivel;
+        this.velocidade = agent.velocidade;
         this.disponivel = agent.disponivel;
         this.tarefas = agent.tarefasRealizadas;
 
