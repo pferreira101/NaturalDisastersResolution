@@ -134,15 +134,15 @@ public class AgenteCentral extends Agent {
     private void alocaRecursos(Incendio incendio) {
         AID closestAgent = null;
         int minTempo = 100000; // 100 segundos
-        int tempoSomaTotal;
+        int tempoAtual;
 
         // por enquanto so temos uma celula a arder, alocar com base na distancia a essa celula
         Posicao p = incendio.areaAfetada.get(0);
 
         for (AgentStatus ap : this.agents.values()) {
-            tempoSomaTotal = consegueIrAbastecer(ap,p);
-            if (tempoSomaTotal > 0 && tempoSomaTotal < minTempo) {
-                minTempo = tempoSomaTotal;
+            tempoAtual =  autonomiaCombustivel(ap,p);
+            if (tempoAtual > 0 && tempoAtual< minTempo) {
+                minTempo = tempoAtual;
                 closestAgent = ap.aid;
             }
         }
@@ -154,46 +154,40 @@ public class AgenteCentral extends Agent {
         this.addBehaviour(new AssignTask(closestAgent, t, t2));
     }
 
-    private int consegueIrAbastecer(AgentStatus ap, Posicao incendio){
+    private int autonomiaCombustivel(AgentStatus ap, Posicao incendio){
         int combSomaTotal = 0;
-        int tempoSomaTotal = 0;
 
+        // apagar
         int distAgenteIncendio = Posicao.distanceBetween(ap.posAtual, incendio);
         int minTempoAgenteIncendio = distAgenteIncendio*(4/this.agents.get(ap.aid).velocidade)*1000;
         System.out.println(this.agents.get(ap.aid).toString() + " distAgenteIncendio: " + distAgenteIncendio + " " + this.agents.get(ap.aid).tipo);
         System.out.println(this.agents.get(ap.aid).toString() + " minTempoAgenteIncendio: " + minTempoAgenteIncendio + " " + this.agents.get(ap.aid).tipo);
 
-        combSomaTotal+=distAgenteIncendio;
-        tempoSomaTotal+=minTempoAgenteIncendio;
+        combSomaTotal += distAgenteIncendio;
 
+        // abastecer
+        int minDistIncendioPosto = getMinDistanceIncendioPosto(ap,incendio);
+        System.out.println(this.agents.get(ap.aid).toString() + " distIncendioPosto: " + minDistIncendioPosto + " " + this.agents.get(ap.aid).tipo);
 
-        int minTempoIncendioPosto = getMinTempoIncendioPosto(ap, incendio);
-        int distIncendioPosto = minTempoIncendioPosto/((4/this.agents.get(ap.aid).velocidade)*1000);
-        System.out.println(this.agents.get(ap.aid).toString() + " minTempoIncendioPosto: " + minTempoIncendioPosto + " " + this.agents.get(ap.aid).tipo);
-        System.out.println(this.agents.get(ap.aid).toString() + " distIncendioPosto: " + distIncendioPosto + " " + this.agents.get(ap.aid).tipo);
-
-        combSomaTotal+=distIncendioPosto;
-        tempoSomaTotal+=minTempoIncendioPosto;
+        combSomaTotal += minDistIncendioPosto;
 
         System.out.println(this.agents.get(ap.aid).toString() + " combSomaTotal " + combSomaTotal + " " + this.agents.get(ap.aid).tipo);
-        System.out.println(this.agents.get(ap.aid).toString() + " tempoSomaTotal: " + tempoSomaTotal + " " + this.agents.get(ap.aid).tipo);
 
-        if(ap.combustivelDisponivel>=combSomaTotal) return tempoSomaTotal;
+        if(ap.combustivelDisponivel>=combSomaTotal) return minTempoAgenteIncendio;
         else return 0;
     }
 
-    private int getMinTempoIncendioPosto(AgentStatus ap, Posicao incendio){
-        int minTempo = 100000; // 100 segundos
+    private int getMinDistanceIncendioPosto(AgentStatus ap, Posicao incendio){
+        int minDistance = 1000;
 
         for(Posicao p : mapa.postosCombustivel){
             int distance = Posicao.distanceBetween(incendio,p);
-            int tempo = distance*(4/this.agents.get(ap.aid).velocidade)*1000;
-            if (tempo < minTempo) {
-                minTempo = tempo;
+            if (distance < minDistance) {
+                minDistance = distance;
             }
         }
 
-        return minTempo;
+        return minDistance;
     }
 
     private void registaTarefa(AID agent, Tarefa t) {
