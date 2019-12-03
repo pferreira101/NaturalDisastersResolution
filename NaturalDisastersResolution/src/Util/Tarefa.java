@@ -9,6 +9,7 @@ public class Tarefa implements Serializable {
     int tipo;
     int fireId;
     Posicao posicao;
+    int tempoDeslocacao;
 
     Tarefa(int id, int op, Posicao p){
         this.taskId = id;
@@ -16,11 +17,12 @@ public class Tarefa implements Serializable {
         this.posicao = p;
     }
 
-    Tarefa(int id, int op, int fireId, Posicao p){
+    Tarefa(int id, int op, int fireId, Posicao p, int t){
         this.taskId = id;
         this.fireId = fireId;
         this.tipo = op;
         this.posicao = p;
+        this.tempoDeslocacao = t;
     }
 
     @Override

@@ -28,6 +28,8 @@ public class AgenteParticipativo extends Agent {
     Queue<Tarefa> tarefasAgendadas;
     List<Tarefa> tarefasRealizadas;
 
+    int tempoAgendadoParaFicarDisponivel;
+
 
     void initStatus(int capacidadeMaxAgua, int capacidadeMaxCombustivel, int velocidade){
         this.capacidadeMaxAgua = capacidadeMaxAgua;
@@ -48,6 +50,8 @@ public class AgenteParticipativo extends Agent {
         this.tarefasAgendadas = new LinkedList<>();
         this.tarefasRealizadas = new ArrayList<>();
 
+        this.tempoAgendadoParaFicarDisponivel = 0;
+
         DFManager.registerAgent(this, "Agent");
         this.centralAgent = DFManager.findAgent(this, "Central");
 
@@ -63,7 +67,11 @@ public class AgenteParticipativo extends Agent {
                 if (msg.getPerformative() == ACLMessage.REQUEST) {
                    try {
                        LinkedList<Tarefa> tarefas = ( LinkedList<Tarefa>) msg.getContentObject();
-                       performTasks(tarefas);
+                       for(Tarefa t : tarefas) {
+                           tarefasAgendadas.add(t);
+                           tempoAgendadoParaFicarDisponivel+=t.tempoDeslocacao;
+                       }
+                       if(disponivel) performTasks();
                    }
                    catch (Exception e){
                        e.printStackTrace();
@@ -78,10 +86,9 @@ public class AgenteParticipativo extends Agent {
 
     }
 
-    // este método nao pode ser assim depois
-    private void performTasks(Queue<Tarefa> tarefas) throws Exception {
-        while(tarefas.peek() != null) {
-            Tarefa t = tarefas.poll();
+    private void performTasks() throws Exception {
+        while(this.tarefasAgendadas.peek() != null) {
+            Tarefa t = this.tarefasAgendadas.poll();
 
             moveToPosition(t);
 
@@ -100,8 +107,9 @@ public class AgenteParticipativo extends Agent {
         Thread.sleep(1000);
 
 
-        this.disponivel = true;
         this.aguaDisponivel--;
+        this.tempoAgendadoParaFicarDisponivel-=1000;
+        this.disponivel = true;
 
 
         // System.out.println(new Time(System.currentTimeMillis()) + ": "+this.getAID().getLocalName()  + " --- Apagou célula " + p.toString() + " (agua: " + this.aguaDisponivel + " ,combustivel: " + this.combustivelDisponivel + ")");
@@ -117,9 +125,10 @@ public class AgenteParticipativo extends Agent {
 
         Thread.sleep(1000);
 
-        this.disponivel = true;
         this.aguaDisponivel = this.capacidadeMaxAgua;
         this.combustivelDisponivel = this.capacidadeMaxCombustivel;
+        this.tempoAgendadoParaFicarDisponivel-=1000;
+        this.disponivel = true;
 
         //System.out.println(new Time(System.currentTimeMillis()) + ": "+this.getAID().getLocalName()  + " --- Abasteceu em " + p.toString() + " (agua: " + this.aguaDisponivel + " ,combustivel: " + this.combustivelDisponivel + ")");
 
@@ -136,28 +145,28 @@ public class AgenteParticipativo extends Agent {
             if(this.posAtual.pos_x == t.posicao.pos_x && this.posAtual.pos_y > t.posicao.pos_y) {
                 this.posAtual.pos_y--;
             }
-            if(this.posAtual.pos_x == t.posicao.pos_x && this.posAtual.pos_y < t.posicao.pos_y) {
+            else if(this.posAtual.pos_x == t.posicao.pos_x && this.posAtual.pos_y < t.posicao.pos_y) {
                 this.posAtual.pos_y++;
             }
-            if(this.posAtual.pos_x > t.posicao.pos_x && this.posAtual.pos_y == t.posicao.pos_y) {
+            else if(this.posAtual.pos_x > t.posicao.pos_x && this.posAtual.pos_y == t.posicao.pos_y) {
                 this.posAtual.pos_x--;
             }
-            if(this.posAtual.pos_x < t.posicao.pos_x && this.posAtual.pos_y == t.posicao.pos_y) {
+            else if(this.posAtual.pos_x < t.posicao.pos_x && this.posAtual.pos_y == t.posicao.pos_y) {
                 this.posAtual.pos_x++;
             }
-            if(this.posAtual.pos_x > t.posicao.pos_x && this.posAtual.pos_y > t.posicao.pos_y) {
+            else if(this.posAtual.pos_x > t.posicao.pos_x && this.posAtual.pos_y > t.posicao.pos_y) {
                 this.posAtual.pos_x--;
                 this.posAtual.pos_y--;
             }
-            if(this.posAtual.pos_x < t.posicao.pos_x && this.posAtual.pos_y < t.posicao.pos_y) {
+            else if(this.posAtual.pos_x < t.posicao.pos_x && this.posAtual.pos_y < t.posicao.pos_y) {
                 this.posAtual.pos_x++;
                 this.posAtual.pos_y++;
             }
-            if(this.posAtual.pos_x > t.posicao.pos_x && this.posAtual.pos_y < t.posicao.pos_y) {
+            else if(this.posAtual.pos_x > t.posicao.pos_x && this.posAtual.pos_y < t.posicao.pos_y) {
                 this.posAtual.pos_x--;
                 this.posAtual.pos_y++;
             }
-            if(this.posAtual.pos_x < t.posicao.pos_x && this.posAtual.pos_y > t.posicao.pos_y) {
+            else if(this.posAtual.pos_x < t.posicao.pos_x && this.posAtual.pos_y > t.posicao.pos_y) {
                 this.posAtual.pos_x++;
                 this.posAtual.pos_y--;
             }
@@ -165,6 +174,7 @@ public class AgenteParticipativo extends Agent {
             int tempoDeMovimento = (4/this.velocidade)*1000;
             Thread.sleep(tempoDeMovimento);
             this.combustivelDisponivel--;
+            this.tempoAgendadoParaFicarDisponivel-=tempoDeMovimento;
 
 
             sendCurrentStatus();

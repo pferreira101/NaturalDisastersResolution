@@ -14,6 +14,7 @@ public class AgentStatus implements Serializable {
     int velocidade;
     boolean disponivel;
     List<Tarefa> tarefas;
+    int tempoAgendadoParaFicarDisponivel;
     String tipo;
 
 
@@ -27,6 +28,8 @@ public class AgentStatus implements Serializable {
         this.velocidade = agent.velocidade;
         this.disponivel = agent.disponivel;
         this.tarefas = agent.tarefasRealizadas;
+
+        this.tempoAgendadoParaFicarDisponivel = agent.tempoAgendadoParaFicarDisponivel;
 
         if(agent instanceof Aeronave)
             tipo = "Drone";
