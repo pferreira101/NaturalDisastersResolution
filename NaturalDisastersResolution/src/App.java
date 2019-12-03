@@ -5,11 +5,11 @@ public class App {
     static int nDrones = 1;
     static int nCamioes = 1;
     static int nAeronaves = 1;
-    static int tamanhoMapa = 10;
+    static int tamanhoMapa = 4;
     static int numPostosComb = 1;
     static int numPostosAgua = 1;
-    static int numHabitacoes = 5;
-    static int numPontosFloresta = 90;
+    static int numHabitacoes = 1;
+    static int numPontosFloresta = 1;
 
     public static void main(String[] args) throws Exception {
 

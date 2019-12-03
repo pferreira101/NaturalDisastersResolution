@@ -11,10 +11,9 @@ public class AgenteInterface extends Agent {
 
     GUI gui;
 
-    AID centralAgent;
     Mapa mapa;
-    int requestFreq = 1000; //ms
-
+    int requestFreq = 500; //ms
+    boolean firstDraw;
 
 
     protected void setup(){
@@ -24,8 +23,7 @@ public class AgenteInterface extends Agent {
 
         //this.centralAgent = DFManager.findAgent(this, "Central");
 
-        this.gui = new GUI(mapa);
-        gui.getFrame().setVisible(true);
+        this.firstDraw = true;
 
         this.addBehaviour(new InfoReceiver());
         this.addBehaviour(new InfoRequester(this, this.requestFreq));
@@ -77,6 +75,12 @@ public class AgenteInterface extends Agent {
     }
 
     private void updateGui(DeltaSimulationStatus stats) {
-        this.gui.mapGrid.updateGrid(stats);
+        if(firstDraw){
+            this.gui = new GUI(mapa);
+            this.gui.mapGrid.updateGridStatus(stats);
+            gui.getFrame().setVisible(true);
+            this.firstDraw = false;
+        }
+        else this.gui.mapGrid.updateGridStatus(stats);
     }
 }

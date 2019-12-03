@@ -122,7 +122,12 @@ public class AgenteCentral extends Agent {
                 filter(tarefa -> tarefa.tipo == Tarefa.APAGAR).
                 forEach(tarefa -> this.dss.celulasApagadas.add(tarefa.posicao));
 
+        // registar novas posicoes
+        this.dss.estadoAgentes.add(status);
+
         AgentStatus as = this.agents.get(agent);
+
+
 
         if (as != null)
             as.atualizarEstado(status);
@@ -196,7 +201,7 @@ public class AgenteCentral extends Agent {
 
 
     private void sendSimulationInfo(ACLMessage msg) {
-        this.dss.estadoAgentes = new ArrayList<>(this.agents.values());
+        //this.dss.estadoAgentes = new ArrayList<>(this.agents.values()); // tem que se tirar esta linha e passar a registar apenas novas posicoes
         ACLMessage reply = msg.createReply();
         reply.setPerformative(ACLMessage.INFORM);
         try {

@@ -43,7 +43,7 @@ public class AgenteIncendiario extends Agent {
 
         do{
             p = mapa.getRandPosition();
-        }while(mapa.onFire(p) /*|| !mapa.posicaoLivre(p)*/);
+        }while(mapa.onFire(p) || mapa.isWaterSource(p));
 
         Date date = new java.util.Date();
         Timestamp ts = new Timestamp(date.getTime());
@@ -101,7 +101,7 @@ public class AgenteIncendiario extends Agent {
                 do {
                     pAdjacent = mapa.getRandAdjacentPositions(adj);
                     //if(mapa.posicoesAdjacentesOnFire(p)==true) break;
-                } while (mapa.onFire(pAdjacent)==true);
+                } while (mapa.onFire(pAdjacent) || mapa.isWaterSource(pAdjacent));
 
                 celulasIncendiadas.add(pAdjacent);
 
