@@ -8,13 +8,13 @@ public class Incendio implements Serializable {
     int fireId;
     int gravidade;
     Timestamp inicio;
-    long duração;
+    long duracao;
     List<Posicao> areaAfetada;
 
-    Incendio(int fireId, int gravidade, int duração, Posicao pontoIgnicao){
+    Incendio(int fireId, int gravidade, int duracao, Posicao pontoIgnicao){
         this.fireId = fireId;
         this.gravidade = gravidade;
-        this.duração = duração;
+        this.duracao = duracao;
         this.areaAfetada = new ArrayList<>();
         this.areaAfetada.add(pontoIgnicao);
     }

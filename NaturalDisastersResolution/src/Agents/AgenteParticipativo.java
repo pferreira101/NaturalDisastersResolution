@@ -1,6 +1,7 @@
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
+import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
 
 import java.sql.Time;
@@ -28,7 +29,7 @@ public class AgenteParticipativo extends Agent {
     Queue<Tarefa> tarefasAgendadas;
     List<Tarefa> tarefasRealizadas;
 
-    int tempoAgendadoParaFicarDisponivel;
+    int tempoParaFicarDisponivel;
 
 
     void initStatus(int capacidadeMaxAgua, int capacidadeMaxCombustivel, int velocidade){
@@ -50,7 +51,7 @@ public class AgenteParticipativo extends Agent {
         this.tarefasAgendadas = new LinkedList<>();
         this.tarefasRealizadas = new ArrayList<>();
 
-        this.tempoAgendadoParaFicarDisponivel = 0;
+        this.tempoParaFicarDisponivel = 0;
 
         DFManager.registerAgent(this, "Agent");
         this.centralAgent = DFManager.findAgent(this, "Central");
@@ -58,6 +59,7 @@ public class AgenteParticipativo extends Agent {
         sendCurrentStatus(); // informa no setup para quartel ter conhecimento de todos os agentes antes do agente incendiario comecar a corre
 
         this.addBehaviour(new TaskReceiver());
+        //this.addBehaviour(new RefillFreeMode(this,1000));
     }
 
     class TaskReceiver extends CyclicBehaviour {
@@ -69,9 +71,9 @@ public class AgenteParticipativo extends Agent {
                        LinkedList<Tarefa> tarefas = ( LinkedList<Tarefa>) msg.getContentObject();
                        for(Tarefa t : tarefas) {
                            tarefasAgendadas.add(t);
-                           tempoAgendadoParaFicarDisponivel+=t.tempoDeslocacao;
+                           tempoParaFicarDisponivel+=t.tempo;
                        }
-                       if(disponivel) performTasks();
+                       if(disponivel==true) performTasks();
                    }
                    catch (Exception e){
                        e.printStackTrace();
@@ -88,9 +90,9 @@ public class AgenteParticipativo extends Agent {
 
     private void performTasks() throws Exception {
         while(this.tarefasAgendadas.peek() != null) {
+            this.disponivel = false;
             Tarefa t = this.tarefasAgendadas.poll();
-
-            moveToPosition(t);
+            moveToPosition(t.posicao);
 
             if(t.tipo == Tarefa.APAGAR)
                 apagarFogo(t);
@@ -108,7 +110,7 @@ public class AgenteParticipativo extends Agent {
 
 
         this.aguaDisponivel--;
-        this.tempoAgendadoParaFicarDisponivel-=1000;
+        this.tempoParaFicarDisponivel-=1000;
         this.disponivel = true;
 
 
@@ -127,7 +129,7 @@ public class AgenteParticipativo extends Agent {
 
         this.aguaDisponivel = this.capacidadeMaxAgua;
         this.combustivelDisponivel = this.capacidadeMaxCombustivel;
-        this.tempoAgendadoParaFicarDisponivel-=1000;
+        this.tempoParaFicarDisponivel-=1000;
         this.disponivel = true;
 
         //System.out.println(new Time(System.currentTimeMillis()) + ": "+this.getAID().getLocalName()  + " --- Abasteceu em " + p.toString() + " (agua: " + this.aguaDisponivel + " ,combustivel: " + this.combustivelDisponivel + ")");
@@ -135,38 +137,37 @@ public class AgenteParticipativo extends Agent {
         this.tarefasRealizadas.add(t);
     }
 
-    private void moveToPosition(Tarefa t) throws InterruptedException {
-        this.disponivel = false;
+    private void moveToPosition(Posicao p) throws InterruptedException {
 
-        while(!this.posAtual.equals(t.posicao)){
+        while(!this.posAtual.equals(p)){
 
             this.posAnterior  =  new Posicao(this.posAtual.pos_x, this.posAtual.pos_y);
 
-            if(this.posAtual.pos_x == t.posicao.pos_x && this.posAtual.pos_y > t.posicao.pos_y) {
+            if(this.posAtual.pos_x == p.pos_x && this.posAtual.pos_y > p.pos_y) {
                 this.posAtual.pos_y--;
             }
-            else if(this.posAtual.pos_x == t.posicao.pos_x && this.posAtual.pos_y < t.posicao.pos_y) {
+            else if(this.posAtual.pos_x == p.pos_x && this.posAtual.pos_y < p.pos_y) {
                 this.posAtual.pos_y++;
             }
-            else if(this.posAtual.pos_x > t.posicao.pos_x && this.posAtual.pos_y == t.posicao.pos_y) {
+            else if(this.posAtual.pos_x > p.pos_x && this.posAtual.pos_y == p.pos_y) {
                 this.posAtual.pos_x--;
             }
-            else if(this.posAtual.pos_x < t.posicao.pos_x && this.posAtual.pos_y == t.posicao.pos_y) {
+            else if(this.posAtual.pos_x < p.pos_x && this.posAtual.pos_y == p.pos_y) {
                 this.posAtual.pos_x++;
             }
-            else if(this.posAtual.pos_x > t.posicao.pos_x && this.posAtual.pos_y > t.posicao.pos_y) {
+            else if(this.posAtual.pos_x > p.pos_x && this.posAtual.pos_y > p.pos_y) {
                 this.posAtual.pos_x--;
                 this.posAtual.pos_y--;
             }
-            else if(this.posAtual.pos_x < t.posicao.pos_x && this.posAtual.pos_y < t.posicao.pos_y) {
+            else if(this.posAtual.pos_x < p.pos_x && this.posAtual.pos_y < p.pos_y) {
                 this.posAtual.pos_x++;
                 this.posAtual.pos_y++;
             }
-            else if(this.posAtual.pos_x > t.posicao.pos_x && this.posAtual.pos_y < t.posicao.pos_y) {
+            else if(this.posAtual.pos_x > p.pos_x && this.posAtual.pos_y < p.pos_y) {
                 this.posAtual.pos_x--;
                 this.posAtual.pos_y++;
             }
-            else if(this.posAtual.pos_x < t.posicao.pos_x && this.posAtual.pos_y > t.posicao.pos_y) {
+            else if(this.posAtual.pos_x < p.pos_x && this.posAtual.pos_y > p.pos_y) {
                 this.posAtual.pos_x++;
                 this.posAtual.pos_y--;
             }
@@ -174,10 +175,11 @@ public class AgenteParticipativo extends Agent {
             int tempoDeMovimento = (4/this.velocidade)*1000;
             Thread.sleep(tempoDeMovimento);
             this.combustivelDisponivel--;
-            this.tempoAgendadoParaFicarDisponivel-=tempoDeMovimento;
 
-
-            sendCurrentStatus();
+            if(disponivel==false) {
+                this.tempoParaFicarDisponivel -= tempoDeMovimento;
+                sendCurrentStatus();
+            }
         }
     }
 
@@ -207,5 +209,42 @@ public class AgenteParticipativo extends Agent {
 
     private void registaTarefaRealizada(Tarefa t){
         this.tarefasRealizadas.add(t);
+    }
+
+    class RefillFreeMode extends TickerBehaviour {
+        public RefillFreeMode(Agent a, long period) {
+            super(a, period);
+        }
+
+        public void onTick() { // nova variável free
+            if(disponivel==true && combustivelDisponivel < (0.5*capacidadeMaxCombustivel)){
+                disponivel = false;
+                Posicao postoComb = getMinDistancePostoComb();
+                try {
+                    moveToPosition(postoComb);
+                    System.out.println("A IR METER GOTA");
+                    combustivelDisponivel = capacidadeMaxCombustivel;
+                    disponivel = true;
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+    }
+
+    private Posicao getMinDistancePostoComb(){
+        int minDistance = 1000;
+        Posicao maisProximo = null;
+
+        for(Posicao p : mapa.postosCombustivel){
+            int distance = Posicao.distanceBetween(this.posAtual,p);
+            if (distance < minDistance) {
+                maisProximo = p;
+                minDistance = distance;
+            }
+        }
+
+        return maisProximo;
     }
 }
