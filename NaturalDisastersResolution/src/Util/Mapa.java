@@ -90,6 +90,29 @@ public class Mapa {
         return res;
     }
 
+    List<Posicao> posicoesFlorestaAdjacenteNotOnFire(Posicao pos){
+        List<Posicao> res = new ArrayList<>();
+        Posicao p1 = new Posicao (pos.pos_x-1,pos.pos_y+1);
+        Posicao p2 = new Posicao (pos.pos_x,pos.pos_y+1);
+        Posicao p3 = new Posicao (pos.pos_x+1,pos.pos_y+1);
+        Posicao p4 = new Posicao (pos.pos_x-1,pos.pos_y);
+        Posicao p5 = new Posicao (pos.pos_x+1,pos.pos_y);
+        Posicao p6 = new Posicao (pos.pos_x-1,pos.pos_y-1);
+        Posicao p7 = new Posicao (pos.pos_x,pos.pos_y-1);
+        Posicao p8 = new Posicao (pos.pos_x+1,pos.pos_y-1);
+
+        if(insideDimensoes(p1) && floresta.contains(p1) && !onFire(p1)) res.add(p1);
+        if(insideDimensoes(p2) && floresta.contains(p2) && !onFire(p2)) res.add(p2);
+        if(insideDimensoes(p3) && floresta.contains(p3) && !onFire(p3)) res.add(p3);
+        if(insideDimensoes(p4) && floresta.contains(p4) && !onFire(p4)) res.add(p4);
+        if(insideDimensoes(p5) && floresta.contains(p5) && !onFire(p5)) res.add(p5);
+        if(insideDimensoes(p6) && floresta.contains(p6) && !onFire(p6)) res.add(p6);
+        if(insideDimensoes(p7) && floresta.contains(p7) && !onFire(p7)) res.add(p7);
+        if(insideDimensoes(p8) && floresta.contains(p8) && !onFire(p8)) res.add(p8);
+
+        return res;
+    }
+
     public void estabelecePosicaoPontosFixos(){
         Random rand = new Random();
         int i;

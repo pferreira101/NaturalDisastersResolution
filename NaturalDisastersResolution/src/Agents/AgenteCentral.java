@@ -103,14 +103,15 @@ public class AgenteCentral extends Agent {
      */
 
     private void processFireAlert(FireAlert fa) {
-        System.out.println(fa.toString());
+        //System.out.println(fa.toString());
         if(this.mapa.incendios.get(fa.fireID) == null){
             this.mapa.registaIncendio(fa);
         } else {
             this.mapa.atualizaIncendio(fa);
         }
 
-        this.dss.novosIncendios.add(fa.celulaIgnicao);
+        for(Posicao p: fa.celulasFogo)
+            this.dss.novosIncendios.add(p);
 
         alocaRecursos(this.mapa.incendios.get(fa.fireID));
     }
@@ -165,20 +166,20 @@ public class AgenteCentral extends Agent {
 
         // apagar
         int distAgenteIncendio;
-        if(ap.disponivel){
+        if(ap.tarefas.size()==0){
             //System.out.println(ap.toString() + " DIRETO");
             distAgenteIncendio = Posicao.distanceBetween(ap.posAtual, incendio);
         }
         else{
             //System.out.println(ap.toString() + " INDIRETO");
-            int distAgenteTarefaFinal = ap.tempoParaFicarDisponivel/((4/this.agents.get(ap.aid).velocidade)*1000);
+            int distAgenteTarefaFinal = ap.tempoParaFicarDisponivel/((4/ap.velocidade)*1000);
             //System.out.println(ap.toString() + " distAgenteTarefaFinal: " + distAgenteTarefaFinal + " " + ap.tipo);
             int distTarefaFinalIncendio = Posicao.distanceBetween(ap.tarefas.get(ap.tarefas.size()-1).posicao, incendio);
             //System.out.println(ap.toString() + " distTarefaFinalIncendio: " + distTarefaFinalIncendio + " " + ap.tipo);
             distAgenteIncendio = distAgenteTarefaFinal + distTarefaFinalIncendio;
         }
 
-        int minTempoAgenteIncendio = distAgenteIncendio*(4/this.agents.get(ap.aid).velocidade)*1000;
+        int minTempoAgenteIncendio = distAgenteIncendio*(4/ap.velocidade)*1000;
 
         //System.out.println(ap.toString() + " distAgenteIncendio: " + distAgenteIncendio + " " + ap.tipo);
         //System.out.println(ap.toString() + " minTempoAgenteIncendio: " + minTempoAgenteIncendio + " " + ap.tipo);

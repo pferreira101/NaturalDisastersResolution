@@ -11,8 +11,8 @@ public class AgenteIncendiario extends Agent {
     Mapa mapa;
     int fireId;
     AID centralAgent;
-    int freqIncendio = 5000; // 1 incendio novo a cada x ms
-    int freqExpansao = 90000;
+    int freqIncendio = 3000; // 1 incendio novo a cada x ms
+    int freqExpansao = 5000;
     Set<Integer> incendiosAtivos;
 
     protected void setup(){
@@ -63,6 +63,7 @@ public class AgenteIncendiario extends Agent {
         fireId++;
     }
 
+
     class SpreadFire extends TickerBehaviour {
 
         AgenteIncendiario agenteIncendiario;
@@ -90,23 +91,52 @@ public class AgenteIncendiario extends Agent {
             }
         }
 
-        private void spreadFire(){
+        private void spreadFire() {
             List<Posicao> celulasIncendiadas = new ArrayList<>();
-            Posicao pAdjacent;
 
-            for(Posicao p : this.ultimasCelulasIncendiadas) {
-                List<Posicao> adj;
+            for (Posicao p : this.ultimasCelulasIncendiadas) {
+                List<Posicao> adj,adjFlo;
+                Posicao pAdjacent;
                 adj = mapa.posicoesAdjacentesNotOnFire(p);
-                if(adj.isEmpty()) break;
-                do {
-                    pAdjacent = mapa.getRandAdjacentPositions(adj);
-                    //if(mapa.posicoesAdjacentesOnFire(p)==true) break;
-                } while (mapa.onFire(pAdjacent) || mapa.isWaterSource(pAdjacent));
+                adjFlo = mapa.posicoesFlorestaAdjacenteNotOnFire(p);
 
-                celulasIncendiadas.add(pAdjacent);
+
+                if (mapa.floresta.contains(p)) { // se é célula floresta, expande para 2 adjacentes, dando prioridade a pontos de floresta
+                    int i = 0;
+                    if (adjFlo.size() >= 2) {
+                        while (i < 2) {
+                            do {
+                                pAdjacent = mapa.getRandAdjacentPositions(adjFlo);
+                            } while (mapa.onFire(pAdjacent));
+                            celulasIncendiadas.add(pAdjacent);
+                            i++;
+                        }
+                    } else if (adjFlo.size() == 1) {
+                        do {
+                            pAdjacent = mapa.getRandAdjacentPositions(adjFlo);
+                        } while (mapa.onFire(pAdjacent));
+                        celulasIncendiadas.add(pAdjacent);
+                        do {
+                            pAdjacent = mapa.getRandAdjacentPositions(adj);
+                        } while (mapa.onFire(pAdjacent) || mapa.isWaterSource(pAdjacent));
+                        celulasIncendiadas.add(pAdjacent);
+                    }
+                } else if (!mapa.floresta.contains(p) && !adjFlo.isEmpty()){ // se não é celula floresta, expande para 1 adjacente, dando prioridade a pontos de floresta
+                    do {
+                        pAdjacent = mapa.getRandAdjacentPositions(adjFlo);
+                    } while (mapa.onFire(pAdjacent));
+                    celulasIncendiadas.add(pAdjacent);
+                } else if(!adj.isEmpty()){ // caso de expansão default
+                    do {
+                        pAdjacent = mapa.getRandAdjacentPositions(adj);
+                    } while (mapa.onFire(pAdjacent) || mapa.isWaterSource(pAdjacent));
+                    celulasIncendiadas.add(pAdjacent);
+                }
+
+
 
                 // tirar para fora
-                FireAlert fa = new FireAlert(this.fireId, pAdjacent);
+                FireAlert fa = new FireAlert(this.fireId, celulasIncendiadas);
 
                 try {
                     sendAlert(centralAgent, fa);
@@ -116,8 +146,8 @@ public class AgenteIncendiario extends Agent {
             }
 
             this.ultimasCelulasIncendiadas = celulasIncendiadas;
-
         }
+
     }
 
     private void sendAlert(AID central, FireAlert fa) throws Exception{
