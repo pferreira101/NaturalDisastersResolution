@@ -24,12 +24,14 @@ public class Incendio implements Serializable {
         this.fireId = fa.fireID;
         this.inicio = fa.inicioFogo;
         this.areaAfetada = new ArrayList<>();
-        this.areaAfetada.add(fa.celulaIgnicao);
+        for(Posicao p : fa.celulasFogo)
+            this.areaAfetada.add(p);
     }
 
 
     void registaExpansao(FireAlert fa) {
-        this.areaAfetada.add(fa.celulaIgnicao);
+        for(Posicao p : fa.celulasFogo)
+            this.areaAfetada.add(p);
     }
 
     void registaCelulaApagada(Posicao p){

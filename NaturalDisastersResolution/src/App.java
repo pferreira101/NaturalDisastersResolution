@@ -8,8 +8,8 @@ public class App {
     static int tamanhoMapa = 30;
     static int numPostosComb = 1;
     static int numPostosAgua = 1;
-    static int numHabitacoes = 1;
-    static int numPontosFloresta = 1;
+    static int numHabitacoes = 10;
+    static int numPontosFloresta = 20;
 
     public static void main(String[] args) throws Exception {
 
