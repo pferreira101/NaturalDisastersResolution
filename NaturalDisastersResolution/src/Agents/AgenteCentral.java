@@ -141,7 +141,7 @@ public class AgenteCentral extends Agent {
 
 
     private void alocaRecursos(Incendio incendio) {
-        Tarefa abaster, apagar;
+        Tarefa abastecer, apagar;
         AID choosenAgent = null;
         int minTempo = 100000; // 100 segundos
         Posicao posto = null;
@@ -151,10 +151,10 @@ public class AgenteCentral extends Agent {
         Posicao p = incendio.areaAfetada.get(0);
 
         for (AgentStatus ap : this.agents.values()){
-                AbstractMap.SimpleEntry<Integer, Posicao> disponibilidade = checkDisponibilidadeAgente(ap, p);
+                AbstractMap.SimpleEntry<Integer, Posicao> disponibilidade = checkDisponibilidadeAgente(ap, p); // Tempo minimo, e Posicao de onde abastecer caso seja indicado a faze-lo
                 int tempoParaFicarDisponivel = disponibilidade.getKey();
                 Posicao ondeAbastecer = disponibilidade.getValue();
-                if ( tempoParaFicarDisponivel < minTempo) {
+                if (tempoParaFicarDisponivel < minTempo) {
                     minTempo = tempoParaFicarDisponivel;
                     choosenAgent = ap.aid;
                     posto = ondeAbastecer;
@@ -164,11 +164,11 @@ public class AgenteCentral extends Agent {
         //System.out.println(agents.get(closestAgent).toString() + " tempoSomaTotal FINAL: " + minTempo + " " + agents.get(closestAgent).tipo);
 
         if(posto != null){
-            abaster = new Tarefa(taskId++, Tarefa.ABASTECER, posto);
-            this.addBehaviour(new AssignTask(choosenAgent, abaster));
+            abastecer = new Tarefa(taskId++, Tarefa.ABASTECER, posto);
+            this.addBehaviour(new AssignTask(choosenAgent, abastecer));
         }
 
-        apagar = new Tarefa(taskId++, Tarefa.APAGAR, incendio.fireId, p); // +1000 -> ação final (APAGAR)
+        apagar = new Tarefa(taskId++, Tarefa.APAGAR, incendio.fireId, p);
         this.addBehaviour(new AssignTask(choosenAgent, apagar));
     }
 
@@ -185,7 +185,7 @@ public class AgenteCentral extends Agent {
                 maxFuel = Drone.capacidadeMaxCombustivel;
             case "Firetruck":
                 maxFuel = Camiao.capacidadeMaxCombustivel;
-            case "plane":
+            case "Plane":
                 maxFuel = Aeronave.capacidadeMaxCombustivel;
         }
 
@@ -194,7 +194,14 @@ public class AgenteCentral extends Agent {
             combustivel -= distancia;
             if(t.tipo == Tarefa.ABASTECER) combustivel = maxFuel;
             posição = t.posicao;
-            tempo += distancia + 1000;
+            switch (ap.tipo){
+                case "Drone":
+                    tempo += (distancia*(4/Drone.velocidade)*1000) + 1000;
+                case "Firetruck":
+                    tempo += (distancia*(4/Camiao.velocidade)*1000) + 1000;
+                case "Plane":
+                    tempo += (distancia*(4/Aeronave.velocidade)*1000) + 1000;
+            }
         }
 
         int distanciaAgenteIncendio = Posicao.distanceBetween(posição, incendio);
@@ -203,11 +210,27 @@ public class AgenteCentral extends Agent {
         boolean temCombustivelSuficiente = combustivel > distanciaAgenteIncendio  && combustivel >= (distanciaAgenteIncendio + distanciaPostoMaisProxIncendio) ;
 
         if(!temCombustivelSuficiente){
-            AbstractMap.SimpleEntry<Posicao, Integer> postoMaisProximo = this.mapa.getPostoEntreAgenteIncendio(posição, incendio);
-            tempo += postoMaisProximo.getValue() + 1000;
+            AbstractMap.SimpleEntry<Posicao, Integer> postoMaisProximo = this.mapa.getPostoEntreAgenteIncendio(posição, incendio); // Posicao do melhor posto, e Distancia minima do agente ao incendio, passando pelo posto
+            switch (ap.tipo){
+                case "Drone":
+                    tempo += (postoMaisProximo.getValue()*(4/Drone.velocidade)*1000) + 1000;
+                case "Firetruck":
+                    tempo += (postoMaisProximo.getValue()*(4/Camiao.velocidade)*1000) + 1000;
+                case "Plane":
+                    tempo += (postoMaisProximo.getValue()*(4/Aeronave.velocidade)*1000) + 1000;
+            }
             ondeAbastecer = postoMaisProximo.getKey();
         }
-        else tempo += distanciaAgenteIncendio;
+        else {
+            switch (ap.tipo){
+                case "Drone":
+                    tempo += (distanciaAgenteIncendio*(4/Drone.velocidade)*1000);
+                case "Firetruck":
+                    tempo += (distanciaAgenteIncendio*(4/Camiao.velocidade)*1000);
+                case "Plane":
+                    tempo += (distanciaAgenteIncendio*(4/Aeronave.velocidade)*1000);
+            }
+        }
 
         return new AbstractMap.SimpleEntry<Integer, Posicao>(tempo, ondeAbastecer);
     }

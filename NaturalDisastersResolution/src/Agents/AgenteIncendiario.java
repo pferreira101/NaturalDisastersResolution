@@ -11,8 +11,8 @@ public class AgenteIncendiario extends Agent {
     Mapa mapa;
     int fireId;
     AID centralAgent;
-    int freqIncendio = 3000; // 1 incendio novo a cada x ms
-    int freqExpansao = 5000;
+    int freqIncendio = 5000; // 1 incendio novo a cada x ms
+    int freqExpansao = 15000;
     Set<Integer> incendiosAtivos;
 
     protected void setup(){
