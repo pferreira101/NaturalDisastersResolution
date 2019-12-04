@@ -17,6 +17,7 @@ public class AgenteParticipativo extends Agent {
     Posicao posAnterior;
 
     boolean disponivel;
+    boolean free;
 
     int capacidadeMaxAgua;
     int capacidadeMaxCombustivel;
@@ -176,10 +177,9 @@ public class AgenteParticipativo extends Agent {
             Thread.sleep(tempoDeMovimento);
             this.combustivelDisponivel--;
 
-            if(disponivel==false) {
-                this.tempoParaFicarDisponivel -= tempoDeMovimento;
-                sendCurrentStatus();
-            }
+            if(disponivel==false) this.tempoParaFicarDisponivel -= tempoDeMovimento;
+
+            sendCurrentStatus();
         }
     }
 
@@ -217,7 +217,7 @@ public class AgenteParticipativo extends Agent {
         }
 
         public void onTick() { // nova variável free
-            if(disponivel==true && combustivelDisponivel < (0.5*capacidadeMaxCombustivel)){
+            if(disponivel==true && combustivelDisponivel < (0.33*capacidadeMaxCombustivel)){
                 disponivel = false;
                 Posicao postoComb = getMinDistancePostoComb();
                 try {
