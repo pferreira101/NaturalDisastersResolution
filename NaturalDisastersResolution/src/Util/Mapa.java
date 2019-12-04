@@ -1,5 +1,4 @@
 import java.util.*;
-
 public class Mapa {
 
     int size;
@@ -316,5 +315,19 @@ public class Mapa {
 
     public boolean isWaterSource(Posicao p) {
         return this.postosAgua.contains(p);
+    }
+
+    public AbstractMap.SimpleEntry<Posicao, Integer> getPostoEntreAgenteIncendio(Posicao posição, Posicao incendio) {
+        Posicao postoMaisProximo = null;
+        int minDist = 10000;
+        for(Posicao posto : this.postosCombustivel){
+            int dist = Posicao.distanceBetween(posição, posto) + Posicao.distanceBetween(posto, incendio);
+            if(dist < minDist){
+                minDist = dist;
+                postoMaisProximo = posto;
+            }
+        }
+
+        return new AbstractMap.SimpleEntry<>(postoMaisProximo, minDist);
     }
 }

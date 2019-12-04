@@ -5,8 +5,11 @@ import jade.core.behaviours.OneShotBehaviour;
 import jade.lang.acl.ACLMessage;
 
 import java.io.IOException;
+import java.nio.file.attribute.AttributeView;
 import java.sql.Time;
 import java.util.*;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 public class AgenteCentral extends Agent {
 
@@ -137,27 +140,75 @@ public class AgenteCentral extends Agent {
 
 
     private void alocaRecursos(Incendio incendio) {
-        AID closestAgent = null;
+        Tarefa abaster, apagar;
+        AID choosenAgent = null;
         int minTempo = 100000; // 100 segundos
-        int tempoAtual;
+        Posicao posto = null;
+
 
         // por enquanto so temos uma celula a arder, alocar com base na distancia a essa celula
         Posicao p = incendio.areaAfetada.get(0);
 
-        for (AgentStatus ap : this.agents.values()) {
-                tempoAtual = autonomiaCombustivel(ap, p);
-                if (tempoAtual >= 0 && tempoAtual < minTempo) {
-                    minTempo = tempoAtual;
-                    closestAgent = ap.aid;
+        for (AgentStatus ap : this.agents.values()){
+                AbstractMap.SimpleEntry<Integer, Posicao> disponibilidade = checkDisponibilidadeAgente(ap, p);
+                int tempoParaFicarDisponivel = disponibilidade.getKey();
+                Posicao ondeAbastecer = disponibilidade.getValue();
+                if ( tempoParaFicarDisponivel < minTempo) {
+                    minTempo = tempoParaFicarDisponivel;
+                    choosenAgent = ap.aid;
+                    posto = ondeAbastecer;
                 }
         }
 
         //System.out.println(agents.get(closestAgent).toString() + " tempoSomaTotal FINAL: " + minTempo + " " + agents.get(closestAgent).tipo);
 
-        Tarefa t = new Tarefa(taskId++, Tarefa.APAGAR, incendio.fireId, p, minTempo + 1000); // +1000 -> ação final (APAGAR)
-        //Tarefa t2 = new Tarefa(taskId++, Tarefa.ABASTECER, p); // apenas esta aqui para testar se as tarefas no central sao marcadas como resolvidas corretamente
-        this.addBehaviour(new AssignTask(closestAgent, t));
-        //this.addBehaviour(new AssignTask(closestAgent, t, t2));
+        if(posto != null){
+            abaster = new Tarefa(taskId++, Tarefa.ABASTECER, posto);
+            this.addBehaviour(new AssignTask(choosenAgent, abaster));
+        }
+
+        apagar = new Tarefa(taskId++, Tarefa.APAGAR, incendio.fireId, p); // +1000 -> ação final (APAGAR)
+        this.addBehaviour(new AssignTask(choosenAgent, apagar));
+    }
+
+    AbstractMap.SimpleEntry<Integer, Posicao> checkDisponibilidadeAgente(AgentStatus ap, Posicao incendio){
+        Posicao ondeAbastecer = null;
+        int tempo = 0;
+        // calcular combustivel e posição do agente após este realizar todas as suas tarefas
+        int maxFuel = 0;
+        int combustivel = ap.combustivelDisponivel;
+        Posicao posição = ap.posAtual;
+
+        switch (ap.tipo){
+            case "Drone":
+                maxFuel = Drone.capacidadeMaxCombustivel;
+            case "Firetruck":
+                maxFuel = Camiao.capacidadeMaxCombustivel;
+            case "plane":
+                maxFuel = Aeronave.capacidadeMaxCombustivel;
+        }
+
+        for(Tarefa t : ap.tarefas){
+            int distancia = Posicao.distanceBetween(posição, t.posicao);
+            combustivel -= distancia;
+            if(t.tipo == Tarefa.ABASTECER) combustivel = maxFuel;
+            posição = t.posicao;
+            tempo += distancia + 1000;
+        }
+
+        int distanciaAgenteIncendio = Posicao.distanceBetween(posição, incendio);
+        int distanciaPostoMaisProxIncendio = getMinDistanceIncendioPosto(incendio);
+
+        boolean temCombustivelSuficiente = combustivel > distanciaAgenteIncendio  && combustivel >= (distanciaAgenteIncendio + distanciaPostoMaisProxIncendio) ;
+
+        if(!temCombustivelSuficiente){
+            AbstractMap.SimpleEntry<Posicao, Integer> postoMaisProximo = this.mapa.getPostoEntreAgenteIncendio(posição, incendio);
+            tempo += postoMaisProximo.getValue() + 1000;
+            ondeAbastecer = postoMaisProximo.getKey();
+        }
+        else tempo += distanciaAgenteIncendio;
+
+        return new AbstractMap.SimpleEntry<Integer, Posicao>(tempo, ondeAbastecer);
     }
 
     private int autonomiaCombustivel(AgentStatus ap, Posicao incendio){

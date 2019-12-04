@@ -72,7 +72,6 @@ public class AgenteParticipativo extends Agent {
                        LinkedList<Tarefa> tarefas = ( LinkedList<Tarefa>) msg.getContentObject();
                        for(Tarefa t : tarefas) {
                            tarefasAgendadas.add(t);
-                           tempoParaFicarDisponivel+=t.tempo;
                        }
                        if(disponivel==true) performTasks();
                    }
@@ -125,7 +124,7 @@ public class AgenteParticipativo extends Agent {
 
 
     private void abastecer(Tarefa t) throws Exception{
-
+        System.out.println("A ABASTECER");
         Thread.sleep(1000);
 
         this.aguaDisponivel = this.capacidadeMaxAgua;
