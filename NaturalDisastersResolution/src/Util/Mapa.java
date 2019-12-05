@@ -43,6 +43,29 @@ public class Mapa {
         else return false;
     }
 
+    List<Posicao> posicoesAdjacentes(Posicao pos){
+        List<Posicao> res = new ArrayList<>();
+        Posicao p1 = new Posicao (pos.pos_x-1,pos.pos_y+1);
+        Posicao p2 = new Posicao (pos.pos_x,pos.pos_y+1);
+        Posicao p3 = new Posicao (pos.pos_x+1,pos.pos_y+1);
+        Posicao p4 = new Posicao (pos.pos_x-1,pos.pos_y);
+        Posicao p5 = new Posicao (pos.pos_x+1,pos.pos_y);
+        Posicao p6 = new Posicao (pos.pos_x-1,pos.pos_y-1);
+        Posicao p7 = new Posicao (pos.pos_x,pos.pos_y-1);
+        Posicao p8 = new Posicao (pos.pos_x+1,pos.pos_y-1);
+
+        if(insideDimensoes(p1)) res.add(p1);
+        if(insideDimensoes(p2)) res.add(p2);
+        if(insideDimensoes(p3)) res.add(p3);
+        if(insideDimensoes(p4)) res.add(p4);
+        if(insideDimensoes(p5)) res.add(p5);
+        if(insideDimensoes(p6)) res.add(p6);
+        if(insideDimensoes(p7)) res.add(p7);
+        if(insideDimensoes(p8)) res.add(p8);
+
+        return res;
+    }
+
     List<Posicao> posicoesAdjacentesNotOnFire(Posicao pos){
         List<Posicao> res = new ArrayList<>();
         Posicao p1 = new Posicao (pos.pos_x-1,pos.pos_y+1);

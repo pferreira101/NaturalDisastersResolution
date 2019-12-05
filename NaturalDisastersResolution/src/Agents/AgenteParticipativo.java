@@ -17,7 +17,7 @@ public class AgenteParticipativo extends Agent {
     Posicao posAnterior;
 
     boolean disponivel;
-    boolean free;
+    boolean prevencao;
 
     int capacidadeMaxAgua;
     int capacidadeMaxCombustivel;
@@ -30,7 +30,6 @@ public class AgenteParticipativo extends Agent {
     Queue<Tarefa> tarefasAgendadas;
     List<Tarefa> tarefasRealizadas;
 
-    int tempoParaFicarDisponivel;
 
 
     void initStatus(int capacidadeMaxAgua, int capacidadeMaxCombustivel, int velocidade){
@@ -51,8 +50,6 @@ public class AgenteParticipativo extends Agent {
 
         this.tarefasAgendadas = new LinkedList<>();
         this.tarefasRealizadas = new ArrayList<>();
-
-        this.tempoParaFicarDisponivel = 0;
 
         DFManager.registerAgent(this, "Agent");
         this.centralAgent = DFManager.findAgent(this, "Central");
@@ -96,8 +93,13 @@ public class AgenteParticipativo extends Agent {
 
             if(t.tipo == Tarefa.APAGAR)
                 apagarFogo(t);
-            else
+            else if(t.tipo == Tarefa.ABASTECER)
                 abastecer(t);
+            else{
+                this.prevencao = true;
+                sendCurrentStatus();
+                this.addBehaviour(new PrevencaoFogo(this,1000,t.fireId,t.posicao));
+            }
         }
         sendCurrentStatus();
     }
@@ -110,7 +112,6 @@ public class AgenteParticipativo extends Agent {
 
 
         this.aguaDisponivel--;
-        this.tempoParaFicarDisponivel-=1000;
         this.disponivel = true;
 
 
@@ -129,13 +130,48 @@ public class AgenteParticipativo extends Agent {
 
         this.aguaDisponivel = this.capacidadeMaxAgua;
         this.combustivelDisponivel = this.capacidadeMaxCombustivel;
-        this.tempoParaFicarDisponivel-=1000;
         this.disponivel = true;
 
         //System.out.println(new Time(System.currentTimeMillis()) + ": "+this.getAID().getLocalName()  + " --- Abasteceu em " + p.toString() + " (agua: " + this.aguaDisponivel + " ,combustivel: " + this.combustivelDisponivel + ")");
 
         this.tarefasRealizadas.add(t);
     }
+
+    class PrevencaoFogo extends TickerBehaviour {
+
+        AgenteParticipativo agenteParticipativo;
+        Posicao posicaoInicialPrevencao; // necessário para calcular os adjacentes
+        List<Posicao> adj;
+        int fireId;
+
+
+        public PrevencaoFogo(AgenteParticipativo a, long period, int f, Posicao p) {
+            super(a, period);
+            this.agenteParticipativo = a;
+            this.posicaoInicialPrevencao = p;
+            this.adj = mapa.posicoesAdjacentes(posicaoInicialPrevencao);
+            this.fireId = f;
+        }
+
+        @Override
+        protected void onTick(){
+            if(mapa.incendios.containsKey(fireId)){
+                System.out.println("A PREVENIR");
+                prevencaoFogo();
+            }
+            else{
+                prevencao = false;
+                sendCurrentStatus();
+                agenteParticipativo.removeBehaviour(this);
+            }
+        }
+
+        private void prevencaoFogo() {
+
+        }
+
+    }
+
 
     private void moveToPosition(Posicao p) throws InterruptedException {
 
@@ -175,8 +211,6 @@ public class AgenteParticipativo extends Agent {
             int tempoDeMovimento = (4/this.velocidade)*1000;
             Thread.sleep(tempoDeMovimento);
             this.combustivelDisponivel--;
-
-            if(disponivel==false) this.tempoParaFicarDisponivel -= tempoDeMovimento;
 
             sendCurrentStatus();
         }
