@@ -129,12 +129,22 @@ public class AgenteCentral extends Agent {
                 filter(tarefa -> tarefa.tempo < 4000).
                 forEach(tarefa -> this.dss.celulasApagadas.add(tarefa.posicao));*/
 
+        List postosCombAtivos = mapa.getAllPostosCombustiveisAtivos();
+
         for(Tarefa t : status.tarefas){
             if(t.tipo == Tarefa.APAGAR) {
                 if (t.minTempo <= 10000) {
                     dss.celulasApagadas.add(t.posicao);
                 } else{
                     dss.celulasArdidas.add(t.posicao);
+
+                    if(postosCombAtivos.contains(t.posicao)){
+                        for(PostoCombustivel posto : mapa.postosCombustivel){
+                            if(posto.pos.equals(t.posicao))
+                                posto.ativo = false;
+                        }
+                    }
+
                 }
             }
         }
@@ -311,9 +321,9 @@ public class AgenteCentral extends Agent {
     private int getMinDistanceIncendioPosto(Posicao incendio){
         int minDistance = 1000;
 
-        for(Posicao p : mapa.postosCombustivel){
-            int distance = Posicao.distanceBetween(incendio,p);
-            if (distance < minDistance) {
+        for(PostoCombustivel p : mapa.postosCombustivel){
+            int distance = Posicao.distanceBetween(incendio,p.pos);
+            if (p.ativo == true && distance < minDistance) {
                 minDistance = distance;
             }
         }

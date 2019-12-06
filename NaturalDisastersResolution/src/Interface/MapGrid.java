@@ -32,7 +32,7 @@ public class MapGrid {
 
         drawMapObjects(GridCell.HOUSE, mapa.habitacoes);
         drawMapObjects(GridCell.FOREST, mapa.floresta);
-        drawMapObjects(GridCell.FUEL_STATION, mapa.postosCombustivel);
+        drawMapObjects(GridCell.FUEL_STATION, mapa.getAllPostosCombustiveisAtivos());
         drawMapObjects(GridCell.WATER_SOURCE, mapa.postosAgua);
     }
 

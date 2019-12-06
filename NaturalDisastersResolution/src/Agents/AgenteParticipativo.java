@@ -249,10 +249,10 @@ public class AgenteParticipativo extends Agent {
         int minDistance = 1000;
         Posicao maisProximo = null;
 
-        for(Posicao p : mapa.postosCombustivel){
-            int distance = Posicao.distanceBetween(this.posAtual,p);
-            if (distance < minDistance) {
-                maisProximo = p;
+        for(PostoCombustivel p : mapa.postosCombustivel){
+            int distance = Posicao.distanceBetween(this.posAtual,p.pos);
+            if (p.ativo == true && distance < minDistance) {
+                maisProximo = p.pos;
                 minDistance = distance;
             }
         }
