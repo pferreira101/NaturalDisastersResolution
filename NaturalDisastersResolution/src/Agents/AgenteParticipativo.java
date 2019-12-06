@@ -39,6 +39,7 @@ public class AgenteParticipativo extends Agent {
         this.combustivelDisponivel = capacidadeMaxCombustivel;
         this.velocidade = velocidade;
         this.disponivel = true;
+        this.prevencao = false;
     }
 
 
@@ -89,16 +90,19 @@ public class AgenteParticipativo extends Agent {
         while(this.tarefasAgendadas.peek() != null) {
             this.disponivel = false;
             Tarefa t = this.tarefasAgendadas.poll();
-            moveToPosition(t.posicao);
+            int completo = moveToPosition(t.posicao,t);
 
             if(t.tipo == Tarefa.APAGAR)
                 apagarFogo(t);
             else if(t.tipo == Tarefa.ABASTECER)
                 abastecer(t);
             else{
-                this.prevencao = true;
-                sendCurrentStatus();
-                this.addBehaviour(new PrevencaoFogo(this,1000,t.fireId,t.posicao));
+                // caso o incêndio ainda esteja ativo quando o agente preventivo lá chegar
+                if(completo==0) {
+                    this.prevencao = true;
+                    sendCurrentStatus();
+                    this.addBehaviour(new PrevencaoFogo(this, 1000, t));
+                }
             }
         }
         sendCurrentStatus();
@@ -140,40 +144,32 @@ public class AgenteParticipativo extends Agent {
     class PrevencaoFogo extends TickerBehaviour {
 
         AgenteParticipativo agenteParticipativo;
-        Posicao posicaoInicialPrevencao; // necessário para calcular os adjacentes
-        List<Posicao> adj;
-        int fireId;
+        Tarefa tarefa;
 
 
-        public PrevencaoFogo(AgenteParticipativo a, long period, int f, Posicao p) {
+        public PrevencaoFogo(AgenteParticipativo a, long period, Tarefa t) {
             super(a, period);
             this.agenteParticipativo = a;
-            this.posicaoInicialPrevencao = p;
-            this.adj = mapa.posicoesAdjacentes(posicaoInicialPrevencao);
-            this.fireId = f;
+            this.tarefa = t;
         }
 
         @Override
         protected void onTick(){
-            if(mapa.incendios.containsKey(fireId)){
-                System.out.println("A PREVENIR");
-                prevencaoFogo();
-            }
-            else{
+            if(mapa.isFireActive(tarefa.fireId)==false){
                 prevencao = false;
+                disponivel = true;
+                tarefasRealizadas.add(tarefa);
                 sendCurrentStatus();
                 agenteParticipativo.removeBehaviour(this);
             }
+            else{
+                System.out.println(agenteParticipativo.velocidade + " A PREVENIR");
+            }
         }
-
-        private void prevencaoFogo() {
-
-        }
-
     }
 
 
-    private void moveToPosition(Posicao p) throws InterruptedException {
+    private int moveToPosition(Posicao p, Tarefa t) throws InterruptedException {
 
         while(!this.posAtual.equals(p)){
 
@@ -213,7 +209,17 @@ public class AgenteParticipativo extends Agent {
             this.combustivelDisponivel--;
 
             sendCurrentStatus();
+
+            // caso o agente preventivo se esteja a mover para o incendio, mas este tenha sido entretanto apagado, pára o seu movimento
+            if(mapa.isFireActive(t.fireId)==false){
+                if(prevencao==true) prevencao = false;
+                disponivel = true;
+                tarefasRealizadas.add(t);
+                sendCurrentStatus();
+                return -1;
+            }
         }
+        return 0;
     }
 
     private void sendCurrentStatus() {
@@ -254,7 +260,7 @@ public class AgenteParticipativo extends Agent {
                 disponivel = false;
                 Posicao postoComb = getMinDistancePostoComb();
                 try {
-                    moveToPosition(postoComb);
+                    moveToPosition(postoComb,null);
                     System.out.println("A IR METER GOTA");
                     combustivelDisponivel = capacidadeMaxCombustivel;
                     disponivel = true;

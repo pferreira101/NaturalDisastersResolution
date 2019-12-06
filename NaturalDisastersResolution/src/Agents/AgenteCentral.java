@@ -17,6 +17,7 @@ public class AgenteCentral extends Agent {
     Map<AID, AgentStatus> agents;
     DeltaSimulationStatus dss;
     int taskId;
+    Map<AID,List<Posicao>> preventionAgents; // map com os agentes preventivos, em que cada um tem uma lista de posições a controlar
 
     protected void setup() {
         Object[] args = this.getArguments();
@@ -29,6 +30,7 @@ public class AgenteCentral extends Agent {
         addBehaviour(new ReceiveInfo());
         this.agents = new HashMap<>();
         this.dss = new DeltaSimulationStatus();
+        this.preventionAgents = new HashMap<>();
     }
 
     /**
@@ -132,9 +134,12 @@ public class AgenteCentral extends Agent {
 
         AgentStatus as = this.agents.get(agent);
 
-
-        if (as != null)
+        if (as != null) {
+            // caso o agente já não esteja de prevenção, é retirado do map de agentes preventivos
+            if(preventionAgents.containsKey(as.aid) && as.prevencao == false)
+                preventionAgents.remove(agent);
             as.atualizarEstado(status);
+        }
         else
             this.agents.put(agent, status);
     }
@@ -153,22 +158,43 @@ public class AgenteCentral extends Agent {
         // por enquanto so temos uma celula a arder, alocar com base na distancia a essa celula
         Posicao p = incendio.areaAfetada.get(0);
 
-        for (AgentStatus ap : this.agents.values()){
-            if(ap.prevencao == false) {
-                AbstractMap.SimpleEntry<Integer, Posicao> disponibilidade = checkDisponibilidadeAgente(ap, p); // Tempo minimo, e Posicao de onde abastecer caso seja indicado a faze-lo
-                int tempoParaFicarDisponivel = disponibilidade.getKey();
-                Posicao ondeAbastecer = disponibilidade.getValue();
-                if (tempoParaFicarDisponivel > minTempo && tempoParaFicarDisponivel < secondMinTempo) {
-                    secondMinTempo = tempoParaFicarDisponivel;
-                    secondChoosenAgent = choosenAgent;
-                    secondPosto = ondeAbastecer;
-                } else if (tempoParaFicarDisponivel < minTempo) {
-                    secondMinTempo = minTempo;
-                    minTempo = tempoParaFicarDisponivel;
-                    secondChoosenAgent = choosenAgent;
-                    choosenAgent = ap.aid;
-                    secondPosto = posto;
-                    posto = ondeAbastecer;
+        if(preventionAgents.values().contains(p)) { // caso o ponto esteja dentro dos controlados pelos agentes preventivos
+            for (AID aid : preventionAgents.keySet()) {
+                if (preventionAgents.get(aid).contains(p)) choosenAgent = aid;
+            }
+
+            int combustivel = agents.get(choosenAgent).combustivelDisponivel;
+            Posicao posicao = agents.get(choosenAgent).posAtual;
+
+            int distanciaAgenteIncendio = Posicao.distanceBetween(posicao, p);
+            int distanciaPostoMaisProxIncendio = getMinDistanceIncendioPosto(p);
+
+            boolean temCombustivelSuficiente = combustivel > distanciaAgenteIncendio && combustivel >= (distanciaAgenteIncendio + distanciaPostoMaisProxIncendio);
+
+            if (!temCombustivelSuficiente) {
+                AbstractMap.SimpleEntry<Posicao, Integer> postoMaisProximo = this.mapa.getPostoEntreAgenteIncendio(posicao, p);
+                posto = postoMaisProximo.getKey();
+            }
+        }
+        else {
+            for (AgentStatus ap : this.agents.values()) {
+                if (ap.prevencao == false) { // caso o agente não esteja de prevenção
+                    AbstractMap.SimpleEntry<Integer, Posicao> disponibilidade = checkDisponibilidadeAgente(ap, p); // Tempo minimo, e Posicao de onde abastecer caso seja indicado a faze-lo
+                    int tempoParaFicarDisponivel = disponibilidade.getKey();
+                    Posicao ondeAbastecer = disponibilidade.getValue();
+                    // second* -> segundo mais rápido -> vai ser o agente preventivo
+                    if (tempoParaFicarDisponivel > minTempo && tempoParaFicarDisponivel < secondMinTempo) {
+                        secondMinTempo = tempoParaFicarDisponivel;
+                        secondChoosenAgent = ap.aid;
+                        secondPosto = ondeAbastecer;
+                    } else if (tempoParaFicarDisponivel < minTempo) {
+                        secondMinTempo = minTempo;
+                        minTempo = tempoParaFicarDisponivel;
+                        secondChoosenAgent = choosenAgent;
+                        choosenAgent = ap.aid;
+                        secondPosto = posto;
+                        posto = ondeAbastecer;
+                    }
                 }
             }
         }
@@ -183,19 +209,17 @@ public class AgenteCentral extends Agent {
         apagar = new Tarefa(taskId++, Tarefa.APAGAR, incendio.fireId, p);
         this.addBehaviour(new AssignTask(choosenAgent, apagar));
 
-        if(secondChoosenAgent!=null && mapa.floresta.contains(p)){
-            List<Posicao> adj = mapa.posicoesAdjacentes(p);
-            Posicao pAdjacent;
-            do {
-                pAdjacent = mapa.getRandAdjacentPositions(adj);
-            } while (mapa.onFire(pAdjacent));
+        if(secondChoosenAgent != null && mapa.floresta.contains(p)){ // caso a tarefa seja numa floresta e exiga segundo agente (agente preventivo)
+
+            // adicionar agente, e suas posicoes a controlar, ao map com os agentes preventivos
+            preventionAgents.put(secondChoosenAgent,mapa.posicoesAdjacentes(p));
 
             if(secondPosto != null){
                 abastecer = new Tarefa(taskId++, Tarefa.ABASTECER, secondPosto);
                 this.addBehaviour(new AssignTask(secondChoosenAgent, abastecer));
             }
 
-            prevenir = new Tarefa(taskId++, Tarefa.PREVENIR, incendio.fireId, pAdjacent);
+            prevenir = new Tarefa(taskId++, Tarefa.PREVENIR, incendio.fireId, p);
             this.addBehaviour(new AssignTask(secondChoosenAgent,prevenir));
         }
 
