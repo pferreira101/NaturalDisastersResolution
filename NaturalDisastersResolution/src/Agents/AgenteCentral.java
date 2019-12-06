@@ -139,27 +139,38 @@ public class AgenteCentral extends Agent {
             this.agents.put(agent, status);
     }
 
-
     private void alocaRecursos(Incendio incendio) {
-        Tarefa abastecer, apagar;
+        Tarefa abastecer, apagar, prevenir;
         AID choosenAgent = null;
+        AID secondChoosenAgent = null;
         int minTempo = 100000; // 100 segundos
+        int secondMinTempo = 200000;
         Posicao posto = null;
+        Posicao secondPosto = null;
 
 
-        // por enquanto so temos uma celula a arder, alocar com base na distancia a essa celula
         Posicao p = incendio.areaAfetada.get(0);
 
-        for (AgentStatus ap : this.agents.values()){
-                AbstractMap.SimpleEntry<Integer, Posicao> disponibilidade = checkDisponibilidadeAgente(ap, p); // Tempo minimo, e Posicao de onde abastecer caso seja indicado a faze-lo
-                int tempoParaFicarDisponivel = disponibilidade.getKey();
-                Posicao ondeAbastecer = disponibilidade.getValue();
-                if (tempoParaFicarDisponivel < minTempo) {
-                    minTempo = tempoParaFicarDisponivel;
-                    choosenAgent = ap.aid;
-                    posto = ondeAbastecer;
-                }
+
+        for (AgentStatus ap : this.agents.values()) {
+            AbstractMap.SimpleEntry<Integer, Posicao> disponibilidade = checkDisponibilidadeAgente(ap, p); // Tempo minimo, e Posicao de onde abastecer caso seja indicado a faze-lo
+            int tempoParaFicarDisponivel = disponibilidade.getKey();
+            Posicao ondeAbastecer = disponibilidade.getValue();
+            // second* -> segundo mais rápido -> vai ser o agente preventivo
+            if (tempoParaFicarDisponivel > minTempo && tempoParaFicarDisponivel < secondMinTempo) {
+                secondMinTempo = tempoParaFicarDisponivel;
+                secondChoosenAgent = ap.aid;
+                secondPosto = ondeAbastecer;
+            } else if (tempoParaFicarDisponivel < minTempo) {
+                secondMinTempo = minTempo;
+                minTempo = tempoParaFicarDisponivel;
+                secondChoosenAgent = choosenAgent;
+                choosenAgent = ap.aid;
+                secondPosto = posto;
+                posto = ondeAbastecer;
+            }
         }
+
 
         //System.out.println(agents.get(closestAgent).toString() + " tempoSomaTotal FINAL: " + minTempo + " " + agents.get(closestAgent).tipo);
 
@@ -170,7 +181,20 @@ public class AgenteCentral extends Agent {
 
         apagar = new Tarefa(taskId++, Tarefa.APAGAR, incendio.fireId, p);
         this.addBehaviour(new AssignTask(choosenAgent, apagar));
+
+        if(secondChoosenAgent != null && mapa.floresta.contains(p)){ // caso a tarefa seja numa floresta e exiga segundo agente (agente preventivo)
+
+            if(secondPosto != null){
+                abastecer = new Tarefa(taskId++, Tarefa.ABASTECER, secondPosto);
+                this.addBehaviour(new AssignTask(secondChoosenAgent, abastecer));
+            }
+
+            prevenir = new Tarefa(taskId++, Tarefa.PREVENIR, incendio.fireId, p);
+            this.addBehaviour(new AssignTask(secondChoosenAgent,prevenir));
+        }
+
     }
+
 
     AbstractMap.SimpleEntry<Integer, Posicao> checkDisponibilidadeAgente(AgentStatus ap, Posicao incendio){
         Posicao ondeAbastecer = null;

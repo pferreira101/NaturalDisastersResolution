@@ -4,6 +4,7 @@ public class Tarefa implements Serializable {
 
     final static int ABASTECER = 1;
     final static int APAGAR = 2;
+    final static int PREVENIR = 3;
 
     int taskId;
     int tipo;
