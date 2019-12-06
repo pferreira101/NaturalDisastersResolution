@@ -222,6 +222,7 @@ public class AgenteParticipativo extends Agent {
         this.tarefasRealizadas.add(t);
     }
 
+    /*
     class RefillFreeMode extends TickerBehaviour {
         public RefillFreeMode(Agent a, long period) {
             super(a, period);
@@ -242,7 +243,7 @@ public class AgenteParticipativo extends Agent {
             }
         }
 
-    }
+    }*/
 
     private Posicao getMinDistancePostoComb(){
         int minDistance = 1000;

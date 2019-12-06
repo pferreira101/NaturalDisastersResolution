@@ -122,10 +122,22 @@ public class AgenteCentral extends Agent {
 
     private void atualizarEstadoAgente(AID agent, AgentStatus status) {
 
+        /*
         // registar celulas apagadas
         status.tarefas.stream().
                 filter(tarefa -> tarefa.tipo == Tarefa.APAGAR).
-                forEach(tarefa -> this.dss.celulasApagadas.add(tarefa.posicao));
+                filter(tarefa -> tarefa.tempo < 4000).
+                forEach(tarefa -> this.dss.celulasApagadas.add(tarefa.posicao));*/
+
+        for(Tarefa t : status.tarefas){
+            if(t.tipo == Tarefa.APAGAR) {
+                if (t.minTempo <= 10000) {
+                    dss.celulasApagadas.add(t.posicao);
+                } else{
+                    dss.celulasArdidas.add(t.posicao);
+                }
+            }
+        }
 
         // registar novas posicoes
         this.dss.estadoAgentes.add(status);
@@ -179,7 +191,8 @@ public class AgenteCentral extends Agent {
             this.addBehaviour(new AssignTask(choosenAgent, abastecer));
         }
 
-        apagar = new Tarefa(taskId++, Tarefa.APAGAR, incendio.fireId, p);
+        apagar = new Tarefa(taskId++, Tarefa.APAGAR, incendio.fireId, p, minTempo);
+        System.out.println("-------------------------------------------------------------------------------- minTempo: " + minTempo);
         this.addBehaviour(new AssignTask(choosenAgent, apagar));
 
         if(secondChoosenAgent != null && mapa.floresta.contains(p)){ // caso a tarefa seja numa floresta e exiga segundo agente (agente preventivo)
@@ -259,7 +272,7 @@ public class AgenteCentral extends Agent {
         return new AbstractMap.SimpleEntry<Integer, Posicao>(tempo, ondeAbastecer);
     }
 
-    private int autonomiaCombustivel(AgentStatus ap, Posicao incendio){
+    /*private int autonomiaCombustivel(AgentStatus ap, Posicao incendio){
         int combSomaTotal = 0;
 
         // apagar
@@ -293,7 +306,7 @@ public class AgenteCentral extends Agent {
 
         if(ap.combustivelDisponivel>combSomaTotal) return minTempoAgenteIncendio;
         else return -1;
-    }
+    }*/
 
     private int getMinDistanceIncendioPosto(Posicao incendio){
         int minDistance = 1000;

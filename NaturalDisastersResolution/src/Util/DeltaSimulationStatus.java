@@ -6,12 +6,14 @@ public class DeltaSimulationStatus implements Serializable {
 
     List<Posicao> novosIncendios;
     List<Posicao> celulasApagadas;
+    List<Posicao> celulasArdidas;
     List<AgentStatus> estadoAgentes;
 
 
     public DeltaSimulationStatus(){
         this.novosIncendios = new ArrayList<>();
         this.celulasApagadas = new ArrayList<>();
+        this.celulasArdidas = new ArrayList<>();
         this.estadoAgentes = new ArrayList<>();
     }
 

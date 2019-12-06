@@ -55,9 +55,15 @@ public class MapGrid {
             posicoesModificadas.add(gridCell);
         }
 
-        for(Posicao p : stats.celulasApagadas){
+        for(Posicao p : stats.celulasArdidas){
             GridCell gridCell =  this.grid[(int)p.pos_x][(int)p.pos_y];
             gridCell.setBurntState();
+            posicoesModificadas.add(gridCell);
+        }
+
+        for(Posicao p : stats.celulasApagadas){
+            GridCell gridCell =  this.grid[(int)p.pos_x][(int)p.pos_y];
+            gridCell.setNormalState();
             posicoesModificadas.add(gridCell);
         }
 

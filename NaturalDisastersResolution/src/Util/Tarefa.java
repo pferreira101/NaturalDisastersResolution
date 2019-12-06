@@ -10,6 +10,7 @@ public class Tarefa implements Serializable {
     int tipo;
     int fireId;
     Posicao posicao;
+    int minTempo;
 
     Tarefa(int id, int op, Posicao p){
         this.taskId = id;
@@ -22,6 +23,14 @@ public class Tarefa implements Serializable {
         this.fireId = fireId;
         this.tipo = op;
         this.posicao = p;
+    }
+
+    Tarefa(int id, int op, int fireId, Posicao p, int minTempo){
+        this.taskId = id;
+        this.fireId = fireId;
+        this.tipo = op;
+        this.posicao = p;
+        this.minTempo = minTempo;
     }
 
     public Posicao getPosicao() {

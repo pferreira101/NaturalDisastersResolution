@@ -65,6 +65,10 @@ public class GridCell {
         this.vehicles.remove(tipo);
     }
 
+    public void setNormalState(){
+        this.state = 0;
+    }
+
     public void setOnFireState(){
         this.state = 1;
     }
