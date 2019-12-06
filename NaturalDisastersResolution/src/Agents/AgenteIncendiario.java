@@ -101,7 +101,7 @@ public class AgenteIncendiario extends Agent {
                 adjFlo = mapa.posicoesFlorestaAdjacenteNotOnFire(p);
 
 
-                if (mapa.floresta.contains(p)) { // se é célula floresta, expande para 2 adjacentes, dando prioridade a pontos de floresta
+                if (!adjFlo.isEmpty() && mapa.floresta.contains(p)) { // se é célula floresta, expande para 2 adjacentes, dando prioridade a pontos de floresta
                     int i = 0;
                     if (adjFlo.size() >= 2) {
                         while (i < 2) {

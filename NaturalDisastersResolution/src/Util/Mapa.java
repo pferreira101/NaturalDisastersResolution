@@ -7,7 +7,7 @@ public class Mapa {
     int numHabitacoes;
     int numPontosFloresta;
 
-    List<Posicao> postosCombustivel;
+    List<PostoCombustivel> postosCombustivel;
     List<Posicao> postosAgua;
     List<Posicao> habitacoes;
     List<Posicao> floresta;
@@ -119,7 +119,7 @@ public class Mapa {
         List<Posicao> list;
         list = getPosicoesProporcional(numPostosComb);
         for(Posicao p : list) {
-            postosCombustivel.add(p);
+            postosCombustivel.add(new PostoCombustivel(p));
         }
 
         i=0;
@@ -343,14 +343,23 @@ public class Mapa {
     public AbstractMap.SimpleEntry<Posicao, Integer> getPostoEntreAgenteIncendio(Posicao posição, Posicao incendio) {
         Posicao postoMaisProximo = null;
         int minDist = 10000;
-        for(Posicao posto : this.postosCombustivel){
-            int dist = Posicao.distanceBetween(posição, posto) + Posicao.distanceBetween(posto, incendio);
-            if(dist < minDist){
+        for(PostoCombustivel posto : this.postosCombustivel){
+            int dist = Posicao.distanceBetween(posição, posto.pos) + Posicao.distanceBetween(posto.pos, incendio);
+            if(posto.ativo == true && dist < minDist){
                 minDist = dist;
-                postoMaisProximo = posto;
+                postoMaisProximo = posto.pos;
             }
         }
 
         return new AbstractMap.SimpleEntry<>(postoMaisProximo, minDist);
     }
+
+    List<Posicao> getAllPostosCombustiveisAtivos(){
+        List res = new ArrayList();
+        for(PostoCombustivel posto : postosCombustivel){
+            if(posto.ativo==true) res.add(posto.pos);
+        }
+        return res;
+    }
+
 }

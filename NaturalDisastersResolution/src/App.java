@@ -3,6 +3,15 @@ import java.util.List;
 
 public class App {
 
+    static int nDrones = 1;
+    static int nCamioes = 1;
+    static int nAeronaves = 1;
+    static int tamanhoMapa = 8;
+    static int numPostosComb = 2;
+    static int numPostosAgua = 1;
+    static int numHabitacoes = 10;
+    static int numPontosFloresta = 20;
+
     public static void main(String[] args) throws Exception {
 
         run();

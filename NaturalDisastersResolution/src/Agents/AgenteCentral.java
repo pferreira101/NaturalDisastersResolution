@@ -122,10 +122,32 @@ public class AgenteCentral extends Agent {
 
     private void atualizarEstadoAgente(AID agent, AgentStatus status) {
 
+        /*
         // registar celulas apagadas
         status.tarefas.stream().
                 filter(tarefa -> tarefa.tipo == Tarefa.APAGAR).
-                forEach(tarefa -> this.dss.celulasApagadas.add(tarefa.posicao));
+                filter(tarefa -> tarefa.tempo < 4000).
+                forEach(tarefa -> this.dss.celulasApagadas.add(tarefa.posicao));*/
+
+        List postosCombAtivos = mapa.getAllPostosCombustiveisAtivos();
+
+        for(Tarefa t : status.tarefas){
+            if(t.tipo == Tarefa.APAGAR) {
+                if (t.minTempo <= 10000) {
+                    dss.celulasApagadas.add(t.posicao);
+                } else{
+                    dss.celulasArdidas.add(t.posicao);
+
+                    if(postosCombAtivos.contains(t.posicao)){
+                        for(PostoCombustivel posto : mapa.postosCombustivel){
+                            if(posto.pos.equals(t.posicao))
+                                posto.ativo = false;
+                        }
+                    }
+
+                }
+            }
+        }
 
         // registar novas posicoes
         this.dss.estadoAgentes.add(status);
@@ -139,27 +161,38 @@ public class AgenteCentral extends Agent {
             this.agents.put(agent, status);
     }
 
-
     private void alocaRecursos(Incendio incendio) {
-        Tarefa abastecer, apagar;
+        Tarefa abastecer, apagar, prevenir;
         AID choosenAgent = null;
+        AID secondChoosenAgent = null;
         int minTempo = 100000; // 100 segundos
+        int secondMinTempo = 200000;
         Posicao posto = null;
+        Posicao secondPosto = null;
 
 
-        // por enquanto so temos uma celula a arder, alocar com base na distancia a essa celula
         Posicao p = incendio.areaAfetada.get(0);
 
-        for (AgentStatus ap : this.agents.values()){
-                AbstractMap.SimpleEntry<Integer, Posicao> disponibilidade = checkDisponibilidadeAgente(ap, p); // Tempo minimo, e Posicao de onde abastecer caso seja indicado a faze-lo
-                int tempoParaFicarDisponivel = disponibilidade.getKey();
-                Posicao ondeAbastecer = disponibilidade.getValue();
-                if (tempoParaFicarDisponivel < minTempo) {
-                    minTempo = tempoParaFicarDisponivel;
-                    choosenAgent = ap.aid;
-                    posto = ondeAbastecer;
-                }
+
+        for (AgentStatus ap : this.agents.values()) {
+            AbstractMap.SimpleEntry<Integer, Posicao> disponibilidade = checkDisponibilidadeAgente(ap, p); // Tempo minimo, e Posicao de onde abastecer caso seja indicado a faze-lo
+            int tempoParaFicarDisponivel = disponibilidade.getKey();
+            Posicao ondeAbastecer = disponibilidade.getValue();
+            // second* -> segundo mais rápido -> vai ser o agente preventivo
+            if (tempoParaFicarDisponivel > minTempo && tempoParaFicarDisponivel < secondMinTempo) {
+                secondMinTempo = tempoParaFicarDisponivel;
+                secondChoosenAgent = ap.aid;
+                secondPosto = ondeAbastecer;
+            } else if (tempoParaFicarDisponivel < minTempo) {
+                secondMinTempo = minTempo;
+                minTempo = tempoParaFicarDisponivel;
+                secondChoosenAgent = choosenAgent;
+                choosenAgent = ap.aid;
+                secondPosto = posto;
+                posto = ondeAbastecer;
+            }
         }
+
 
         //System.out.println(agents.get(closestAgent).toString() + " tempoSomaTotal FINAL: " + minTempo + " " + agents.get(closestAgent).tipo);
 
@@ -168,9 +201,23 @@ public class AgenteCentral extends Agent {
             this.addBehaviour(new AssignTask(choosenAgent, abastecer));
         }
 
-        apagar = new Tarefa(taskId++, Tarefa.APAGAR, incendio.fireId, p);
+        apagar = new Tarefa(taskId++, Tarefa.APAGAR, incendio.fireId, p, minTempo);
+        System.out.println("-------------------------------------------------------------------------------- minTempo: " + minTempo);
         this.addBehaviour(new AssignTask(choosenAgent, apagar));
+
+        if(secondChoosenAgent != null && mapa.floresta.contains(p)){ // caso a tarefa seja numa floresta e exiga segundo agente (agente preventivo)
+
+            if(secondPosto != null){
+                abastecer = new Tarefa(taskId++, Tarefa.ABASTECER, secondPosto);
+                this.addBehaviour(new AssignTask(secondChoosenAgent, abastecer));
+            }
+
+            prevenir = new Tarefa(taskId++, Tarefa.PREVENIR, incendio.fireId, p);
+            this.addBehaviour(new AssignTask(secondChoosenAgent,prevenir));
+        }
+
     }
+
 
     AbstractMap.SimpleEntry<Integer, Posicao> checkDisponibilidadeAgente(AgentStatus ap, Posicao incendio){
         Posicao ondeAbastecer = null;
@@ -235,7 +282,7 @@ public class AgenteCentral extends Agent {
         return new AbstractMap.SimpleEntry<Integer, Posicao>(tempo, ondeAbastecer);
     }
 
-    private int autonomiaCombustivel(AgentStatus ap, Posicao incendio){
+    /*private int autonomiaCombustivel(AgentStatus ap, Posicao incendio){
         int combSomaTotal = 0;
 
         // apagar
@@ -269,14 +316,14 @@ public class AgenteCentral extends Agent {
 
         if(ap.combustivelDisponivel>combSomaTotal) return minTempoAgenteIncendio;
         else return -1;
-    }
+    }*/
 
     private int getMinDistanceIncendioPosto(Posicao incendio){
         int minDistance = 1000;
 
-        for(Posicao p : mapa.postosCombustivel){
-            int distance = Posicao.distanceBetween(incendio,p);
-            if (distance < minDistance) {
+        for(PostoCombustivel p : mapa.postosCombustivel){
+            int distance = Posicao.distanceBetween(incendio,p.pos);
+            if (p.ativo == true && distance < minDistance) {
                 minDistance = distance;
             }
         }
