@@ -12,7 +12,17 @@ public class MenuInicial {
     private JFrame frame;
     private JTextField gridWidth;
     private JTextField gridHeight;
-    private JButton btnGo = new JButton("Go");
+    private JTextField nDrones;
+    private JTextField nCamioes;
+    private JTextField nAeronaves;
+    private JTextField tamanhoMapa;
+    private JTextField numPostosComb;
+    private JTextField numPostosAgua;
+    private JTextField numHabitacoes;
+    private JTextField numPontosFlorestais;
+    private JButton btnGo = new JButton("Start");
+    private JButton btnStart = new JButton("Stop");
+    private JButton btnStop = new JButton("Go");
 
     /**
      * Create the application.
@@ -25,6 +35,8 @@ public class MenuInicial {
         buttonIntialize();
 
         formInitialize();
+
+
     }
 
     /**
@@ -33,6 +45,7 @@ public class MenuInicial {
     private void formInitialize() {
         gridWidthInitialize();
         gridHeightInitialize();
+
     }
 
 
@@ -96,6 +109,8 @@ public class MenuInicial {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().setLayout(null);
     }
+
+
 
     /**
      * Returns the welcome screen frame
