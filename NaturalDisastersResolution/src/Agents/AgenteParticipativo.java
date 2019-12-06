@@ -100,6 +100,8 @@ public class AgenteParticipativo extends Agent {
                 // caso o incêndio ainda esteja ativo quando o agente preventivo lá chegar
                 if(completo==0) {
                     this.prevencao = true;
+                    this.disponivel = true;
+                    tarefasRealizadas.add(t);
                     sendCurrentStatus();
                     this.addBehaviour(new PrevencaoFogo(this, 1000, t));
                 }
@@ -114,18 +116,15 @@ public class AgenteParticipativo extends Agent {
 
         Thread.sleep(1000);
 
-
         this.aguaDisponivel--;
         this.disponivel = true;
 
-
         // System.out.println(new Time(System.currentTimeMillis()) + ": "+this.getAID().getLocalName()  + " --- Apagou célula " + p.toString() + " (agua: " + this.aguaDisponivel + " ,combustivel: " + this.combustivelDisponivel + ")");
 
-        System.out.println("Agente a registar que apagou a celula " + t.posicao + ", no fogo "+t.fireId);
+        System.out.println("Agente a registar que apagou a celula " + t.posicao + ", no fogo "+t.fireId + " -> " + velocidade);
         this.mapa.registaCelulaApagada(t.fireId, t.posicao);
         this.tarefasRealizadas.add(t);
     }
-
 
 
     private void abastecer(Tarefa t) throws Exception{
@@ -157,13 +156,11 @@ public class AgenteParticipativo extends Agent {
         protected void onTick(){
             if(mapa.isFireActive(tarefa.fireId)==false){
                 prevencao = false;
-                disponivel = true;
-                tarefasRealizadas.add(tarefa);
                 sendCurrentStatus();
                 agenteParticipativo.removeBehaviour(this);
             }
             else{
-                System.out.println(agenteParticipativo.velocidade + " A PREVENIR");
+                System.out.println(agenteParticipativo.velocidade + " -> A PREVENIR");
             }
         }
     }
@@ -211,13 +208,13 @@ public class AgenteParticipativo extends Agent {
             sendCurrentStatus();
 
             // caso o agente preventivo se esteja a mover para o incendio, mas este tenha sido entretanto apagado, pára o seu movimento
-            if(mapa.isFireActive(t.fireId)==false){
+            /*if(mapa.isFireActive(t.fireId)==false){
                 if(prevencao==true) prevencao = false;
                 disponivel = true;
                 tarefasRealizadas.add(t);
                 sendCurrentStatus();
                 return -1;
-            }
+            }*/
         }
         return 0;
     }

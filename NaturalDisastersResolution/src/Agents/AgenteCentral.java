@@ -155,10 +155,18 @@ public class AgenteCentral extends Agent {
         Posicao secondPosto = null;
 
 
-        // por enquanto so temos uma celula a arder, alocar com base na distancia a essa celula
-        Posicao p = incendio.areaAfetada.get(0);
+        Posicao p = incendio.areaAfetada.get(incendio.areaAfetada.size()-1);
 
-        if(preventionAgents.values().contains(p)) { // caso o ponto esteja dentro dos controlados pelos agentes preventivos
+        // verifica se o ponto está dentro dos controlados pelos agentes preventivos
+        boolean agentePrevencao = false;
+        for(List<Posicao> l : preventionAgents.values()){
+            if(l.contains(p)){
+                System.out.println("VALOR DE PREVENCAO " + l);
+                agentePrevencao = true;
+            }
+        }
+
+        if(agentePrevencao) { // caso o ponto esteja dentro dos controlados pelos agentes preventivos
             for (AID aid : preventionAgents.keySet()) {
                 if (preventionAgents.get(aid).contains(p)) choosenAgent = aid;
             }
@@ -175,6 +183,9 @@ public class AgenteCentral extends Agent {
                 AbstractMap.SimpleEntry<Posicao, Integer> postoMaisProximo = this.mapa.getPostoEntreAgenteIncendio(posicao, p);
                 posto = postoMaisProximo.getKey();
             }
+
+            System.out.println("AGENTE DE PREVENCAO ESCOLHIDO PARA A POSICAO " + p);
+
         }
         else {
             for (AgentStatus ap : this.agents.values()) {
@@ -212,7 +223,9 @@ public class AgenteCentral extends Agent {
         if(secondChoosenAgent != null && mapa.floresta.contains(p)){ // caso a tarefa seja numa floresta e exiga segundo agente (agente preventivo)
 
             // adicionar agente, e suas posicoes a controlar, ao map com os agentes preventivos
-            preventionAgents.put(secondChoosenAgent,mapa.posicoesAdjacentes(p));
+            List<Posicao> list = mapa.posicoesAdjacentes(p);
+            list.add(p);
+            preventionAgents.put(secondChoosenAgent,list);
 
             if(secondPosto != null){
                 abastecer = new Tarefa(taskId++, Tarefa.ABASTECER, secondPosto);
