@@ -1,15 +1,7 @@
+import java.awt.*;
 import java.util.List;
 
 public class App {
-
-    static int nDrones = 1;
-    static int nCamioes = 1;
-    static int nAeronaves = 1;
-    static int tamanhoMapa = 8;
-    static int numPostosComb = 1;
-    static int numPostosAgua = 1;
-    static int numHabitacoes = 10;
-    static int numPontosFloresta = 20;
 
     public static void main(String[] args) throws Exception {
 
@@ -18,8 +10,7 @@ public class App {
 
 
     private static void run() {
-
-        Mapa mapa = new Mapa(tamanhoMapa, numPostosComb, numPostosAgua, numHabitacoes, numPontosFloresta);
+        Mapa mapa = new Mapa(SimulationConfig.TAMANHO_MAPA, SimulationConfig.NUM_POSTOS_COMB, SimulationConfig.NUM_POSTOS_AGUA, SimulationConfig.NUM_HABITACOES, SimulationConfig.NUM_PONTOS_FLORESTAIS);
 
         System.out.println("0.1");
 
@@ -44,22 +35,22 @@ public class App {
 
             System.out.println("2");
 
-            posicoesAgentes = mapa.getDistribuicaoPosicoes(nDrones);
-            for(int i = 0; i < nDrones; i++){
+            posicoesAgentes = mapa.getDistribuicaoPosicoes(SimulationConfig.NUM_MAX_DRONES);
+            for(int i = 0; i < SimulationConfig.NUM_MAX_DRONES; i++){
                 mc.startAgenteDrone(id++, mapa, posicoesAgentes.get(i));
             }
 
             System.out.println("3");
 
-            posicoesAgentes = mapa.getDistribuicaoPosicoes(nCamioes);
-            for(int i = 0; i < nCamioes; i++){
+            posicoesAgentes = mapa.getDistribuicaoPosicoes(SimulationConfig.NUM_MAX_CAMIOES);
+            for(int i = 0; i < SimulationConfig.NUM_MAX_CAMIOES; i++){
                 mc.startAgenteCamiao(id++, mapa, posicoesAgentes.get(i));
             }
 
             System.out.println("4");
 
-            posicoesAgentes = mapa.getDistribuicaoPosicoes(nAeronaves);
-            for(int i = 0; i < nAeronaves; i++){
+            posicoesAgentes = mapa.getDistribuicaoPosicoes(SimulationConfig.NUM_MAX_AERONAVES);
+            for(int i = 0; i < SimulationConfig.NUM_MAX_AERONAVES; i++){
                 mc.startAgenteAeronave(id++, mapa, posicoesAgentes.get(i));
             }
 
