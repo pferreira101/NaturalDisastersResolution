@@ -17,7 +17,7 @@ public class AgenteCentral extends Agent {
     Map<AID, AgentStatus> agents;
     DeltaSimulationStatus dss;
     int taskId;
-    Map<AID,List<Posicao>> preventionAgents; // map com os agentes preventivos, em que cada um tem uma lista de posições a controlar
+    Map<AID,PreventionAgent> preventionAgents; // map com os agentes preventivos, em que cada um tem uma lista de posições a controlar
 
     protected void setup() {
         Object[] args = this.getArguments();
@@ -155,39 +155,9 @@ public class AgenteCentral extends Agent {
         Posicao secondPosto = null;
 
 
-        Posicao p = incendio.areaAfetada.get(incendio.areaAfetada.size()-1);
+        Posicao p = incendio.areaAfetada.get(0);
 
-        // verifica se o ponto está dentro dos controlados pelos agentes preventivos
-        boolean agentePrevencao = false;
-        for(List<Posicao> l : preventionAgents.values()){
-            if(l.contains(p)){
-                System.out.println("VALOR DE PREVENCAO " + l);
-                agentePrevencao = true;
-            }
-        }
 
-        if(agentePrevencao) { // caso o ponto esteja dentro dos controlados pelos agentes preventivos
-            for (AID aid : preventionAgents.keySet()) {
-                if (preventionAgents.get(aid).contains(p)) choosenAgent = aid;
-            }
-
-            int combustivel = agents.get(choosenAgent).combustivelDisponivel;
-            Posicao posicao = agents.get(choosenAgent).posAtual;
-
-            int distanciaAgenteIncendio = Posicao.distanceBetween(posicao, p);
-            int distanciaPostoMaisProxIncendio = getMinDistanceIncendioPosto(p);
-
-            boolean temCombustivelSuficiente = combustivel > distanciaAgenteIncendio && combustivel >= (distanciaAgenteIncendio + distanciaPostoMaisProxIncendio);
-
-            if (!temCombustivelSuficiente) {
-                AbstractMap.SimpleEntry<Posicao, Integer> postoMaisProximo = this.mapa.getPostoEntreAgenteIncendio(posicao, p);
-                posto = postoMaisProximo.getKey();
-            }
-
-            System.out.println("AGENTE DE PREVENCAO ESCOLHIDO PARA A POSICAO " + p);
-
-        }
-        else {
             for (AgentStatus ap : this.agents.values()) {
                 if (ap.prevencao == false) { // caso o agente não esteja de prevenção
                     AbstractMap.SimpleEntry<Integer, Posicao> disponibilidade = checkDisponibilidadeAgente(ap, p); // Tempo minimo, e Posicao de onde abastecer caso seja indicado a faze-lo
@@ -207,8 +177,18 @@ public class AgenteCentral extends Agent {
                         posto = ondeAbastecer;
                     }
                 }
+                else{
+                    for(PreventionAgent pa : preventionAgents.values()){
+                        if(pa.posicoesDePrevencao.contains(p)) {
+                            choosenAgent = ap.aid;
+                        }
+                    }
+
+                    System.out.println("AGENTE DE PREVENCAO ESCOLHIDO PARA A POSICAO " + p + " ---------------------------------------- NO FOGO " + incendio.fireId);
+
+                }
             }
-        }
+
 
         //System.out.println(agents.get(closestAgent).toString() + " tempoSomaTotal FINAL: " + minTempo + " " + agents.get(closestAgent).tipo);
 
@@ -225,7 +205,8 @@ public class AgenteCentral extends Agent {
             // adicionar agente, e suas posicoes a controlar, ao map com os agentes preventivos
             List<Posicao> list = mapa.posicoesAdjacentes(p);
             list.add(p);
-            preventionAgents.put(secondChoosenAgent,list);
+            PreventionAgent pa = new PreventionAgent(secondChoosenAgent,list);
+            preventionAgents.put(secondChoosenAgent,pa);
 
             if(secondPosto != null){
                 abastecer = new Tarefa(taskId++, Tarefa.ABASTECER, secondPosto);

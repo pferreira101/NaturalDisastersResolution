@@ -12,7 +12,7 @@ public class AgenteIncendiario extends Agent {
     int fireId;
     AID centralAgent;
     int freqIncendio = 5000; // 1 incendio novo a cada x ms
-    int freqExpansao = 5000;
+    int freqExpansao = 10000;
     Set<Integer> incendiosAtivos;
 
     protected void setup(){
@@ -101,7 +101,9 @@ public class AgenteIncendiario extends Agent {
                 adjFlo = mapa.posicoesFlorestaAdjacenteNotOnFire(p);
 
 
+
                 if (mapa.floresta.contains(p)) { // se é célula floresta, expande para 2 adjacentes, dando prioridade a pontos de floresta
+                    if(adjFlo.isEmpty()) break;
                     int i = 0;
                     if (adjFlo.size() >= 2) {
                         while (i < 2) {

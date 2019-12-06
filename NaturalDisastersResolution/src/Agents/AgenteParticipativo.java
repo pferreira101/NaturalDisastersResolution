@@ -103,7 +103,7 @@ public class AgenteParticipativo extends Agent {
                     this.disponivel = true;
                     tarefasRealizadas.add(t);
                     sendCurrentStatus();
-                    this.addBehaviour(new PrevencaoFogo(this, 1000, t));
+                    //this.addBehaviour(new PrevencaoFogo(this, 1000, t));
                 }
             }
         }
@@ -155,12 +155,13 @@ public class AgenteParticipativo extends Agent {
         @Override
         protected void onTick(){
             if(mapa.isFireActive(tarefa.fireId)==false){
+                System.out.println(agenteParticipativo.velocidade + " -> SAIR DE PREVENCAO ----------------------------------------");
                 prevencao = false;
                 sendCurrentStatus();
                 agenteParticipativo.removeBehaviour(this);
             }
             else{
-                System.out.println(agenteParticipativo.velocidade + " -> A PREVENIR");
+                System.out.println(agenteParticipativo.velocidade + " -> A PREVENIR ----------------------------------------");
             }
         }
     }
@@ -208,13 +209,13 @@ public class AgenteParticipativo extends Agent {
             sendCurrentStatus();
 
             // caso o agente preventivo se esteja a mover para o incendio, mas este tenha sido entretanto apagado, pára o seu movimento
-            /*if(mapa.isFireActive(t.fireId)==false){
-                if(prevencao==true) prevencao = false;
+            if(mapa.isFireActive(t.fireId)==false){
+                prevencao = false;
                 disponivel = true;
                 tarefasRealizadas.add(t);
                 sendCurrentStatus();
                 return -1;
-            }*/
+            }
         }
         return 0;
     }
