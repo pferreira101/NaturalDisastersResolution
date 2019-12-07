@@ -55,7 +55,7 @@ public class AgenteParticipativo extends Agent {
         this.tempoParaFicarDisponivel = 0;
 
         DFManager.registerAgent(this, "Agent");
-        this.centralAgent = DFManager.findAgent(this, "Central");
+        this.centralAgent = DFManager.findSingleAgent(this, "Central");
 
         sendCurrentStatus(); // informa no setup para quartel ter conhecimento de todos os agentes antes do agente incendiario comecar a corre
 
@@ -67,9 +67,10 @@ public class AgenteParticipativo extends Agent {
         public void action() {
             ACLMessage msg = receive();
             if (msg != null) {
-                if (msg.getPerformative() == ACLMessage.REQUEST) {
+                String sendersName = msg.getSender().getLocalName();
+                if (sendersName.contains("Central") && msg.getPerformative() == ACLMessage.REQUEST) {
                    try {
-                       LinkedList<Tarefa> tarefas = ( LinkedList<Tarefa>) msg.getContentObject();
+                       LinkedList<Tarefa> tarefas = (LinkedList<Tarefa>) msg.getContentObject();
                        for(Tarefa t : tarefas) {
                            tarefasAgendadas.add(t);
                        }
@@ -79,7 +80,9 @@ public class AgenteParticipativo extends Agent {
                        e.printStackTrace();
                    }
                 }
-
+                else if (sendersName.contains("Interface") && msg.getPerformative() == ACLMessage.REQUEST && msg.getContent().equals("STOP")) {
+                    myAgent.doDelete();
+                }
             } else {
                 block();
             }
@@ -258,5 +261,9 @@ public class AgenteParticipativo extends Agent {
         }
 
         return maisProximo;
+    }
+
+    protected void takeDown(){
+        DFManager.deRegister(this);
     }
 }

@@ -87,4 +87,19 @@ public class GridCell {
     public void setType(int objectType) {
         this.tipo = objectType;
     }
+
+    void restoreCell() {
+        this.removeVehicles();
+
+        this.tipo = GRASS; // default erva
+        this.state = 0;
+        setImage();
+    }
+
+    void removeVehicles(){
+        this.vehicles = new ArrayList<>();
+        this.agents = new HashSet<>();
+
+        setImage();
+    }
 }

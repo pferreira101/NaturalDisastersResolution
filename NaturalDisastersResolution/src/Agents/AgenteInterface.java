@@ -1,10 +1,13 @@
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
+import jade.core.behaviours.OneShotBehaviour;
 import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
 
 import java.sql.Time;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class AgenteInterface extends Agent {
@@ -13,20 +16,23 @@ public class AgenteInterface extends Agent {
 
     Mapa mapa;
     int requestFreq = 500; //ms
-    boolean firstDraw;
+    InfoReceiver b1;
+    InfoRequester b2;
 
 
     protected void setup(){
         Object[] args = this.getArguments();
 
         this.mapa = (Mapa) args[0];
+        startGUI();
 
-        //this.centralAgent = DFManager.findAgent(this, "Central");
+    }
 
-        this.firstDraw = true;
-
-        this.addBehaviour(new InfoReceiver());
-        this.addBehaviour(new InfoRequester(this, this.requestFreq));
+    public void startSimulationInfoDisplay() {
+        b1 = new InfoReceiver();
+        b2 = new InfoRequester(this, this.requestFreq);
+        this.addBehaviour(b1);
+        this.addBehaviour(b2);
     }
 
     class InfoReceiver extends CyclicBehaviour {
@@ -66,21 +72,46 @@ public class AgenteInterface extends Agent {
         }
     }
 
+    class stopSimulation extends OneShotBehaviour {
+
+        @Override
+        public void action() {
+            List<AID> agentsToStop = new ArrayList<>();
+            agentsToStop.add(DFManager.findSingleAgent(myAgent, "Central"));
+            agentsToStop.add(DFManager.findSingleAgent(myAgent, "Incendiario"));
+            agentsToStop.addAll(DFManager.findAgents(myAgent, "Agent"));
+
+            agentsToStop.forEach(aid -> {
+                ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
+                msg.addReceiver(aid);
+                msg.setContent("STOP");
+                send(msg);
+            });
+        }
+    }
+
     private void requestInfo() {
-        AID central = DFManager.findAgent(this, "Central");
+        AID central = DFManager.findSingleAgent(this, "Central");
         ACLMessage msg = new ACLMessage(ACLMessage.QUERY_REF);
         msg.addReceiver(central);
         msg.setContent("1");
         send(msg);
     }
 
-    private void updateGui(DeltaSimulationStatus stats) {
-        if(firstDraw){
-            this.gui = new GUI(mapa);
-            this.gui.mapGrid.updateGridStatus(stats);
-            gui.getFrame().setVisible(true);
-            this.firstDraw = false;
-        }
-        else this.gui.mapGrid.updateGridStatus(stats);
+    void startGUI(){
+        this.gui = new GUI(mapa, this);
+        gui.getFrame().setVisible(true);
     }
+
+
+    void updateGui(DeltaSimulationStatus stats) {
+        this.gui.mapGrid.updateGridStatus(stats);
+    }
+
+    void stopSimulation(){
+        this.removeBehaviour(b1);
+        this.removeBehaviour(b2);
+        this.addBehaviour(new stopSimulation());
+    }
+
 }

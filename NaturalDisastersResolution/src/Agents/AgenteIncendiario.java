@@ -1,5 +1,6 @@
 import jade.core.AID;
 import jade.core.Agent;
+import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
 
@@ -20,10 +21,14 @@ public class AgenteIncendiario extends Agent {
 
         this.mapa = (Mapa) args[0];
         this.fireId=0;
-        this.centralAgent = DFManager.findAgent(this, "Central");
+        this.centralAgent = DFManager.findSingleAgent(this, "Central");
         this.incendiosAtivos = new TreeSet<>();
 
+        DFManager.registerAgent(this, "Incendiario");
+
+
         addBehaviour(new PlaceFire(this, this.freqIncendio));
+        addBehaviour(new MsgReceiver());
     }
 
     class PlaceFire extends TickerBehaviour{
@@ -35,6 +40,25 @@ public class AgenteIncendiario extends Agent {
         @Override
         protected void onTick() {
             placeFire();
+        }
+    }
+
+    class MsgReceiver extends CyclicBehaviour {
+
+        @Override
+        public void action() {
+            ACLMessage msg = receive();
+
+            if (msg != null) {
+                AID sender = msg.getSender();
+                String sendersName = sender.getLocalName();
+
+                if (sendersName.contains("Interface") && msg.getPerformative() == ACLMessage.REQUEST && msg.getContent().equals("STOP")) {
+                    myAgent.doDelete();
+                }
+            } else {
+                block();
+            }
         }
     }
 
@@ -146,5 +170,9 @@ public class AgenteIncendiario extends Agent {
         msg.addReceiver(central);
         msg.setContentObject(fa);
         send(msg);
+    }
+
+    protected void takeDown(){
+        DFManager.deRegister(this);
     }
 }

@@ -51,21 +51,25 @@ public class AgenteCentral extends Agent {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                } else if (sendersName.contains("Agente") && msg.getPerformative() == ACLMessage.INFORM) {
+                }
+                else if (sendersName.contains("Agente") && msg.getPerformative() == ACLMessage.INFORM) {
                     try {
                         AgentStatus st = (AgentStatus) msg.getContentObject();
                         atualizarEstadoAgente(sender, st);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                } else if (sendersName.equals("Interface") && msg.getPerformative() == ACLMessage.QUERY_REF) {
+                }
+                else if (sendersName.equals("Interface") && msg.getPerformative() == ACLMessage.QUERY_REF) {
                     sendSimulationInfo(msg);
+                }
+                else if (sendersName.contains("Interface") && msg.getPerformative() == ACLMessage.REQUEST && msg.getContent().equals("STOP")) {
+                    myAgent.doDelete();
                 }
             } else {
                 block();
             }
         }
-
     }
 
     private class AssignTask extends OneShotBehaviour {
@@ -348,6 +352,10 @@ public class AgenteCentral extends Agent {
         }
         send(reply);
         this.dss = new DeltaSimulationStatus(); // reset ao objeto para guardar apenas novas alteracoes
+    }
+
+    protected void takeDown(){
+        DFManager.deRegister(this);
     }
 }
 

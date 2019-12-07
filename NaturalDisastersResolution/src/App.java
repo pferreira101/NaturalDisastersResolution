@@ -2,21 +2,25 @@ import java.awt.*;
 import java.util.List;
 
 public class App {
+    static Mapa mapa;
+    static MainContainer mc;
+
+    public static Mapa generateMap(){
+        mapa = new Mapa(SimulationConfig.TAMANHO_MAPA, SimulationConfig.NUM_POSTOS_COMB, SimulationConfig.NUM_POSTOS_AGUA, SimulationConfig.NUM_HABITACOES, SimulationConfig.NUM_PONTOS_FLORESTAIS);
+        mapa.estabelecePosicaoPontosFixos();
+        System.out.println("A mudar mapa");
+        return mapa;
+    }
 
     public static void main(String[] args){
-
-        run();
+        generateMap();
+        mc = new MainContainer();
+        mc.startInterface(mapa);
     }
 
 
-    private static void run() {
-        Mapa mapa = new Mapa(SimulationConfig.TAMANHO_MAPA, SimulationConfig.NUM_POSTOS_COMB, SimulationConfig.NUM_POSTOS_AGUA, SimulationConfig.NUM_HABITACOES, SimulationConfig.NUM_PONTOS_FLORESTAIS);
+     static void run() {
 
-        System.out.println("0.1");
-
-        mapa.estabelecePosicaoPontosFixos();
-
-        System.out.println("0.11");
 
         List<Posicao> posicoesAgentes;
         int id = 0;
@@ -24,7 +28,6 @@ public class App {
         try {
             System.out.println("1");
 
-            MainContainer mc = new MainContainer();
 
             mc.startAgenteCentral(mapa);
 
@@ -50,7 +53,7 @@ public class App {
 
             System.out.println("5");
 
-            mc.startInterface(mapa);
+
 
             Thread.sleep(1000);
             mc.startIncendiario(mapa);

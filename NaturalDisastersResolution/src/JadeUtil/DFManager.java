@@ -5,10 +5,14 @@ import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class DFManager {
 
 
-    public static void registerAgent(Agent agent, String type) {
+    static void registerAgent(Agent agent, String type) {
         DFAgentDescription dfd = new DFAgentDescription();
         dfd.setName(agent.getAID());
         ServiceDescription sd = new ServiceDescription();
@@ -24,7 +28,7 @@ public class DFManager {
         }
     }
 
-    public static AID findAgent(Agent a, String type) {
+    static AID findSingleAgent(Agent a, String type) {
         DFAgentDescription template = new DFAgentDescription();
         ServiceDescription sd = new ServiceDescription();
         sd.setType(type);
@@ -39,6 +43,31 @@ public class DFManager {
         }
 
         return result[0].getName();
+    }
+
+    static List<AID> findAgents(Agent a, String type){
+        DFAgentDescription template = new DFAgentDescription();
+        ServiceDescription sd = new ServiceDescription();
+        sd.setType(type);
+        template.addServices(sd);
+
+        DFAgentDescription[] result = null;
+
+        try {
+            result = DFService.search(a, template);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return Arrays.stream(result).map(dfAgentDescription -> dfAgentDescription.getName()).collect(Collectors.toList());
+    }
+
+    static void deRegister(Agent agente){
+        try {
+            DFService.deregister(agente);
+        } catch (FIPAException e) {
+            e.printStackTrace();
+        }
     }
 
 

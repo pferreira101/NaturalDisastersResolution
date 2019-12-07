@@ -35,6 +35,34 @@ public class MapGrid {
         drawMapObjects(GridCell.WATER_SOURCE, mapa.postosAgua);
     }
 
+    void changeMap(Mapa mapa){
+        boolean resize = this.mapa.size != mapa.size;
+        this.mapa = mapa;
+
+        if(resize){
+            System.out.println("resize");
+            this.panel.setLayout(new GridLayout(this.mapa.size, this.mapa.size));
+            this.grid = new GridCell[this.mapa.size][this.mapa.size];
+            this.panel.removeAll();
+            initializeMapGrid();
+            this.panel.revalidate();
+            this.panel.repaint();
+        }
+        else{
+            System.out.println("mm tamanho");
+            for (int i = 0; i < this.mapa.size; i++) {
+                for (int j = 0; j < this.mapa.size; j++) {
+                    grid[i][j].restoreCell();
+                }
+            }
+
+            drawMapObjects(GridCell.HOUSE, mapa.habitacoes);
+            drawMapObjects(GridCell.FOREST, mapa.floresta);
+            drawMapObjects(GridCell.FUEL_STATION, mapa.getAllPostosCombustiveisAtivos());
+            drawMapObjects(GridCell.WATER_SOURCE, mapa.postosAgua);
+        }
+    }
+
     private void drawMapObjects(int objectType, List<Posicao> objectPositions){
         for(Posicao p : objectPositions){
             GridCell gridCell =  this.grid[(int)p.pos_x][(int)p.pos_y];
@@ -84,4 +112,11 @@ public class MapGrid {
         }
     }
 
+    public void removeVehicles() {
+        for (int i = 0; i < this.mapa.size; i++) {
+            for (int j = 0; j < this.mapa.size; j++) {
+                grid[i][j].removeVehicles();
+            }
+        }
+    }
 }
