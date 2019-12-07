@@ -137,6 +137,7 @@ public class AgenteCentral extends Agent {
                     dss.celulasApagadas.add(t.posicao);
                 } else{
                     dss.celulasArdidas.add(t.posicao);
+                    mapa.areaArdida.add(t.posicao);
 
                     if(postosCombAtivos.contains(t.posicao)){
                         for(PostoCombustivel posto : mapa.postosCombustivel){
