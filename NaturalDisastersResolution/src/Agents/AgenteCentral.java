@@ -176,49 +176,58 @@ public class AgenteCentral extends Agent {
         Posicao secondPosto = null;
 
 
-        Posicao p = incendio.areaAfetada.get(0);
+        for(Posicao p: incendio.areaAfetada) {
 
-
-        for (AgentStatus ap : this.agents.values()) {
-            AbstractMap.SimpleEntry<Integer, Posicao> disponibilidade = checkDisponibilidadeAgente(ap, p); // Tempo minimo, e Posicao de onde abastecer caso seja indicado a faze-lo
-            int tempoParaFicarDisponivel = disponibilidade.getKey();
-            Posicao ondeAbastecer = disponibilidade.getValue();
-            // second* -> segundo mais rápido -> vai ser o agente preventivo
-            if (tempoParaFicarDisponivel > minTempo && tempoParaFicarDisponivel < secondMinTempo) {
-                secondMinTempo = tempoParaFicarDisponivel;
-                secondChoosenAgent = ap.aid;
-                secondPosto = ondeAbastecer;
-            } else if (tempoParaFicarDisponivel < minTempo) {
-                secondMinTempo = minTempo;
-                minTempo = tempoParaFicarDisponivel;
-                secondChoosenAgent = choosenAgent;
-                choosenAgent = ap.aid;
-                secondPosto = posto;
-                posto = ondeAbastecer;
-            }
-        }
-
-
-        //System.out.println(agents.get(closestAgent).toString() + " tempoSomaTotal FINAL: " + minTempo + " " + agents.get(closestAgent).tipo);
-
-        if(posto != null){
-            abastecer = new Tarefa(taskId++, Tarefa.ABASTECER, posto);
-            this.addBehaviour(new AssignTask(choosenAgent, abastecer));
-        }
-
-        apagar = new Tarefa(taskId++, Tarefa.APAGAR, incendio.fireId, p, minTempo);
-        //System.out.println("-------------------------------------------------------------------------------- minTempo: " + minTempo);
-        this.addBehaviour(new AssignTask(choosenAgent, apagar));
-
-        if(secondChoosenAgent != null && mapa.floresta.contains(p)){ // caso a tarefa seja numa floresta e exiga segundo agente (agente preventivo)
-
-            if(secondPosto != null){
-                abastecer = new Tarefa(taskId++, Tarefa.ABASTECER, secondPosto);
-                this.addBehaviour(new AssignTask(secondChoosenAgent, abastecer));
+            for (AgentStatus ap : this.agents.values()) {
+                AbstractMap.SimpleEntry<Integer, Posicao> disponibilidade = checkDisponibilidadeAgente(ap, p); // Tempo minimo, e Posicao de onde abastecer caso seja indicado a faze-lo
+                int tempoParaFicarDisponivel = disponibilidade.getKey();
+                Posicao ondeAbastecer = disponibilidade.getValue();
+                // second* -> segundo mais rápido -> vai ser o agente preventivo
+                if (tempoParaFicarDisponivel >= minTempo && tempoParaFicarDisponivel < secondMinTempo) {
+                    secondMinTempo = tempoParaFicarDisponivel;
+                    secondChoosenAgent = ap.aid;
+                    secondPosto = ondeAbastecer;
+                } else if (tempoParaFicarDisponivel < minTempo) {
+                    secondMinTempo = minTempo;
+                    minTempo = tempoParaFicarDisponivel;
+                    secondChoosenAgent = choosenAgent;
+                    choosenAgent = ap.aid;
+                    secondPosto = posto;
+                    posto = ondeAbastecer;
+                }
             }
 
-            prevenir = new Tarefa(taskId++, Tarefa.PREVENIR, incendio.fireId, p);
-            this.addBehaviour(new AssignTask(secondChoosenAgent,prevenir));
+            //System.out.println(agents.get(closestAgent).toString() + " tempoSomaTotal FINAL: " + minTempo + " " + agents.get(closestAgent).tipo);
+
+            if (posto != null) {
+                abastecer = new Tarefa(taskId++, Tarefa.ABASTECER, posto);
+                this.addBehaviour(new AssignTask(choosenAgent, abastecer));
+            }
+
+            apagar = new Tarefa(taskId++, Tarefa.APAGAR, incendio.fireId, p, minTempo);
+            //System.out.println("-------------------------------------------------------------------------------- minTempo: " + minTempo);
+            this.addBehaviour(new AssignTask(choosenAgent, apagar));
+
+
+            if (mapa.floresta.contains(p)) { // caso a tarefa seja numa floresta e exiga segundo agente (agente preventivo)
+
+                List<Posicao> adjFlo;
+                Posicao pAdjacent;
+                adjFlo = mapa.posicoesFlorestaAdjacente(p);
+
+                if(!adjFlo.isEmpty()) {
+
+                    pAdjacent = mapa.getRandAdjacentPositions(adjFlo);
+
+                    if (secondPosto != null) {
+                        abastecer = new Tarefa(taskId++, Tarefa.ABASTECER, secondPosto);
+                        this.addBehaviour(new AssignTask(secondChoosenAgent, abastecer));
+                    }
+
+                    prevenir = new Tarefa(taskId++, Tarefa.PREVENIR, incendio.fireId, pAdjacent);
+                    this.addBehaviour(new AssignTask(secondChoosenAgent, prevenir));
+                }
+            }
         }
 
     }
@@ -235,10 +244,13 @@ public class AgenteCentral extends Agent {
         switch (ap.tipo){
             case "Drone":
                 maxFuel = Drone.capacidadeMaxCombustivel;
+                break;
             case "Firetruck":
                 maxFuel = Camiao.capacidadeMaxCombustivel;
+                break;
             case "Plane":
                 maxFuel = Aeronave.capacidadeMaxCombustivel;
+                break;
         }
 
         for(Tarefa t : ap.tarefas){
@@ -248,11 +260,14 @@ public class AgenteCentral extends Agent {
             posição = t.posicao;
             switch (ap.tipo){
                 case "Drone":
-                    tempo += (distancia*(4/Drone.velocidade)*1000) + 1000;
+                    tempo += (distancia*(4/Drone.velocidade))*1000 + 1000;
+                    break;
                 case "Firetruck":
-                    tempo += (distancia*(4/Camiao.velocidade)*1000) + 1000;
+                    tempo += (distancia*(4/Camiao.velocidade))*1000 + 1000;
+                    break;
                 case "Plane":
-                    tempo += (distancia*(4/Aeronave.velocidade)*1000) + 1000;
+                    tempo += (distancia*(4/Aeronave.velocidade))*1000 + 1000;
+                    break;
             }
         }
 
@@ -265,22 +280,28 @@ public class AgenteCentral extends Agent {
             AbstractMap.SimpleEntry<Posicao, Integer> postoMaisProximo = this.mapa.getPostoEntreAgenteIncendio(posição, incendio); // Posicao do melhor posto, e Distancia minima do agente ao incendio, passando pelo posto
             switch (ap.tipo){
                 case "Drone":
-                    tempo += (postoMaisProximo.getValue()*(4/Drone.velocidade)*1000) + 1000;
+                    tempo += (postoMaisProximo.getValue()*(4/Drone.velocidade))*1000 + 1000;
+                    break;
                 case "Firetruck":
-                    tempo += (postoMaisProximo.getValue()*(4/Camiao.velocidade)*1000) + 1000;
+                    tempo += (postoMaisProximo.getValue()*(4/Camiao.velocidade))*1000 + 1000;
+                    break;
                 case "Plane":
-                    tempo += (postoMaisProximo.getValue()*(4/Aeronave.velocidade)*1000) + 1000;
+                    tempo += (postoMaisProximo.getValue()*(4/Aeronave.velocidade))*1000 + 1000;
+                    break;
             }
             ondeAbastecer = postoMaisProximo.getKey();
         }
         else {
             switch (ap.tipo){
                 case "Drone":
-                    tempo += (distanciaAgenteIncendio*(4/Drone.velocidade)*1000);
+                    tempo += (distanciaAgenteIncendio*(4/Drone.velocidade))*1000;
+                    break;
                 case "Firetruck":
-                    tempo += (distanciaAgenteIncendio*(4/Camiao.velocidade)*1000);
+                    tempo += (distanciaAgenteIncendio*(4/Camiao.velocidade))*1000;
+                    break;
                 case "Plane":
-                    tempo += (distanciaAgenteIncendio*(4/Aeronave.velocidade)*1000);
+                    tempo += (distanciaAgenteIncendio*(4/Aeronave.velocidade))*1000;
+                    break;
             }
         }
 
