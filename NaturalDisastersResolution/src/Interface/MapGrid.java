@@ -40,7 +40,6 @@ public class MapGrid {
         this.mapa = mapa;
 
         if(resize){
-            System.out.println("resize");
             this.panel.setLayout(new GridLayout(this.mapa.size, this.mapa.size));
             this.grid = new GridCell[this.mapa.size][this.mapa.size];
             this.panel.removeAll();
@@ -49,7 +48,6 @@ public class MapGrid {
             this.panel.repaint();
         }
         else{
-            System.out.println("mm tamanho");
             for (int i = 0; i < this.mapa.size; i++) {
                 for (int j = 0; j < this.mapa.size; j++) {
                     grid[i][j].restoreCell();
@@ -112,7 +110,15 @@ public class MapGrid {
         }
     }
 
-    public void removeVehicles() {
+    void resetMapStatus(){
+        for (int i = 0; i < this.mapa.size; i++) {
+            for (int j = 0; j < this.mapa.size; j++) {
+                grid[i][j].restoreCellStatus();
+            }
+        }
+    }
+
+    void removeVehicles() {
         for (int i = 0; i < this.mapa.size; i++) {
             for (int j = 0; j < this.mapa.size; j++) {
                 grid[i][j].removeVehicles();

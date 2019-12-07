@@ -14,13 +14,14 @@ public class GUI {
     private JPanel panel_5;
     MapGrid mapGrid;
     ParametersChanger inputs;
+    boolean firstSimulation;
 
 
 
     public GUI(Mapa mapa, AgenteInterface ai) {
         this.ai = ai;
         this.mapa = mapa;
-
+        this.firstSimulation = true;
         this.mapGrid = new MapGrid(mapa);
         this.inputs = new ParametersChanger(this);
 
@@ -37,8 +38,12 @@ public class GUI {
         statsPaneInitialize(panel_5);
     }
 
-    void startSimulationDisplay(){
+    void startSimulationDisplay(boolean isSameMap){
+        if(!firstSimulation && isSameMap){
+            this.mapGrid.resetMapStatus();
+        }
         this.ai.startSimulationInfoDisplay();
+        this.firstSimulation = false;
     }
 
 

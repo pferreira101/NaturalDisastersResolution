@@ -182,8 +182,30 @@ public class ParametersChanger {
 
         btnStart.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                boolean sameMap = true;
+                int numDrones = Integer.parseInt(nDrones.getText());
+                int numAvioes = Integer.parseInt(nAeronaves.getText());
+                int numCamioes = Integer.parseInt(nCamioes.getText());
+                SimulationConfig.changeNumVehicles(numDrones, numCamioes, numAvioes);
+
+                int mapSize = Integer.parseInt(tamanhoMapa.getText());
+                int nAgua = Integer.parseInt(numPostosAgua.getText());
+                int nComb = Integer.parseInt(numPostosComb.getText());
+                int nHabitacoes = Integer.parseInt(numHab.getText());
+                int nFloresta = Integer.parseInt(numPontosFlorestais.getText());
+
+                if(mapSize != SimulationConfig.TAMANHO_MAPA
+                        || nAgua != SimulationConfig.NUM_POSTOS_AGUA
+                        || nComb != SimulationConfig.NUM_POSTOS_COMB
+                        || nHabitacoes != SimulationConfig.NUM_HABITACOES
+                        || nFloresta != SimulationConfig.NUM_PONTOS_FLORESTAIS)
+                {
+                    SimulationConfig.changeMapSpecs(mapSize, nAgua, nComb, nHabitacoes, nFloresta);
+                    gui.updateMapa(App.generateMap());
+                    sameMap = false;
+                }
                 App.run();
-                gui.startSimulationDisplay();
+                gui.startSimulationDisplay(sameMap);
             }
         });
     }

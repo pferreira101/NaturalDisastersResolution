@@ -102,4 +102,10 @@ public class GridCell {
 
         setImage();
     }
+
+    public void restoreCellStatus() {
+        this.removeVehicles();
+        this.state = 0;
+        setImage();
+    }
 }

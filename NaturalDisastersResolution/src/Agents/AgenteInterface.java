@@ -18,12 +18,13 @@ public class AgenteInterface extends Agent {
     int requestFreq = 500; //ms
     InfoReceiver b1;
     InfoRequester b2;
-
+    boolean firstSimulation;
 
     protected void setup(){
         Object[] args = this.getArguments();
 
         this.mapa = (Mapa) args[0];
+        this.firstSimulation = true;
         startGUI();
 
     }
