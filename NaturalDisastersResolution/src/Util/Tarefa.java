@@ -10,7 +10,7 @@ public class Tarefa implements Serializable {
     int tipo;
     int fireId;
     Posicao posicao;
-    int minTempo;
+    int minTempo; // tempo para a tarefa ser resolvida
 
     Tarefa(int id, int op, Posicao p){
         this.taskId = id;

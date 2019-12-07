@@ -12,7 +12,7 @@ public class AgenteIncendiario extends Agent {
     int fireId;
     AID centralAgent;
     int freqIncendio = 5000; // 1 incendio novo a cada x ms
-    int freqExpansao = 15000;
+    int freqExpansao = 10000;
     Set<Integer> incendiosAtivos;
 
     protected void setup(){
@@ -43,7 +43,7 @@ public class AgenteIncendiario extends Agent {
 
         do{
             p = mapa.getRandPosition();
-        }while(mapa.onFire(p) || mapa.isWaterSource(p));
+        }while(mapa.onFire(p) || mapa.inAreaArdida(p)|| mapa.isWaterSource(p));
 
         Date date = new java.util.Date();
         Timestamp ts = new Timestamp(date.getTime());
@@ -105,44 +105,35 @@ public class AgenteIncendiario extends Agent {
                     int i = 0;
                     if (adjFlo.size() >= 2) {
                         while (i < 2) {
-                            do {
-                                pAdjacent = mapa.getRandAdjacentPositions(adjFlo);
-                            } while (mapa.onFire(pAdjacent));
+                            pAdjacent = mapa.getRandAdjacentPositions(adjFlo);
                             celulasIncendiadas.add(pAdjacent);
                             i++;
                         }
                     } else if (adjFlo.size() == 1) {
-                        do {
-                            pAdjacent = mapa.getRandAdjacentPositions(adjFlo);
-                        } while (mapa.onFire(pAdjacent));
+                        pAdjacent = mapa.getRandAdjacentPositions(adjFlo);
                         celulasIncendiadas.add(pAdjacent);
                         do {
                             pAdjacent = mapa.getRandAdjacentPositions(adj);
-                        } while (mapa.onFire(pAdjacent) || mapa.isWaterSource(pAdjacent));
+                        } while (mapa.isWaterSource(pAdjacent));
                         celulasIncendiadas.add(pAdjacent);
                     }
                 } else if (!mapa.floresta.contains(p) && !adjFlo.isEmpty()){ // se não é celula floresta, expande para 1 adjacente, dando prioridade a pontos de floresta
-                    do {
-                        pAdjacent = mapa.getRandAdjacentPositions(adjFlo);
-                    } while (mapa.onFire(pAdjacent));
+                    pAdjacent = mapa.getRandAdjacentPositions(adjFlo);
                     celulasIncendiadas.add(pAdjacent);
                 } else if(!adj.isEmpty()){ // caso de expansão default
                     do {
                         pAdjacent = mapa.getRandAdjacentPositions(adj);
-                    } while (mapa.onFire(pAdjacent) || mapa.isWaterSource(pAdjacent));
+                    } while (mapa.isWaterSource(pAdjacent));
                     celulasIncendiadas.add(pAdjacent);
                 }
+            }
 
+            FireAlert fa = new FireAlert(this.fireId, celulasIncendiadas);
 
-
-                // tirar para fora
-                FireAlert fa = new FireAlert(this.fireId, celulasIncendiadas);
-
-                try {
-                    sendAlert(centralAgent, fa);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+            try {
+                sendAlert(centralAgent, fa);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
 
             this.ultimasCelulasIncendiadas = celulasIncendiadas;

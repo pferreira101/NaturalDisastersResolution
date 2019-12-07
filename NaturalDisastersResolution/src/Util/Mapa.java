@@ -11,6 +11,7 @@ public class Mapa {
     List<Posicao> postosAgua;
     List<Posicao> habitacoes;
     List<Posicao> floresta;
+    List<Posicao> areaArdida;
 
     Map<Integer, Incendio> incendios;
 
@@ -24,6 +25,7 @@ public class Mapa {
         this.postosAgua = new ArrayList<>();
         this.habitacoes = new ArrayList<>();
         this.floresta = new ArrayList<>();
+        this.areaArdida = new ArrayList<>();
         this.incendios = new HashMap<>();
     }
 
@@ -32,6 +34,10 @@ public class Mapa {
      */
     boolean onFire(Posicao p){
         return this.incendios.values().stream().anyMatch((incendio) -> incendio.areaAfetada.contains(p));
+    }
+
+    boolean inAreaArdida(Posicao p){
+        return this.areaArdida.contains(p);
     }
 
     boolean posicaoLivre(Posicao p){
@@ -54,14 +60,14 @@ public class Mapa {
         Posicao p7 = new Posicao (pos.pos_x,pos.pos_y-1);
         Posicao p8 = new Posicao (pos.pos_x+1,pos.pos_y-1);
 
-        if(insideDimensoes(p1) && !onFire(p1)) res.add(p1);
-        if(insideDimensoes(p2) && !onFire(p2)) res.add(p2);
-        if(insideDimensoes(p3) && !onFire(p3)) res.add(p3);
-        if(insideDimensoes(p4) && !onFire(p4)) res.add(p4);
-        if(insideDimensoes(p5) && !onFire(p5)) res.add(p5);
-        if(insideDimensoes(p6) && !onFire(p6)) res.add(p6);
-        if(insideDimensoes(p7) && !onFire(p7)) res.add(p7);
-        if(insideDimensoes(p8) && !onFire(p8)) res.add(p8);
+        if(insideDimensoes(p1) && !onFire(p1) && !inAreaArdida(p1)) res.add(p1);
+        if(insideDimensoes(p2) && !onFire(p2) && !inAreaArdida(p2)) res.add(p2);
+        if(insideDimensoes(p3) && !onFire(p3) && !inAreaArdida(p3)) res.add(p3);
+        if(insideDimensoes(p4) && !onFire(p4) && !inAreaArdida(p4)) res.add(p4);
+        if(insideDimensoes(p5) && !onFire(p5) && !inAreaArdida(p5)) res.add(p5);
+        if(insideDimensoes(p6) && !onFire(p6) && !inAreaArdida(p6)) res.add(p6);
+        if(insideDimensoes(p7) && !onFire(p7) && !inAreaArdida(p7)) res.add(p7);
+        if(insideDimensoes(p8) && !onFire(p8) && !inAreaArdida(p8)) res.add(p8);
 
         return res;
     }
@@ -100,14 +106,14 @@ public class Mapa {
         Posicao p7 = new Posicao (pos.pos_x,pos.pos_y-1);
         Posicao p8 = new Posicao (pos.pos_x+1,pos.pos_y-1);
 
-        if(insideDimensoes(p1) && floresta.contains(p1) && !onFire(p1)) res.add(p1);
-        if(insideDimensoes(p2) && floresta.contains(p2) && !onFire(p2)) res.add(p2);
-        if(insideDimensoes(p3) && floresta.contains(p3) && !onFire(p3)) res.add(p3);
-        if(insideDimensoes(p4) && floresta.contains(p4) && !onFire(p4)) res.add(p4);
-        if(insideDimensoes(p5) && floresta.contains(p5) && !onFire(p5)) res.add(p5);
-        if(insideDimensoes(p6) && floresta.contains(p6) && !onFire(p6)) res.add(p6);
-        if(insideDimensoes(p7) && floresta.contains(p7) && !onFire(p7)) res.add(p7);
-        if(insideDimensoes(p8) && floresta.contains(p8) && !onFire(p8)) res.add(p8);
+        if(insideDimensoes(p1) && floresta.contains(p1) && !onFire(p1) && !inAreaArdida(p1)) res.add(p1);
+        if(insideDimensoes(p2) && floresta.contains(p2) && !onFire(p2) && !inAreaArdida(p2)) res.add(p2);
+        if(insideDimensoes(p3) && floresta.contains(p3) && !onFire(p3) && !inAreaArdida(p3)) res.add(p3);
+        if(insideDimensoes(p4) && floresta.contains(p4) && !onFire(p4) && !inAreaArdida(p4)) res.add(p4);
+        if(insideDimensoes(p5) && floresta.contains(p5) && !onFire(p5) && !inAreaArdida(p5)) res.add(p5);
+        if(insideDimensoes(p6) && floresta.contains(p6) && !onFire(p6) && !inAreaArdida(p6)) res.add(p6);
+        if(insideDimensoes(p7) && floresta.contains(p7) && !onFire(p7) && !inAreaArdida(p7)) res.add(p7);
+        if(insideDimensoes(p8) && floresta.contains(p8) && !onFire(p8) && !inAreaArdida(p8)) res.add(p8);
 
         return res;
     }
