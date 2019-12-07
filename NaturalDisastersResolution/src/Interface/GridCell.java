@@ -2,7 +2,9 @@ import javax.swing.*;
 import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class GridCell {
 
@@ -17,6 +19,7 @@ public class GridCell {
     int mapSize;
     int tipo; // 0 erva, 1 casa, 2 floresta, 3 bomba de combustivel, 4 fonte de agua
     int state; //0 - normal, 1 - a arder, 2 - queimada
+    Set<String> agents;
     List<String> vehicles;
 
 
@@ -29,6 +32,7 @@ public class GridCell {
 
         this.mapSize = mapSize;
         this.vehicles = new ArrayList<>();
+        this.agents = new HashSet<>();
 
         this.tipo = GRASS; // default erva
         this.state = 0;
@@ -55,14 +59,17 @@ public class GridCell {
     }
 
 
-    public void addAgent(String tipo) {
-        System.out.println("A adicionar " + tipo +" de " + p.toString());
-        this.vehicles.add(tipo);
+    public void addAgent(String localName, String tipo) {
+        if(!this.agents.contains(localName)) {
+            this.vehicles.add(tipo);
+            this.agents.add(localName);
+        }
+
     }
 
-    public void removeAgent(String tipo) {
-        System.out.println("A remover " + tipo +" de " + p.toString());
+    public void removeAgent(String localName, String tipo) {
         this.vehicles.remove(tipo);
+        this.agents.remove(localName);
     }
 
     public void setNormalState(){

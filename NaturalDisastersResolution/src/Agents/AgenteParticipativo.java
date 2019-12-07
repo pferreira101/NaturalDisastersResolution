@@ -118,7 +118,7 @@ public class AgenteParticipativo extends Agent {
 
         // System.out.println(new Time(System.currentTimeMillis()) + ": "+this.getAID().getLocalName()  + " --- Apagou célula " + p.toString() + " (agua: " + this.aguaDisponivel + " ,combustivel: " + this.combustivelDisponivel + ")");
 
-        System.out.println("Agente a registar que apagou a celula " + t.posicao + ", no fogo "+t.fireId);
+        //System.out.println("Agente a registar que apagou a celula " + t.posicao + ", no fogo "+t.fireId);
         this.mapa.registaCelulaApagada(t.fireId, t.posicao);
         this.tarefasRealizadas.add(t);
     }

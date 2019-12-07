@@ -76,7 +76,6 @@ public class ImageManager {
 
         img += IMG_FORMAT;
 
-        System.out.println(img +" " + gridCell.p == null? "":gridCell.p.toString());
         return img;
     }
 

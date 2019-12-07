@@ -13,7 +13,6 @@ public class AgentStatus implements Serializable {
     int combustivelDisponivel;
     int velocidade;
     boolean disponivel;
-    boolean free;
     List<Tarefa> tarefas;
     int tempoParaFicarDisponivel;
     String tipo;
@@ -23,7 +22,6 @@ public class AgentStatus implements Serializable {
         this.aid = agent.getAID();
         this.posAtual = agent.posAtual;
         this.ultimaPosicao = agent.posAnterior;
-        if ( agent.posAnterior != null) System.out.println(agent.posAnterior.toString());
         this.aguaDisponivel = agent.aguaDisponivel;
         this.combustivelDisponivel = agent.combustivelDisponivel;
         this.velocidade = agent.velocidade;
@@ -33,11 +31,11 @@ public class AgentStatus implements Serializable {
         this.tempoParaFicarDisponivel = agent.tempoParaFicarDisponivel;
 
         if(agent instanceof Aeronave)
-            tipo = "Drone";
+            tipo = "Plane";
         else if(agent instanceof Camiao)
             tipo = "Firetruck";
         else if(agent instanceof Drone)
-            tipo = "Plane";
+            tipo = "Drone";
     }
 
     void addTarefa(Tarefa t){

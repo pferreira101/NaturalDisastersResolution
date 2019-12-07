@@ -40,7 +40,6 @@ public class GUI {
 
         frameInitialize(mapGrid.panel, panel_3,panel_5);
         captionInitialize(mapa, mapGrid.panel, panel_3);
-        System.out.println("1904");
         textArea = new JTextArea(10, 20);
         textArea.setEditable(false);
         parametersInitialize();

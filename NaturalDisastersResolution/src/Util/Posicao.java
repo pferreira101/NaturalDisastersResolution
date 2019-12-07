@@ -17,7 +17,7 @@ public class Posicao implements Serializable {
 
     public static int distanceBetween(Posicao p1, Posicao p2){
         double x = Math.sqrt(((Math.pow((p1.pos_x - p2.pos_x), 2)) + (Math.pow((p1.pos_y - p2.pos_y), 2))));
-        System.out.println("POSICAO: " + x + " " + (int) x);
+        //System.out.println("POSICAO: " + x + " " + (int) x);
         return  (int) x ;
     }
 

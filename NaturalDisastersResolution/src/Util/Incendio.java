@@ -36,8 +36,6 @@ public class Incendio implements Serializable {
 
     void registaCelulaApagada(Posicao p){
         if(this.areaAfetada.contains(p))
-            System.out.println("A registar extinsao na celula " + p.toString() + " do incendio " + this.fireId);
-        else System.out.println("nao existe a celula " +p.toString()+ " neste incendio");
-        this.areaAfetada.remove(p);
+            this.areaAfetada.remove(p);
     }
 }

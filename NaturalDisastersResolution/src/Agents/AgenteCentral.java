@@ -202,7 +202,7 @@ public class AgenteCentral extends Agent {
         }
 
         apagar = new Tarefa(taskId++, Tarefa.APAGAR, incendio.fireId, p, minTempo);
-        System.out.println("-------------------------------------------------------------------------------- minTempo: " + minTempo);
+        //System.out.println("-------------------------------------------------------------------------------- minTempo: " + minTempo);
         this.addBehaviour(new AssignTask(choosenAgent, apagar));
 
         if(secondChoosenAgent != null && mapa.floresta.contains(p)){ // caso a tarefa seja numa floresta e exiga segundo agente (agente preventivo)

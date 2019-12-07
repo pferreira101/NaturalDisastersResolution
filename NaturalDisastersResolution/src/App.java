@@ -3,16 +3,7 @@ import java.util.List;
 
 public class App {
 
-    static int nDrones = 1;
-    static int nCamioes = 1;
-    static int nAeronaves = 1;
-    static int tamanhoMapa = 8;
-    static int numPostosComb = 2;
-    static int numPostosAgua = 1;
-    static int numHabitacoes = 10;
-    static int numPontosFloresta = 20;
-
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args){
 
         run();
     }
@@ -27,13 +18,8 @@ public class App {
 
         System.out.println("0.11");
 
-
         List<Posicao> posicoesAgentes;
         int id = 0;
-
-        AgenteCentral agenteCentral = new AgenteCentral();
-
-
 
         try {
             System.out.println("1");
@@ -56,7 +42,6 @@ public class App {
                 mc.startAgenteCamiao(id++, mapa, posicoesAgentes.get(i));
             }
 
-            System.out.println("4");
 
             posicoesAgentes = mapa.getDistribuicaoPosicoes(SimulationConfig.NUM_MAX_AERONAVES);
             for(int i = 0; i < SimulationConfig.NUM_MAX_AERONAVES; i++){
@@ -69,7 +54,6 @@ public class App {
 
             Thread.sleep(1000);
             mc.startIncendiario(mapa);
-
 
         } catch (InterruptedException e) {
             e.printStackTrace();

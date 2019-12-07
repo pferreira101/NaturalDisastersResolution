@@ -25,7 +25,6 @@ public class MapGrid {
             for (int j = 0; j < this.mapa.size; j++){
                 grid[i][j] = new GridCell(this.mapa.size);
                 grid[i][j].p = new Posicao(i,j);
-                //grid[i][j].setText("(" + i +","+ j +")"); // descomentar esta linha para mostrar indice das células
                 panel.add(grid[i][j].gridCell);
             }
         }
@@ -70,12 +69,12 @@ public class MapGrid {
         for(AgentStatus  as : stats.estadoAgentes){
             if(as.ultimaPosicao != null){
                 GridCell previousGridCell =  this.grid[(int)as.ultimaPosicao.pos_x][(int)as.ultimaPosicao.pos_y];
-                previousGridCell.removeAgent(as.tipo);
+                previousGridCell.removeAgent(as.aid.getLocalName(), as.tipo);
                 previousGridCell.setImage();
             }
 
             GridCell gridCell =  this.grid[(int)as.posAtual.pos_x][(int)as.posAtual.pos_y];
-            gridCell.addAgent(as.tipo);
+            gridCell.addAgent(as.aid.getLocalName(), as.tipo);
 
             posicoesModificadas.add(gridCell);
         }
