@@ -13,7 +13,7 @@ public class AgenteIncendiario extends Agent {
     int fireId;
     AID centralAgent;
     int freqIncendio = 5000; // 1 incendio novo a cada x ms
-    int freqExpansao = 10000;
+    int freqExpansao = 5000;
     Set<Integer> incendiosAtivos;
 
     protected void setup(){
@@ -126,24 +126,29 @@ public class AgenteIncendiario extends Agent {
                     if (adjFlo.size() >= 2) {
                         while (i < 2) {
                             pAdjacent = mapa.getRandAdjacentPositions(adjFlo);
+                            adjFlo.remove(pAdjacent);
                             celulasIncendiadas.add(pAdjacent);
                             i++;
                         }
                     } else if (adjFlo.size() == 1) {
                         pAdjacent = mapa.getRandAdjacentPositions(adjFlo);
+                        adjFlo.remove(pAdjacent);
                         celulasIncendiadas.add(pAdjacent);
                         do {
                             pAdjacent = mapa.getRandAdjacentPositions(adj);
                         } while (mapa.isWaterSource(pAdjacent));
+                        adjFlo.remove(pAdjacent);
                         celulasIncendiadas.add(pAdjacent);
                     }
                 } else if (!mapa.floresta.contains(p) && !adjFlo.isEmpty()){ // se não é celula floresta, expande para 1 adjacente, dando prioridade a pontos de floresta
                     pAdjacent = mapa.getRandAdjacentPositions(adjFlo);
+                    adjFlo.remove(pAdjacent);
                     celulasIncendiadas.add(pAdjacent);
                 } else if(!adj.isEmpty()){ // caso de expansão default
                     do {
                         pAdjacent = mapa.getRandAdjacentPositions(adj);
                     } while (mapa.isWaterSource(pAdjacent));
+                    adj.remove(pAdjacent);
                     celulasIncendiadas.add(pAdjacent);
                 }
             }

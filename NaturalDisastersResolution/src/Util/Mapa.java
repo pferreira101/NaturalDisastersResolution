@@ -41,104 +41,18 @@ public class Mapa {
     }
 
     boolean posicaoLivre(Posicao p){
-        return !(postosCombustivel.contains(p) || postosAgua.contains(p) || habitacoes.contains(p) || floresta.contains(p));
+        for(PostoCombustivel posto : postosCombustivel)
+            if(posto.pos.equals(p)) return false;
+
+        if(postosAgua.contains(p)) return false;
+        if(habitacoes.contains(p)) return false;
+        if(floresta.contains(p)) return false;
+        return true;
     }
 
     boolean insideDimensoes(Posicao pos){
         if(pos.pos_x>=0 && pos.pos_x<size && pos.pos_y>=0 && pos.pos_y<size) return true;
         else return false;
-    }
-
-    List<Posicao> posicoesAdjacentesNotOnFire(Posicao pos){
-        List<Posicao> res = new ArrayList<>();
-        Posicao p1 = new Posicao (pos.pos_x-1,pos.pos_y+1);
-        Posicao p2 = new Posicao (pos.pos_x,pos.pos_y+1);
-        Posicao p3 = new Posicao (pos.pos_x+1,pos.pos_y+1);
-        Posicao p4 = new Posicao (pos.pos_x-1,pos.pos_y);
-        Posicao p5 = new Posicao (pos.pos_x+1,pos.pos_y);
-        Posicao p6 = new Posicao (pos.pos_x-1,pos.pos_y-1);
-        Posicao p7 = new Posicao (pos.pos_x,pos.pos_y-1);
-        Posicao p8 = new Posicao (pos.pos_x+1,pos.pos_y-1);
-
-        if(insideDimensoes(p1) && !onFire(p1) && !inAreaArdida(p1)) res.add(p1);
-        if(insideDimensoes(p2) && !onFire(p2) && !inAreaArdida(p2)) res.add(p2);
-        if(insideDimensoes(p3) && !onFire(p3) && !inAreaArdida(p3)) res.add(p3);
-        if(insideDimensoes(p4) && !onFire(p4) && !inAreaArdida(p4)) res.add(p4);
-        if(insideDimensoes(p5) && !onFire(p5) && !inAreaArdida(p5)) res.add(p5);
-        if(insideDimensoes(p6) && !onFire(p6) && !inAreaArdida(p6)) res.add(p6);
-        if(insideDimensoes(p7) && !onFire(p7) && !inAreaArdida(p7)) res.add(p7);
-        if(insideDimensoes(p8) && !onFire(p8) && !inAreaArdida(p8)) res.add(p8);
-
-        return res;
-    }
-
-    List<Posicao> posicoesAdjacentesLivres(Posicao pos){
-        List<Posicao> res = new ArrayList<>();
-        Posicao p1 = new Posicao (pos.pos_x-1,pos.pos_y+1);
-        Posicao p2 = new Posicao (pos.pos_x,pos.pos_y+1);
-        Posicao p3 = new Posicao (pos.pos_x+1,pos.pos_y+1);
-        Posicao p4 = new Posicao (pos.pos_x-1,pos.pos_y);
-        Posicao p5 = new Posicao (pos.pos_x+1,pos.pos_y);
-        Posicao p6 = new Posicao (pos.pos_x-1,pos.pos_y-1);
-        Posicao p7 = new Posicao (pos.pos_x,pos.pos_y-1);
-        Posicao p8 = new Posicao (pos.pos_x+1,pos.pos_y-1);
-
-        if(insideDimensoes(p1) && posicaoLivre(p1)) res.add(p1);
-        if(insideDimensoes(p2) && posicaoLivre(p2)) res.add(p2);
-        if(insideDimensoes(p3) && posicaoLivre(p3)) res.add(p3);
-        if(insideDimensoes(p4) && posicaoLivre(p4)) res.add(p4);
-        if(insideDimensoes(p5) && posicaoLivre(p5)) res.add(p5);
-        if(insideDimensoes(p6) && posicaoLivre(p6)) res.add(p6);
-        if(insideDimensoes(p7) && posicaoLivre(p7)) res.add(p7);
-        if(insideDimensoes(p8) && posicaoLivre(p8)) res.add(p8);
-
-        return res;
-    }
-
-    List<Posicao> posicoesFlorestaAdjacenteNotOnFire(Posicao pos){
-        List<Posicao> res = new ArrayList<>();
-        Posicao p1 = new Posicao (pos.pos_x-1,pos.pos_y+1);
-        Posicao p2 = new Posicao (pos.pos_x,pos.pos_y+1);
-        Posicao p3 = new Posicao (pos.pos_x+1,pos.pos_y+1);
-        Posicao p4 = new Posicao (pos.pos_x-1,pos.pos_y);
-        Posicao p5 = new Posicao (pos.pos_x+1,pos.pos_y);
-        Posicao p6 = new Posicao (pos.pos_x-1,pos.pos_y-1);
-        Posicao p7 = new Posicao (pos.pos_x,pos.pos_y-1);
-        Posicao p8 = new Posicao (pos.pos_x+1,pos.pos_y-1);
-
-        if(insideDimensoes(p1) && floresta.contains(p1) && !onFire(p1) && !inAreaArdida(p1)) res.add(p1);
-        if(insideDimensoes(p2) && floresta.contains(p2) && !onFire(p2) && !inAreaArdida(p2)) res.add(p2);
-        if(insideDimensoes(p3) && floresta.contains(p3) && !onFire(p3) && !inAreaArdida(p3)) res.add(p3);
-        if(insideDimensoes(p4) && floresta.contains(p4) && !onFire(p4) && !inAreaArdida(p4)) res.add(p4);
-        if(insideDimensoes(p5) && floresta.contains(p5) && !onFire(p5) && !inAreaArdida(p5)) res.add(p5);
-        if(insideDimensoes(p6) && floresta.contains(p6) && !onFire(p6) && !inAreaArdida(p6)) res.add(p6);
-        if(insideDimensoes(p7) && floresta.contains(p7) && !onFire(p7) && !inAreaArdida(p7)) res.add(p7);
-        if(insideDimensoes(p8) && floresta.contains(p8) && !onFire(p8) && !inAreaArdida(p8)) res.add(p8);
-
-        return res;
-    }
-
-    List<Posicao> posicoesFlorestaAdjacente(Posicao pos){
-        List<Posicao> res = new ArrayList<>();
-        Posicao p1 = new Posicao (pos.pos_x-1,pos.pos_y+1);
-        Posicao p2 = new Posicao (pos.pos_x,pos.pos_y+1);
-        Posicao p3 = new Posicao (pos.pos_x+1,pos.pos_y+1);
-        Posicao p4 = new Posicao (pos.pos_x-1,pos.pos_y);
-        Posicao p5 = new Posicao (pos.pos_x+1,pos.pos_y);
-        Posicao p6 = new Posicao (pos.pos_x-1,pos.pos_y-1);
-        Posicao p7 = new Posicao (pos.pos_x,pos.pos_y-1);
-        Posicao p8 = new Posicao (pos.pos_x+1,pos.pos_y-1);
-
-        if(insideDimensoes(p1) && floresta.contains(p1) && !inAreaArdida(p1)) res.add(p1);
-        if(insideDimensoes(p2) && floresta.contains(p2) && !inAreaArdida(p2)) res.add(p2);
-        if(insideDimensoes(p3) && floresta.contains(p3) && !inAreaArdida(p3)) res.add(p3);
-        if(insideDimensoes(p4) && floresta.contains(p4) && !inAreaArdida(p4)) res.add(p4);
-        if(insideDimensoes(p5) && floresta.contains(p5) && !inAreaArdida(p5)) res.add(p5);
-        if(insideDimensoes(p6) && floresta.contains(p6) && !inAreaArdida(p6)) res.add(p6);
-        if(insideDimensoes(p7) && floresta.contains(p7) && !inAreaArdida(p7)) res.add(p7);
-        if(insideDimensoes(p8) && floresta.contains(p8) && !inAreaArdida(p8)) res.add(p8);
-
-        return res;
     }
 
     public void estabelecePosicaoPontosFixos(){
@@ -162,11 +76,15 @@ public class Mapa {
             if(i==numPostosAgua) break;
 
             int afluentes = rand.nextInt(10);
-            Posicao pLine = p;
+            Posicao ultimaCelula = p;
+            Posicao pAdjacent;
+            List adj;
             for(int j=0; j<afluentes; j++){
-                pLine = getRandLinePosition(pLine);
-                if(!posicaoLivre(pLine) || !insideDimensoes(pLine)) break;
-                postosAgua.add(pLine);
+                adj = posicoesAdjacentesLivres(ultimaCelula);
+                if(adj.isEmpty()) break;
+                pAdjacent = getRandAdjacentPositions(adj);
+                ultimaCelula = pAdjacent;
+                postosAgua.add(pAdjacent);
                 i++;
                 if(i==numPostosAgua) break;
             }
@@ -402,6 +320,98 @@ public class Mapa {
         for(PostoCombustivel posto : postosCombustivel){
             if(posto.ativo==true) res.add(posto.pos);
         }
+        return res;
+    }
+
+    List<Posicao> posicoesAdjacentesNotOnFire(Posicao pos){
+        List<Posicao> res = new ArrayList<>();
+        Posicao p1 = new Posicao (pos.pos_x-1,pos.pos_y+1);
+        Posicao p2 = new Posicao (pos.pos_x,pos.pos_y+1);
+        Posicao p3 = new Posicao (pos.pos_x+1,pos.pos_y+1);
+        Posicao p4 = new Posicao (pos.pos_x-1,pos.pos_y);
+        Posicao p5 = new Posicao (pos.pos_x+1,pos.pos_y);
+        Posicao p6 = new Posicao (pos.pos_x-1,pos.pos_y-1);
+        Posicao p7 = new Posicao (pos.pos_x,pos.pos_y-1);
+        Posicao p8 = new Posicao (pos.pos_x+1,pos.pos_y-1);
+
+        if(insideDimensoes(p1) && !onFire(p1) && !inAreaArdida(p1)) res.add(p1);
+        if(insideDimensoes(p2) && !onFire(p2) && !inAreaArdida(p2)) res.add(p2);
+        if(insideDimensoes(p3) && !onFire(p3) && !inAreaArdida(p3)) res.add(p3);
+        if(insideDimensoes(p4) && !onFire(p4) && !inAreaArdida(p4)) res.add(p4);
+        if(insideDimensoes(p5) && !onFire(p5) && !inAreaArdida(p5)) res.add(p5);
+        if(insideDimensoes(p6) && !onFire(p6) && !inAreaArdida(p6)) res.add(p6);
+        if(insideDimensoes(p7) && !onFire(p7) && !inAreaArdida(p7)) res.add(p7);
+        if(insideDimensoes(p8) && !onFire(p8) && !inAreaArdida(p8)) res.add(p8);
+
+        return res;
+    }
+
+    List<Posicao> posicoesAdjacentesLivres(Posicao pos){
+        List<Posicao> res = new ArrayList<>();
+        Posicao p1 = new Posicao (pos.pos_x-1,pos.pos_y+1);
+        Posicao p2 = new Posicao (pos.pos_x,pos.pos_y+1);
+        Posicao p3 = new Posicao (pos.pos_x+1,pos.pos_y+1);
+        Posicao p4 = new Posicao (pos.pos_x-1,pos.pos_y);
+        Posicao p5 = new Posicao (pos.pos_x+1,pos.pos_y);
+        Posicao p6 = new Posicao (pos.pos_x-1,pos.pos_y-1);
+        Posicao p7 = new Posicao (pos.pos_x,pos.pos_y-1);
+        Posicao p8 = new Posicao (pos.pos_x+1,pos.pos_y-1);
+
+        if(insideDimensoes(p1) && posicaoLivre(p1)) res.add(p1);
+        if(insideDimensoes(p2) && posicaoLivre(p2)) res.add(p2);
+        if(insideDimensoes(p3) && posicaoLivre(p3)) res.add(p3);
+        if(insideDimensoes(p4) && posicaoLivre(p4)) res.add(p4);
+        if(insideDimensoes(p5) && posicaoLivre(p5)) res.add(p5);
+        if(insideDimensoes(p6) && posicaoLivre(p6)) res.add(p6);
+        if(insideDimensoes(p7) && posicaoLivre(p7)) res.add(p7);
+        if(insideDimensoes(p8) && posicaoLivre(p8)) res.add(p8);
+
+        return res;
+    }
+
+    List<Posicao> posicoesFlorestaAdjacenteNotOnFire(Posicao pos){
+        List<Posicao> res = new ArrayList<>();
+        Posicao p1 = new Posicao (pos.pos_x-1,pos.pos_y+1);
+        Posicao p2 = new Posicao (pos.pos_x,pos.pos_y+1);
+        Posicao p3 = new Posicao (pos.pos_x+1,pos.pos_y+1);
+        Posicao p4 = new Posicao (pos.pos_x-1,pos.pos_y);
+        Posicao p5 = new Posicao (pos.pos_x+1,pos.pos_y);
+        Posicao p6 = new Posicao (pos.pos_x-1,pos.pos_y-1);
+        Posicao p7 = new Posicao (pos.pos_x,pos.pos_y-1);
+        Posicao p8 = new Posicao (pos.pos_x+1,pos.pos_y-1);
+
+        if(insideDimensoes(p1) && floresta.contains(p1) && !onFire(p1) && !inAreaArdida(p1)) res.add(p1);
+        if(insideDimensoes(p2) && floresta.contains(p2) && !onFire(p2) && !inAreaArdida(p2)) res.add(p2);
+        if(insideDimensoes(p3) && floresta.contains(p3) && !onFire(p3) && !inAreaArdida(p3)) res.add(p3);
+        if(insideDimensoes(p4) && floresta.contains(p4) && !onFire(p4) && !inAreaArdida(p4)) res.add(p4);
+        if(insideDimensoes(p5) && floresta.contains(p5) && !onFire(p5) && !inAreaArdida(p5)) res.add(p5);
+        if(insideDimensoes(p6) && floresta.contains(p6) && !onFire(p6) && !inAreaArdida(p6)) res.add(p6);
+        if(insideDimensoes(p7) && floresta.contains(p7) && !onFire(p7) && !inAreaArdida(p7)) res.add(p7);
+        if(insideDimensoes(p8) && floresta.contains(p8) && !onFire(p8) && !inAreaArdida(p8)) res.add(p8);
+
+        return res;
+    }
+
+    List<Posicao> posicoesFlorestaAdjacente(Posicao pos){
+        List<Posicao> res = new ArrayList<>();
+        Posicao p1 = new Posicao (pos.pos_x-1,pos.pos_y+1);
+        Posicao p2 = new Posicao (pos.pos_x,pos.pos_y+1);
+        Posicao p3 = new Posicao (pos.pos_x+1,pos.pos_y+1);
+        Posicao p4 = new Posicao (pos.pos_x-1,pos.pos_y);
+        Posicao p5 = new Posicao (pos.pos_x+1,pos.pos_y);
+        Posicao p6 = new Posicao (pos.pos_x-1,pos.pos_y-1);
+        Posicao p7 = new Posicao (pos.pos_x,pos.pos_y-1);
+        Posicao p8 = new Posicao (pos.pos_x+1,pos.pos_y-1);
+
+        if(insideDimensoes(p1) && floresta.contains(p1) && !inAreaArdida(p1)) res.add(p1);
+        if(insideDimensoes(p2) && floresta.contains(p2) && !inAreaArdida(p2)) res.add(p2);
+        if(insideDimensoes(p3) && floresta.contains(p3) && !inAreaArdida(p3)) res.add(p3);
+        if(insideDimensoes(p4) && floresta.contains(p4) && !inAreaArdida(p4)) res.add(p4);
+        if(insideDimensoes(p5) && floresta.contains(p5) && !inAreaArdida(p5)) res.add(p5);
+        if(insideDimensoes(p6) && floresta.contains(p6) && !inAreaArdida(p6)) res.add(p6);
+        if(insideDimensoes(p7) && floresta.contains(p7) && !inAreaArdida(p7)) res.add(p7);
+        if(insideDimensoes(p8) && floresta.contains(p8) && !inAreaArdida(p8)) res.add(p8);
+
         return res;
     }
 
