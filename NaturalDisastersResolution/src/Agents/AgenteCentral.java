@@ -137,10 +137,14 @@ public class AgenteCentral extends Agent {
         List postosCombAtivos = mapa.getAllPostosCombustiveisAtivos();
 
         for(Tarefa t : status.tarefas){
+
+            dss.tarefasRealizadas.put(status,t);
+
             if(t.tipo == Tarefa.APAGAR) {
                 if (t.minTempo <= 10000) {
                     dss.celulasApagadas.add(t.posicao);
                 } else{
+
                     dss.celulasArdidas.add(t.posicao);
                     mapa.areaArdida.add(t.posicao);
 
@@ -185,7 +189,7 @@ public class AgenteCentral extends Agent {
             int i=0;
 
             for (AgentStatus ap : this.agents.values()) {
-                Postos postos = checkDisponibilidadeAgente(ap, p); // Tempo minimo, e Posicao de onde abastecer caso seja indicado a faze-lo
+                PostosDecision postos = checkDisponibilidadeAgente(ap, p); // Tempo minimo, e Posicao de onde abastecer caso seja indicado a faze-lo
                 int tempoParaFicarDisponivel = postos.tempo;
                 Posicao ondeAbastecerComb = postos.postoComb;
                 Posicao ondeAbastecerAgua = postos.postoAgua;
@@ -284,10 +288,10 @@ public class AgenteCentral extends Agent {
     }
 
 
-    Postos checkDisponibilidadeAgente(AgentStatus ap, Posicao incendio){
+    PostosDecision checkDisponibilidadeAgente(AgentStatus ap, Posicao incendio){
         Posicao ondeAbastecerComb;
         Posicao ondeAbastecerAgua;
-        Postos postos = null;
+        PostosDecision postos = null;
         int tempo = 0;
         // calcular combustivel e posição do agente após este realizar todas as suas tarefas
         int maxFuel = 0;
@@ -362,7 +366,7 @@ public class AgenteCentral extends Agent {
                         break;
                 }
                 ondeAbastecerComb = postoCombMaisProximo.getKey();
-                postos = new Postos(tempo,ondeAbastecerComb, 2);
+                postos = new PostosDecision(tempo,ondeAbastecerComb, 2);
             }else{
                 AbstractMap.SimpleEntry<Posicao, Integer> postoAguaMaisProximo = this.mapa.getPostoAguaEntreAgenteIncendio(posição, incendio);
                 switch (ap.tipo) {
@@ -382,8 +386,8 @@ public class AgenteCentral extends Agent {
                 ondeAbastecerComb = postoCombMaisProximo.getKey();
                 ondeAbastecerAgua = postoAguaMaisProximo.getKey();
                 if(Posicao.distanceBetween(posição,ondeAbastecerComb) < Posicao.distanceBetween(posição,ondeAbastecerAgua)) {
-                    postos = new Postos(tempo,ondeAbastecerComb,ondeAbastecerAgua,0);
-                } else{ postos = new Postos(tempo,ondeAbastecerComb,ondeAbastecerAgua,1);}
+                    postos = new PostosDecision(tempo,ondeAbastecerComb,ondeAbastecerAgua,0);
+                } else{ postos = new PostosDecision(tempo,ondeAbastecerComb,ondeAbastecerAgua,1);}
             }
         }
         else {
@@ -399,7 +403,7 @@ public class AgenteCentral extends Agent {
                         tempo += (distanciaAgenteIncendio * (4 / Aeronave.velocidade)) * 1000;
                         break;
                 }
-                postos = new Postos(tempo);
+                postos = new PostosDecision(tempo);
             }
             else{
                 AbstractMap.SimpleEntry<Posicao, Integer> postoAguaMaisProximo = this.mapa.getPostoAguaEntreAgenteIncendio(posição, incendio);
@@ -415,48 +419,12 @@ public class AgenteCentral extends Agent {
                         break;
                 }
                 ondeAbastecerAgua = postoAguaMaisProximo.getKey();
-                postos = new Postos(tempo,ondeAbastecerAgua,3);
+                postos = new PostosDecision(tempo,ondeAbastecerAgua,3);
             }
         }
         return postos;
     }
 
-    public class Postos{
-        int tempo;
-        Posicao postoComb;
-        Posicao postoAgua;
-        int option;
-        // 0 -> postoComb é o primeiro destino;
-        // 1 -> postoAgua é o primeiro destino;
-        // 2 -> só postoComb;
-        // 3 -> só postoAgua;
-        // 4 -> direto (não precisa de nada);
-
-        Postos(int tempo){
-            this.tempo = tempo;
-            this.option = 4;
-        }
-
-        Postos(int tempo, Posicao posto, int option){
-            if(option==2){
-                this.postoComb = posto;
-                this.option = 2;
-            }
-            if(option==3){
-                this.postoAgua = posto;
-                this.option = 3;
-            }
-            this.tempo = tempo;
-        }
-
-        Postos(int tempo, Posicao postoComb, Posicao postoAgua, int option){
-            this.tempo = tempo;
-            this.postoComb = postoComb;
-            this.postoAgua = postoAgua;
-            this.option = option;
-        }
-
-    }
 
     /*private int autonomiaCombustivel(AgentStatus ap, Posicao incendio){
         int combSomaTotal = 0;
