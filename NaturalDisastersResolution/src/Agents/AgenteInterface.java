@@ -42,7 +42,7 @@ public class AgenteInterface extends Agent {
             ACLMessage msg = receive();
             if (msg != null) {
                 String sendersName = msg.getSender().getLocalName();
-                if (sendersName.equals("Central") && msg.getPerformative() == ACLMessage.INFORM) {
+                if (sendersName.contains("Central") && msg.getPerformative() == ACLMessage.INFORM) {
 
                     try {
                         DeltaSimulationStatus stats = (DeltaSimulationStatus) msg.getContentObject();

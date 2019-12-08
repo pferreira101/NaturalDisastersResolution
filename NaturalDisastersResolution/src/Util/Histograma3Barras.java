@@ -30,6 +30,8 @@ public class Histograma3Barras extends ApplicationFrame {
         chartPanel.setPreferredSize(new java.awt.Dimension( 560 , 367 ) );
         setContentPane( chartPanel );
         this.tarefasRealizadas = ts;
+        System.out.println("A criar histograma");
+        if(this.tarefasRealizadas == null)System.out.println("nulll");
     }
 
     private CategoryDataset createDataset( ) {

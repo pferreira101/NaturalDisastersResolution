@@ -1,4 +1,3 @@
-import java.awt.*;
 import java.util.List;
 
 public class App {
@@ -33,20 +32,20 @@ public class App {
 
             System.out.println("2");
 
-            posicoesAgentes = mapa.getDistribuicaoPosicoes(SimulationConfig.NUM_MAX_DRONES);
+            posicoesAgentes = mapa.getPosicoesProporcional(SimulationConfig.NUM_MAX_DRONES);
             for(int i = 0; i < SimulationConfig.NUM_MAX_DRONES; i++){
                 mc.startAgenteDrone(id++, mapa, posicoesAgentes.get(i));
             }
 
             System.out.println("3");
 
-            posicoesAgentes = mapa.getDistribuicaoPosicoes(SimulationConfig.NUM_MAX_CAMIOES);
+            posicoesAgentes = mapa.getPosicoesProporcional(SimulationConfig.NUM_MAX_CAMIOES);
             for(int i = 0; i < SimulationConfig.NUM_MAX_CAMIOES; i++){
                 mc.startAgenteCamiao(id++, mapa, posicoesAgentes.get(i));
             }
 
 
-            posicoesAgentes = mapa.getDistribuicaoPosicoes(SimulationConfig.NUM_MAX_AERONAVES);
+            posicoesAgentes = mapa.getPosicoesProporcional(SimulationConfig.NUM_MAX_AERONAVES);
             for(int i = 0; i < SimulationConfig.NUM_MAX_AERONAVES; i++){
                 mc.startAgenteAeronave(id++, mapa, posicoesAgentes.get(i));
             }

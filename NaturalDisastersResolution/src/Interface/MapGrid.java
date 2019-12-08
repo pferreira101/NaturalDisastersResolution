@@ -1,7 +1,9 @@
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MapGrid {
 
@@ -9,6 +11,7 @@ public class MapGrid {
     JPanel panel;
     GridCell[][] grid;
     Mapa mapa;
+    Map<String, Posicao> posicaoAgentes;
 
     MapGrid(Mapa mapa){
         this.mapa = mapa;
@@ -16,6 +19,7 @@ public class MapGrid {
         this.panel.setLayout(new GridLayout(this.mapa.size, this.mapa.size));
         this.panel.setBounds(GUIConfig.MAP_GRID_X_POS, GUIConfig.MAP_GRID_Y_POS, GUIConfig.MAP_GRID_WIDTH, GUIConfig.MAP_GRID_HEIGHT);
         this.grid = new GridCell[this.mapa.size][this.mapa.size];
+        this.posicaoAgentes = new HashMap<>();
 
         initializeMapGrid();
     }
@@ -93,15 +97,17 @@ public class MapGrid {
         }
 
         for(AgentStatus  as : stats.estadoAgentes){
-            if(as.ultimaPosicao != null){
-                GridCell previousGridCell =  this.grid[(int)as.ultimaPosicao.pos_x][(int)as.ultimaPosicao.pos_y];
+            Posicao ultimaPosicao = this.posicaoAgentes.get(as.aid.getLocalName());
+
+            if(ultimaPosicao != null){
+                GridCell previousGridCell =  this.grid[(int)ultimaPosicao.pos_x][(int)ultimaPosicao.pos_y];
                 previousGridCell.removeAgent(as.aid.getLocalName(), as.tipo);
                 previousGridCell.setImage();
             }
 
             GridCell gridCell =  this.grid[(int)as.posAtual.pos_x][(int)as.posAtual.pos_y];
             gridCell.addAgent(as.aid.getLocalName(), as.tipo);
-
+            this.posicaoAgentes.put(as.aid.getLocalName(), as.posAtual);
             posicoesModificadas.add(gridCell);
         }
 

@@ -169,7 +169,8 @@ public class Mapa {
         }
         else{
             int tamDivisaoSide = size/2;
-
+            int nivelSeparacao = 5;
+            int tentativas = 5;
             int i=0;
             while(i<numPostos){
                 int x_1q,y_1q,x_2q,y_2q,x_3q,y_3q,x_4q,y_4q;
@@ -177,38 +178,75 @@ public class Mapa {
                 do {
                     x_1q = rand.nextInt(tamDivisaoSide);
                     y_1q = rand.nextInt(tamDivisaoSide);
-                }while(res.contains(new Posicao(x_1q,y_1q)));
+                    tentativas--;
+                    if(tentativas == 0) {
+                        nivelSeparacao--;
+                        tentativas = 5;
+                    }
+                }while(demasiadoJuntos(new Posicao(x_1q, y_1q), res, nivelSeparacao));
                 res.add(new Posicao(x_1q,y_1q));
                 i++;
+                nivelSeparacao = 5;
+                tentativas = 5;
                 if(i==numPostos) break;
 
                 do {
                     x_2q = rand.nextInt(size-tamDivisaoSide)+tamDivisaoSide;
                     y_2q = rand.nextInt(tamDivisaoSide);
-                }while(res.contains(new Posicao(x_2q,y_2q)));
+                    tentativas--;
+                    if(tentativas == 0) {
+                        nivelSeparacao--;
+                        tentativas = 5;
+                    }
+                }while( demasiadoJuntos(new Posicao(x_2q, y_2q), res, nivelSeparacao));
                 res.add(new Posicao(x_2q,y_2q));
                 i++;
+                nivelSeparacao = 5;
+                tentativas = 5;
                 if(i==numPostos) break;
 
                 do {
                     x_3q = rand.nextInt(tamDivisaoSide);
                     y_3q = rand.nextInt(size-tamDivisaoSide)+tamDivisaoSide;
-                }while(res.contains(new Posicao(x_3q,y_3q)));
+                    tentativas--;
+                    if(tentativas == 0) {
+                        nivelSeparacao--;
+                        tentativas = 5;
+                    }
+                }while(demasiadoJuntos(new Posicao(x_3q, y_3q), res, nivelSeparacao));
                 res.add(new Posicao(x_3q,y_3q));
                 i++;
+                nivelSeparacao = 5;
+                tentativas = 5;
                 if(i==numPostos) break;
 
                 do {
                     x_4q = rand.nextInt(size-tamDivisaoSide)+tamDivisaoSide;
                     y_4q = rand.nextInt(size-tamDivisaoSide)+tamDivisaoSide;
-                }while(res.contains(new Posicao(x_4q,y_4q)));
+                    tentativas--;
+                    if(tentativas == 0) {
+                        nivelSeparacao--;
+                        tentativas = 5;
+                    }
+                }while(demasiadoJuntos(new Posicao(x_4q, y_4q), res, nivelSeparacao));
                 res.add(new Posicao(x_4q,y_4q));
                 i++;
+                nivelSeparacao = 5;
+                tentativas = 5;
                 if(i==numPostos) break;
             }
         }
 
         return res;
+    }
+
+    private boolean demasiadoJuntos(Posicao posicao, List<Posicao> res, int nivelSeparacao) {
+        if(nivelSeparacao == 0) return false;
+        for(Posicao p : res){
+            if(Posicao.distanceBetween(posicao, p) < nivelSeparacao)
+                return  true;
+        }
+        return false;
     }
 
     public Posicao getRandLinePosition(Posicao pos) {

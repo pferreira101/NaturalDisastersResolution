@@ -130,10 +130,9 @@ public class AgenteParticipativo extends Agent {
                 sendCurrentStatus();
             }
 
-            if(tarefasAgendadas.size() == 0){
-                disponivel = true;
+            disponivel = true;
+            if(tarefasAgendadas.size() == 0  && (aguaDisponivel < 5 || aguaDisponivel < 0.6 * capacidadeMaxAgua || combustivelDisponivel < 0.75 * capacidadeMaxCombustivel)){
                 isFreeModeOk = true;
-                sendCurrentStatus();
                 rt = new RefillTanks();
                 addBehaviour(tbf.wrap(rt));
             }
@@ -259,7 +258,7 @@ public class AgenteParticipativo extends Agent {
 
         public void action(){
             freeModeActive = true;
-            if(aguaDisponivel < 5 || aguaDisponivel < 0.5 * capacidadeMaxAgua){
+            if(aguaDisponivel < 5 || aguaDisponivel < 0.6 * capacidadeMaxAgua){
                 Posicao postoAguaMaisProxAgent = getMinDistancePostoAgua(posAtual);
                 Posicao postoCombusMaisProx = getMinDistancePostoComb(postoAguaMaisProxAgent);
                 int distanciaTotal = Posicao.distanceBetween(posAtual, postoAguaMaisProxAgent) + Posicao.distanceBetween(postoAguaMaisProxAgent, postoCombusMaisProx);

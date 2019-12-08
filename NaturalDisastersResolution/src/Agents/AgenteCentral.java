@@ -61,7 +61,7 @@ public class AgenteCentral extends Agent {
                         e.printStackTrace();
                     }
                 }
-                else if (sendersName.equals("Interface") && msg.getPerformative() == ACLMessage.QUERY_REF) {
+                else if (sendersName.contains("Interface") && msg.getPerformative() == ACLMessage.QUERY_REF) {
                     sendSimulationInfo(msg);
                 }
                 else if (sendersName.contains("Interface") && msg.getPerformative() == ACLMessage.REQUEST && msg.getContent().equals("STOP")) {
