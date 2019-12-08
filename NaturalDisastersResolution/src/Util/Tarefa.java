@@ -40,8 +40,22 @@ public class Tarefa implements Serializable {
 
     @Override
     public String toString() {
-
-        return this.tipo + " em célula " + posicao.toString();
+        String op = null;
+        switch (tipo){
+            case 1:
+                op = "abastecer combustivel";
+                break;
+            case 2:
+                op = "combater fogo";
+                break;
+            case 3:
+                op =  "prevenir";
+                break;
+            case 4:
+                op = "abastecer agua";
+                break;
+        }
+        return op + " em célula " + posicao.toString();
     }
 
     @Override

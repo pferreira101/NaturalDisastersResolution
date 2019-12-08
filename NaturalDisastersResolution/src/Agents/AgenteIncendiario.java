@@ -73,8 +73,6 @@ public class AgenteIncendiario extends Agent {
         Timestamp ts = new Timestamp(date.getTime());
         FireAlert fa = new FireAlert(this.fireId, p, ts);
 
-        System.out.println("****** a iniciar fogo "+ this.fireId);
-
         try {
             sendAlert(centralAgent, fa);
         } catch (Exception e) {
@@ -107,10 +105,8 @@ public class AgenteIncendiario extends Agent {
         protected void onTick(){
             if(mapa.isFireActive(this.fireId)){
                 spreadFire();
-                System.out.println("****** a expandir fogo "+ this.fireId);
             }
             else {
-                System.out.println("****** a parar de expandir fogo "+ this.fireId);
                 agenteIncendiario.removeBehaviour(this);
             }
         }

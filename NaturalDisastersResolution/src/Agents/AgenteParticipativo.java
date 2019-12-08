@@ -2,12 +2,18 @@ import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.OneShotBehaviour;
+import jade.core.behaviours.ThreadedBehaviourFactory;
 import jade.lang.acl.ACLMessage;
 
+import java.sql.Time;
 import java.util.*;
 
 
 public class AgenteParticipativo extends Agent {
+    ThreadedBehaviourFactory tbf;
+    TaskReceiver tr;
+    PerformTasks pt;
+    RefillTanks rt;
 
     AID centralAgent;
     Mapa mapa;
@@ -16,6 +22,8 @@ public class AgenteParticipativo extends Agent {
     Posicao posAnterior;
 
     boolean disponivel;
+    boolean isFreeModeOk;
+    boolean freeModeActive;
 
     int capacidadeMaxAgua;
     int capacidadeMaxCombustivel;
@@ -57,8 +65,11 @@ public class AgenteParticipativo extends Agent {
 
         sendCurrentStatus(); // informa no setup para quartel ter conhecimento de todos os agentes antes do agente incendiario comecar a corre
 
-        this.addBehaviour(new TaskReceiver());
-        //this.addBehaviour(new RefillFreeMode(this,1000));
+        this.tbf = new ThreadedBehaviourFactory();
+        this.isFreeModeOk = true;
+        this.freeModeActive = false;
+
+        this.addBehaviour(tbf.wrap(new TaskReceiver()));
     }
 
     class TaskReceiver extends CyclicBehaviour {
@@ -69,10 +80,13 @@ public class AgenteParticipativo extends Agent {
                 if (sendersName.contains("Central") && msg.getPerformative() == ACLMessage.REQUEST) {
                    try {
                        LinkedList<Tarefa> tarefas = (LinkedList<Tarefa>) msg.getContentObject();
+                       isFreeModeOk = false;
                        for(Tarefa t : tarefas) {
                            tarefasAgendadas.add(t);
                        }
-                       if(disponivel==true) performTasks();
+                       if(disponivel==true){
+                           addBehaviour(tbf.wrap(new PerformTasks()));
+                       }
                    }
                    catch (Exception e){
                        e.printStackTrace();
@@ -88,37 +102,45 @@ public class AgenteParticipativo extends Agent {
 
     }
 
-    private void performTasks() {
-        while(this.tarefasAgendadas.peek() != null) {
-            this.disponivel = false;
+    class PerformTasks extends OneShotBehaviour {
 
-            Tarefa t = this.tarefasAgendadas.poll();
+        @Override
+        public void action(){
+            while(freeModeActive);
 
-            boolean deslocacaoCompleta = moveToPosition(t.posicao, t, false);
+            while(tarefasAgendadas.peek() != null) {
+                disponivel = false;
 
-            if(t.tipo == Tarefa.APAGAR)
-                apagarFogo(t);
-            else if(t.tipo == Tarefa.ABASTECERCOMB)
-                abastecerComb();
-            else if (t.tipo == Tarefa.ABASTECERAGUA)
-                abastecerAgua();
-            else if(t.tipo == Tarefa.PREVENIR) {
-                if (deslocacaoCompleta)
-                    prevenir();
+                Tarefa t = tarefasAgendadas.poll();
+
+                boolean deslocacaoCompleta = moveToPosition(t.posicao, t, false);
+
+                if(t.tipo == Tarefa.APAGAR)
+                    apagarFogo(t);
+                else if(t.tipo == Tarefa.ABASTECERCOMB)
+                    abastecerComb();
+                else if (t.tipo == Tarefa.ABASTECERAGUA)
+                    abastecerAgua();
+                else if(t.tipo == Tarefa.PREVENIR) {
+                    if (deslocacaoCompleta)
+                        prevenir();
+                }
+
+                tarefasRealizadas.add(t);
+                sendCurrentStatus();
             }
 
-            this.tarefasRealizadas.add(t);
+            if(tarefasAgendadas.size() == 0){
+                disponivel = true;
+                isFreeModeOk = true;
+                sendCurrentStatus();
+                rt = new RefillTanks();
+                addBehaviour(tbf.wrap(rt));
+            }
         }
-
-        this.disponivel = true;
-        sendCurrentStatus();
-        this.addBehaviour(new RefillTanks());
     }
 
     private void apagarFogo(Tarefa t){
-        Random rand = new Random();
-        int op = rand.nextInt(2);
-
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
@@ -127,7 +149,7 @@ public class AgenteParticipativo extends Agent {
 
         this.aguaDisponivel--;
 
-        // System.out.println(new Time(System.currentTimeMillis()) + ": "+this.getAID().getLocalName()  + " --- Apagou célula " + p.toString() + " (agua: " + this.aguaDisponivel + " ,combustivel: " + this.combustivelDisponivel + ")");
+        System.out.println(new Time(System.currentTimeMillis()) + ": "+this.getAID().getLocalName()  + " --- Apagou célula " + t.posicao.toString() + " (agua: " + this.aguaDisponivel + " ,combustivel: " + this.combustivelDisponivel + ")");
 
         //System.out.println("Agente a registar que apagou a celula " + t.posicao + ", no fogo "+t.fireId);
         this.mapa.registaCelulaApagada(t.fireId, t.posicao);
@@ -165,6 +187,8 @@ public class AgenteParticipativo extends Agent {
     }
 
     private boolean moveToPosition(Posicao p, Tarefa t, boolean freeMode){
+
+        if(freeMode && !isFreeModeOk) return false;
 
         while(!this.posAtual.equals(p)){
 
@@ -214,9 +238,11 @@ public class AgenteParticipativo extends Agent {
             }
 
             if(freeMode && this.tarefasAgendadas.size() != 0){
+                System.out.println(this.getAID().getLocalName() + " reconheceu que tinha de parar freeMode");
+                sendCurrentStatus();
                 return false;
             }
-            else System.out.println(this.getAID().getLocalName() + " ainda nao me foram atribuidas tarefas");
+            else if(freeMode) System.out.println(this.getAID().getLocalName() + " ainda nao me foram atribuidas tarefas");
 
             sendCurrentStatus();
         }
@@ -242,7 +268,9 @@ public class AgenteParticipativo extends Agent {
     class RefillTanks extends OneShotBehaviour {
 
         public void action(){
-            if(aguaDisponivel < 4){
+            System.out.println(myAgent.getLocalName() + " a entrar em free mode");
+            freeModeActive = true;
+            if(aguaDisponivel < 5 || aguaDisponivel < 0.5 * capacidadeMaxAgua){
                 Posicao postoAguaMaisProxAgent = getMinDistancePostoAgua(posAtual);
                 Posicao postoCombusMaisProx = getMinDistancePostoComb(postoAguaMaisProxAgent);
                 int distanciaTotal = Posicao.distanceBetween(posAtual, postoAguaMaisProxAgent) + Posicao.distanceBetween(postoAguaMaisProxAgent, postoCombusMaisProx);
@@ -250,33 +278,57 @@ public class AgenteParticipativo extends Agent {
                 boolean temCombustivel = distanciaTotal <= combustivelDisponivel;
 
                 if(temCombustivel){
-                    moveToPosition(postoAguaMaisProxAgent,null, true);
-                    abastecerAgua();
+                    System.out.println(myAgent.getLocalName() + " plano FREEMODE: abastecer agua - combustivel");
+                    if (moveToPosition(postoAguaMaisProxAgent,null, true)) {
+                        abastecerAgua();
+                        sendCurrentStatus();
+                        System.out.println(myAgent.getLocalName() + " abasteci agua "+ "(agua: " + aguaDisponivel + ", combustivel: " + combustivelDisponivel + ") "+ posAtual.toString());
 
-                    moveToPosition(postoCombusMaisProx, null, true);
-                    abastecerComb();
+                        if (moveToPosition(postoCombusMaisProx, null, true)) {
+                            abastecerComb();
+                            sendCurrentStatus();
+                            System.out.println(myAgent.getLocalName() + " abasteci combustivel "+ "(agua: " + aguaDisponivel + ", combustivel: " + combustivelDisponivel + ") "+ posAtual.toString());
+                        }
+                    }
                 }
-                else{
+                else {
                     Posicao postoCombusMaisProxAgent = getMinDistancePostoComb(posAtual);
                     Posicao postoAguaMaisProx = getMinDistancePostoAgua(postoCombusMaisProxAgent);
                     Posicao postoCombMaisProx = getMinDistancePostoComb(postoAguaMaisProx);
+                    System.out.println(myAgent.getLocalName() + "  plano FREEMODE: abastecer combustivel - agua - combustivel");
 
-                    moveToPosition(postoCombusMaisProxAgent, null, true);
-                    abastecerComb();
+                    if (moveToPosition(postoCombusMaisProxAgent, null, true)) {
+                        abastecerComb();
+                        sendCurrentStatus();
+                        System.out.println(myAgent.getLocalName() + " abasteci combustivel " + "(agua: " + aguaDisponivel + ", combustivel: " + combustivelDisponivel + ") "+ posAtual.toString());
 
-                    moveToPosition(postoAguaMaisProx,null, true);
-                    abastecerAgua();
 
-                    moveToPosition(postoCombMaisProx, null, true);
-                    abastecerComb();
+                        if (moveToPosition(postoAguaMaisProx, null, true)) {
+                            abastecerAgua();
+                            sendCurrentStatus();
+                            System.out.println(myAgent.getLocalName() + " abasteci agua "+ "(agua: " + aguaDisponivel + ", combustivel: " + combustivelDisponivel + ") "+ posAtual.toString());
+
+                            if (moveToPosition(postoCombMaisProx, null, true)) {
+                                abastecerComb();
+                                sendCurrentStatus();
+                                System.out.println(myAgent.getLocalName() + " abasteci combustivel " + "(agua: " + aguaDisponivel + ", combustivel: " + combustivelDisponivel + ") "+ posAtual.toString());
+                            }
+                        }
+                    }
                 }
             }
             else{
                 Posicao postoCombusMaisProxAgent = getMinDistancePostoComb(posAtual);
+                System.out.println(myAgent.getLocalName() + " plano FREEMODE:  abastecer combustivel");
 
-                moveToPosition(postoCombusMaisProxAgent, null, true);
-                abastecerComb();
+                if(moveToPosition(postoCombusMaisProxAgent, null, true)) {
+                    abastecerComb();
+                    sendCurrentStatus();
+                    System.out.println(myAgent.getLocalName() + " abasteci combustivel " + "(agua: " + aguaDisponivel + ", combustivel: " + combustivelDisponivel + ") "+ posAtual.toString());
+                }
             }
+
+            freeModeActive = false;
         }
 
     }
@@ -312,6 +364,7 @@ public class AgenteParticipativo extends Agent {
     }
 
     protected void takeDown(){
+
         DFManager.deRegister(this);
     }
 }
