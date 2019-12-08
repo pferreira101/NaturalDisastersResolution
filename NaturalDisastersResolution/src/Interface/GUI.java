@@ -1,6 +1,7 @@
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Map;
 
 import javax.swing.*;
 
@@ -15,7 +16,7 @@ public class GUI {
     MapGrid mapGrid;
     ParametersChanger inputs;
     boolean firstSimulation;
-    Histograma h;
+    Map<AgentStatus,Tarefa> tarefasRealizadas;
 
 
 
@@ -63,8 +64,12 @@ public class GUI {
         this.mapGrid.removeVehicles();
         var histograma = new Histograma(mapa);
         histograma.setVisible(true);
-        var histograma3Barras = new Histograma3Barras();
+        var histograma3Barras = new Histograma3Barras(this.tarefasRealizadas);
         histograma3Barras.setVisible(true);
+    }
+
+    void tarefas (Map<AgentStatus,Tarefa> ts){
+        this.tarefasRealizadas = ts;
     }
 
 

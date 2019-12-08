@@ -8,6 +8,7 @@ import jade.lang.acl.ACLMessage;
 import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 
 public class AgenteInterface extends Agent {
@@ -108,6 +109,12 @@ public class AgenteInterface extends Agent {
     void updateGui(DeltaSimulationStatus stats) {
         this.gui.mapGrid.updateGridStatus(stats);
     }
+
+    void sendTarefas (DeltaSimulationStatus stats) {
+        this.gui.tarefas(stats.tarefasRealizadas);
+    }
+
+
 
     void stopSimulation(){
         this.removeBehaviour(b1);
