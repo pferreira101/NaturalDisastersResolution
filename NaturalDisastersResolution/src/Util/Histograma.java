@@ -14,7 +14,8 @@ public class Histograma extends JFrame {
     Mapa mapa ;
 
 
-    public Histograma() {
+    public Histograma(Mapa m) {
+        this.mapa=m;
         initUI();
     }
 
@@ -26,6 +27,7 @@ public class Histograma extends JFrame {
         ChartPanel chartPanel = new ChartPanel(chart);
         chartPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
         chartPanel.setBackground(Color.white);
+
         chartPanel.setPreferredSize(new Dimension(550,280));
         chartPanel.setMaximumDrawWidth(550);
         chartPanel.setMaximumDrawHeight(280);
@@ -34,15 +36,15 @@ public class Histograma extends JFrame {
         pack();
         setTitle("Células Ardidas por Tipo");
 
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
     }
 
     private CategoryDataset createDataset() {
 
         var dataset = new DefaultCategoryDataset();
-        dataset.setValue(5, "Células Ardidas", "Ponto Florestal");
-        dataset.setValue(3, "Células Ardidas", "Habitação");
-        dataset.setValue(2, "Células Ardidas", "Postos Combustíveis");
+        dataset.setValue(contaFlorestaArdidas(), "Células Ardidas", "Ponto Florestal");
+        dataset.setValue(contaHabArdidas(), "Células Ardidas", "Habitação");
+        dataset.setValue(contaPostosCombArdidas(), "Células Ardidas", "Postos Combustíveis");
         return dataset;
     }
 
@@ -92,12 +94,4 @@ public class Histograma extends JFrame {
         return cont;
     }
 
-    public static void main(String[] args) {
-
-        EventQueue.invokeLater(() -> {
-
-            var ex = new Histograma();
-            ex.setVisible(true);
-        });
-    }
 }

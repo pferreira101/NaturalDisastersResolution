@@ -15,6 +15,7 @@ public class GUI {
     MapGrid mapGrid;
     ParametersChanger inputs;
     boolean firstSimulation;
+    Histograma h;
 
 
 
@@ -60,6 +61,10 @@ public class GUI {
     void stopSimulation() {
         this.ai.stopSimulation();
         this.mapGrid.removeVehicles();
+        var histograma = new Histograma(mapa);
+        histograma.setVisible(true);
+        var histograma3Barras = new Histograma3Barras();
+        histograma3Barras.setVisible(true);
     }
 
 
