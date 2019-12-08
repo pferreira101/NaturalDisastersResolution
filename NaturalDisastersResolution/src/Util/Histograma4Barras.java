@@ -1,23 +1,20 @@
-import jade.core.Agent;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.ui.ApplicationFrame;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
-
 import javax.swing.*;
 import java.awt.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Histograma3Barras extends JFrame {
+public class Histograma4Barras extends JFrame {
 
     Map<String,List<Tarefa>> tarefasRealizadas;
 
-    public Histograma3Barras(Map<String, List<Tarefa>> ts){
+    public Histograma4Barras(Map<String, List<Tarefa>> ts){
         this.tarefasRealizadas = ts;
         initUI();
     }

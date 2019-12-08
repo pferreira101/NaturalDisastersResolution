@@ -1,9 +1,6 @@
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.*;
 import java.util.List;
-
 import javax.swing.*;
 
 public class GUI {
@@ -18,7 +15,6 @@ public class GUI {
     ParametersChanger inputs;
     boolean firstSimulation;
     Map<String,List<Tarefa>> tarefasRealizadas;
-
 
 
     public GUI(Mapa mapa, AgenteInterface ai) {
@@ -60,20 +56,15 @@ public class GUI {
         this.inputs.inputsInitializer(mainFrame);
     }
 
-
     void stopSimulation() {
-        for(String s : this.tarefasRealizadas.keySet()){
-            List<Tarefa> ts = this.tarefasRealizadas.get(s);
-            if(s != null) System.out.println(s + "  --  " + ts.size());
-        }
         this.ai.stopSimulation();
         this.mapGrid.removeVehicles();
         var histograma = new Histograma(mapa);
         histograma.setLocation(800,0);
         histograma.setVisible(true);
-        var histograma3Barras = new Histograma3Barras(this.tarefasRealizadas);
-        histograma3Barras.setLocation(800,225);
-        histograma3Barras.setVisible(true);
+        var histograma4Barras = new Histograma4Barras(this.tarefasRealizadas);
+        histograma4Barras.setLocation(800,225);
+        histograma4Barras.setVisible(true);
         var grafcircular = new GrafCircular(this.tarefasRealizadas );
         grafcircular.setLocation(800,500);
         grafcircular.setVisible( true );
@@ -101,15 +92,12 @@ public class GUI {
         mainFrame.getContentPane().add(mapGrid.panel);
     }
 
-
     private void statsPaneInitialize(JPanel panel_2) {
         panel_5.setLayout(new BorderLayout(0, 0));
         JScrollPane scrollPane = new JScrollPane(textArea);
         panel_2.add(scrollPane); //We add the scroll, since the scroll already contains the textArea
 
     }
-
-
 
     /**
      * Gets the GUI frame

@@ -1,5 +1,4 @@
 import javax.swing.*;
-import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -23,7 +22,6 @@ public class GridCell {
     List<String> vehicles;
 
 
-
     GridCell(int mapSize){
         this.gridCell = new JLabel();
         this.gridCell.setHorizontalAlignment(SwingConstants.CENTER);
@@ -43,7 +41,6 @@ public class GridCell {
     void setText(String s){
         this.gridCell.setText(s);
     }
-
 
     void setImage(){
         String icon = ImageManager.whichImage(this);

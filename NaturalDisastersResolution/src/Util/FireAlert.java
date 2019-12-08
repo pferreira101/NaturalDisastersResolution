@@ -23,11 +23,4 @@ public class FireAlert implements Serializable {
             this.celulasFogo.add(p);
         }
     }
-
-    /*
-    @Override
-    public String toString() {
-        return "Fogo "+ fireID +" iniciado na célula " + celulasFogo.toString();
-    }
-     */
 }

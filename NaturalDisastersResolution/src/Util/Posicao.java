@@ -1,8 +1,4 @@
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Queue;
-import java.util.Random;
 
 public class Posicao implements Serializable {
     float pos_x;

@@ -11,8 +11,7 @@ import java.awt.*;
 
 public class Histograma extends JFrame {
 
-    Mapa mapa ;
-
+    Mapa mapa;
 
     public Histograma(Mapa m) {
         this.mapa=m;

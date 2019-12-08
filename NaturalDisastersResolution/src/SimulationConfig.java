@@ -10,8 +10,8 @@ class SimulationConfig {
     static int NUM_HABITACOES= 1;
     static int NUM_PONTOS_FLORESTAIS = 1;
     static int FREQ_CRIACAO_INCENDIO = 6000;
-    static int FREQ_EXPANSAO_INCENDIO = 8000;
-    static int TEMPO_QUEIMAR_CELULA = 0;
+    static int FREQ_EXPANSAO_INCENDIO = 12000;
+    static int TEMPO_QUEIMAR_CELULA = 5;
 
     static void incSimulationNumber(){
         SIMULATION_NUMBER++;

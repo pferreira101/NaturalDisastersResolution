@@ -100,7 +100,7 @@ public class Mapa {
             i++;
             if(i==numHabitacoes) break;
 
-            int vizinhos = rand.nextInt(8); // não está preparado para ter mais do que os 8 vizinhos adjacentes
+            int vizinhos = rand.nextInt(8);
             for(int j=0; j<vizinhos; j++){
                 List<Posicao> adj;
                 adj = posicoesAdjacentesLivres(p);
@@ -126,7 +126,7 @@ public class Mapa {
             i++;
             if(i==numPontosFloresta) break;
 
-            int vizinhos = rand.nextInt(8); // não está preparado para ter mais do que os 8 vizinhos adjacentes
+            int vizinhos = rand.nextInt(8);
             for(int j=0; j<vizinhos; j++){
                 List<Posicao> adj;
                 adj = posicoesAdjacentesLivres(p);
@@ -134,7 +134,7 @@ public class Mapa {
                 Posicao pAdjacent;
                 do{
                     pAdjacent = getRandAdjacentPositions(adj);
-                    if(floresta.containsAll(adj)) break; // às vezes dá menos 1, pensar numa ponta do mapa, que possui 3 adjacentes, e dá break, vai adicionar o pAdjacent duas vezes ao mm sitio
+                    if(floresta.containsAll(adj)) break;
                 }while(!posicaoLivre(pAdjacent));
                 floresta.add(pAdjacent);
                 i++;
@@ -249,36 +249,10 @@ public class Mapa {
         return false;
     }
 
-    public Posicao getRandLinePosition(Posicao pos) {
-        Random rand = new Random();
-        int bin = rand.nextInt(2);
-        if(bin==0) {
-            float posx = size;
-            if (pos.pos_x + 1 != size)
-                posx = pos.pos_x + 1;
-            return new Posicao(posx, pos.pos_y);
-        }else{
-            float posy = size;
-            if (pos.pos_y + 1 != size)
-                posy = pos.pos_y + 1;
-            return new Posicao(pos.pos_x, posy);
-        }
-    }
-
     public Posicao getRandAdjacentPositions(List<Posicao> list){
         Random rand = new Random();
         Posicao res = list.get(rand.nextInt(list.size()));
         return res;
-    }
-
-    public List<Posicao> getDistribuicaoPosicoes(int nPosicoes){
-        List<Posicao> posicoes = new ArrayList<>();
-        // o objetivo seria distribuir homogeneamente as posicoes
-        for(int i=0; i<nPosicoes; i++){
-            posicoes.add(getRandPosition());
-        }
-
-        return posicoes;
     }
 
     boolean isFireActive(int fireId){

@@ -4,7 +4,6 @@ public class Camiao extends AgenteParticipativo {
     static int capacidadeMaxCombustivel = 10;
     static int velocidade = 2;
 
-
     // allow tunable parameters
     static void changeParameters(int maxAgua, int maxCombustivel, int velocidade){
         Camiao.capacidadeMaxAgua = maxAgua;

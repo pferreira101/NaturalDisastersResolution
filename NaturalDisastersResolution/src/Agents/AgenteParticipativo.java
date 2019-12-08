@@ -4,9 +4,6 @@ import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.core.behaviours.ThreadedBehaviourFactory;
 import jade.lang.acl.ACLMessage;
-import jade.wrapper.StaleProxyException;
-
-import java.sql.Time;
 import java.util.*;
 
 
@@ -47,7 +44,6 @@ public class AgenteParticipativo extends Agent {
         this.velocidade = velocidade;
         this.disponivel = true;
     }
-
 
     protected void setup(){
         Object[] args = this.getArguments();
@@ -99,7 +95,6 @@ public class AgenteParticipativo extends Agent {
                 block();
             }
         }
-
     }
 
     class PerformTasks extends OneShotBehaviour {
@@ -150,8 +145,6 @@ public class AgenteParticipativo extends Agent {
 
         this.mapa.registaCelulaApagada(t.fireId, t.posicao);
     }
-
-
 
     private void abastecerComb() {
         try {
@@ -255,7 +248,6 @@ public class AgenteParticipativo extends Agent {
     }
 
     class RefillTanks extends OneShotBehaviour {
-
         public void action(){
             freeModeActive = true;
             if(aguaDisponivel < 5 || aguaDisponivel < 0.6 * capacidadeMaxAgua){
@@ -340,7 +332,6 @@ public class AgenteParticipativo extends Agent {
         return maisProximo;
     }
     protected void takeDown(){
-        System.out.println("A acabar " + this.getAID().getLocalName());
         DFManager.deRegister(this);
         this.isFreeModeOk = false;
         tbf.interrupt();

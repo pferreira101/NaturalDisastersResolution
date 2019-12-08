@@ -3,14 +3,8 @@ import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.lang.acl.ACLMessage;
-
 import java.io.IOException;
-import java.io.Serializable;
-import java.nio.file.attribute.AttributeView;
-import java.sql.Time;
 import java.util.*;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
 public class AgenteCentral extends Agent {
 
@@ -86,8 +80,6 @@ public class AgenteCentral extends Agent {
                 this.tarefas.add(t);
                 registaTarefa(agent, t);
 
-                System.out.println(new Time(System.currentTimeMillis()) +  ": "+ agent.getLocalName() + " --- mandado " + t.toString());
-
             });
         }
 
@@ -104,14 +96,11 @@ public class AgenteCentral extends Agent {
         }
     }
 
-
     /**
      * Método para registar novo incendio ou expansao de um ja existente e
      * e alocar os devidos recursos
      */
-
     private void processFireAlert(FireAlert fa) {
-        //System.out.println(fa.toString());
         if(this.mapa.incendios.get(fa.fireID) == null){
             this.mapa.registaIncendio(fa);
         } else {
@@ -126,13 +115,6 @@ public class AgenteCentral extends Agent {
 
 
     private void atualizarEstadoAgente(AID agent, AgentStatus status) {
-
-        /*
-        // registar celulas apagadas
-        status.tarefas.stream().
-                filter(tarefa -> tarefa.tipo == Tarefa.APAGAR).
-                filter(tarefa -> tarefa.tempo < 4000).
-                forEach(tarefa -> this.dss.celulasApagadas.add(tarefa.posicao));*/
 
         List postosCombAtivos = mapa.getAllPostosCombustiveisAtivos();
 
@@ -159,11 +141,9 @@ public class AgenteCentral extends Agent {
             }
         }
 
-        // registar novas posicoes
         this.dss.estadoAgentes.add(status);
 
         AgentStatus as = this.agents.get(agent);
-
 
         if (as != null)
             as.atualizarEstado(status);
@@ -200,7 +180,6 @@ public class AgenteCentral extends Agent {
                 }
             }
 
-            //System.out.println(agents.get(closestAgent).toString() + " tempoSomaTotal FINAL: " + minTempo + " " + agents.get(closestAgent).tipo);
             Object[] dadosAgenteEscolhido = dadosAgentes.get(choosenAgent);
             List<Tarefa> tarefasAgenteEscolhido = new ArrayList<>();
 
@@ -286,7 +265,6 @@ public class AgenteCentral extends Agent {
                 break;
         }
 
-
         for(Tarefa tarefa : ap.tarefas){
             int distancia = Posicao.distanceBetween(posicaoAgente, tarefa.posicao);
 
@@ -307,7 +285,6 @@ public class AgenteCentral extends Agent {
             tempoTotal += (distancia*(6 / velocidadeAgente))*1000 + 1000;
 
             posicaoAgente = tarefa.posicao;
-
         }
 
         int distanciaAgenteIncendio = Posicao.distanceBetween(posicaoAgente, incendio);
@@ -361,8 +338,6 @@ public class AgenteCentral extends Agent {
         return dadosAgente;
     }
 
-
-
     private int getMinDistanceIncendioPostoComb(Posicao incendio){
         int minDistance = 1000;
 
@@ -382,7 +357,6 @@ public class AgenteCentral extends Agent {
 
 
     private void sendSimulationInfo(ACLMessage msg) {
-        //this.dss.estadoAgentes = new ArrayList<>(this.agents.values()); // tem que se tirar esta linha e passar a registar apenas novas posicoes
         ACLMessage reply = msg.createReply();
         reply.setPerformative(ACLMessage.INFORM);
         try {

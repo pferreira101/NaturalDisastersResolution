@@ -4,11 +4,8 @@ import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
-
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 
 public class AgenteInterface extends Agent {
@@ -61,7 +58,6 @@ public class AgenteInterface extends Agent {
 
     }
 
-
     class InfoRequester extends TickerBehaviour {
 
         public InfoRequester(Agent a, long period) {
@@ -105,14 +101,10 @@ public class AgenteInterface extends Agent {
         gui.getFrame().setVisible(true);
     }
 
-
     void updateGui(DeltaSimulationStatus stats) {
-        //System.out.println("A atualizar gui com dados da simulacao " + stats.simualtion);
         this.gui.updateTarefasRealizadas(stats.tarefasRealizadas);
         this.gui.mapGrid.updateGridStatus(stats);
     }
-
-
 
     void stopSimulation(){
         this.removeBehaviour(b1);

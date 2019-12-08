@@ -3,7 +3,6 @@ import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
-
 import java.util.*;
 import java.sql.Timestamp;
 
@@ -14,7 +13,6 @@ public class AgenteIncendiario extends Agent {
     AID centralAgent;
     int freqIncendio; // 1 incendio novo a cada x ms
     int freqExpansao;
-    Set<Integer> incendiosAtivos;
 
     protected void setup(){
         Object[] args = this.getArguments();
@@ -22,12 +20,10 @@ public class AgenteIncendiario extends Agent {
         this.mapa = (Mapa) args[0];
         this.fireId=0;
         this.centralAgent = DFManager.findSingleAgent(this, "Central");
-        this.incendiosAtivos = new TreeSet<>();
         this.freqIncendio = SimulationConfig.FREQ_CRIACAO_INCENDIO;
         this.freqExpansao = SimulationConfig.FREQ_EXPANSAO_INCENDIO;
 
         DFManager.registerAgent(this, "Incendiario");
-
 
         addBehaviour(new PlaceFire(this, this.freqIncendio));
         addBehaviour(new MsgReceiver());
@@ -82,8 +78,6 @@ public class AgenteIncendiario extends Agent {
         }
 
         addBehaviour(new SpreadFire(this, this.freqExpansao, p, this.fireId));
-        this.incendiosAtivos.add(fireId);
-
         fireId++;
     }
 
@@ -93,7 +87,6 @@ public class AgenteIncendiario extends Agent {
         AgenteIncendiario agenteIncendiario;
         int fireId;
         List<Posicao> ultimasCelulasIncendiadas;
-
 
         public SpreadFire(AgenteIncendiario a, long period, Posicao celulaInicial , int fireId) {
             super(a, period);
@@ -122,7 +115,6 @@ public class AgenteIncendiario extends Agent {
                 adj = mapa.posicoesAdjacentesNotOnFire(p);
                 adjFlo = mapa.posicoesFlorestaAdjacenteNotOnFire(p);
 
-
                 if (!adjFlo.isEmpty() && mapa.floresta.contains(p)) { // se é célula floresta, expande para 2 adjacentes, dando prioridade a pontos de floresta
                     int i = 0;
                     if (adjFlo.size() >= 2) {
@@ -149,7 +141,7 @@ public class AgenteIncendiario extends Agent {
                     celulasIncendiadas.add(pAdjacent);
                 }
             }
-            System.out.println("A expandir " + celulasIncendiadas.size());
+
             FireAlert fa = new FireAlert(this.fireId, celulasIncendiadas);
 
             try {

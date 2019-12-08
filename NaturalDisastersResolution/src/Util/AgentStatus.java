@@ -1,6 +1,4 @@
 import jade.core.AID;
-import jade.core.Agent;
-
 import java.io.Serializable;
 import java.util.List;
 

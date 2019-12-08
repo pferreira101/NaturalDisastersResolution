@@ -1,5 +1,4 @@
 public class ImageManager {
-
     static final String IMG_DIR = "imgs/";
 
     static final String GRASS_DIR = "grass/";
@@ -64,7 +63,6 @@ public class ImageManager {
         if(gridCell.vehicles.contains("Drone")){
             img += "Drone";
         }
-
 
         if(gridCell.vehicles.contains("Firetruck")){
             img += "Firetruck";

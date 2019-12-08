@@ -1,7 +1,6 @@
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.security.Guard;
 
 public class ParametersChanger {
 
@@ -39,8 +38,6 @@ public class ParametersChanger {
         buttonStartInitialize();
         buttonStopInitialize();
     }
-
-
 
     void numDronesInitialize() {
         nDrones = new JTextField();
@@ -156,8 +153,6 @@ public class ParametersChanger {
         lblMaxPontosFlorestais.setBounds(980, 140, 154, 14);
         mainFrame.getContentPane().add(lblMaxPontosFlorestais);
     }
-
-
 
     private void buttonGenerateInitialize() {
         btnGenerate.setBounds(850, 200, 100, 100);
