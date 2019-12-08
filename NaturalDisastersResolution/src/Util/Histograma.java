@@ -45,6 +45,7 @@ public class Histograma extends JFrame {
         dataset.setValue(contaFlorestaArdidas(), "Células Ardidas", "Ponto Florestal");
         dataset.setValue(contaHabArdidas(), "Células Ardidas", "Habitação");
         dataset.setValue(contaPostosCombArdidas(), "Células Ardidas", "Postos Combustíveis");
+        dataset.setValue(contaOutrasArdidas(),"Células Ardidas", "Vazias");
         return dataset;
     }
 
@@ -61,6 +62,16 @@ public class Histograma extends JFrame {
         return barChart;
     }
 
+    public int contaOutrasArdidas () {
+        int cont = 0;
+        if (this.mapa.areaArdida  !=  null) {
+            for (Posicao p : this.mapa.areaArdida) {
+                if (this.mapa.hab(p) == false && this.mapa.arvore(p) == false && this.mapa.postoC(p) == false) cont++;
+            }
+            return cont;
+        }
+        return 0;
+    }
 
     public int contaHabArdidas () {
         int cont = 0;

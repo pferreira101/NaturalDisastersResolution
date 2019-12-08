@@ -69,9 +69,14 @@ public class GUI {
         this.ai.stopSimulation();
         this.mapGrid.removeVehicles();
         var histograma = new Histograma(mapa);
+        histograma.setLocation(800,0);
         histograma.setVisible(true);
         var histograma3Barras = new Histograma3Barras(this.tarefasRealizadas);
+        histograma3Barras.setLocation(800,225);
         histograma3Barras.setVisible(true);
+        var grafcircular = new GrafCircular(this.tarefasRealizadas );
+        grafcircular.setLocation(800,500);
+        grafcircular.setVisible( true );
         SimulationConfig.incSimulationNumber();
     }
 
