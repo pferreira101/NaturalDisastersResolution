@@ -99,8 +99,10 @@ public class AgenteParticipativo extends Agent {
 
             if(t.tipo == Tarefa.APAGAR)
                 apagarFogo(t);
-            else if(t.tipo == Tarefa.ABASTECER)
-                abastecer(t);
+            else if(t.tipo == Tarefa.ABASTECERCOMB)
+                abastecerComb(t);
+            else if (t.tipo == Tarefa.ABASTECERAGUA)
+                abastecerAgua(t);
             else if(t.tipo == Tarefa.PREVENIR) {
                 if (completo == 0)
                     prevenir(t);
@@ -128,15 +130,26 @@ public class AgenteParticipativo extends Agent {
 
 
 
-    private void abastecer(Tarefa t) throws Exception{
-        System.out.println("A ABASTECER");
+    private void abastecerComb(Tarefa t) throws Exception{
+        System.out.println("A ABASTECER COMBUSTIVEL");
         Thread.sleep(1000);
 
-        this.aguaDisponivel = this.capacidadeMaxAgua;
         this.combustivelDisponivel = this.capacidadeMaxCombustivel;
         this.disponivel = true;
 
-        //System.out.println(new Time(System.currentTimeMillis()) + ": "+this.getAID().getLocalName()  + " --- Abasteceu em " + p.toString() + " (agua: " + this.aguaDisponivel + " ,combustivel: " + this.combustivelDisponivel + ")");
+        //System.out.println(new Time(System.currentTimeMillis()) + ": "+this.getAID().getLocalName()  + " --- Abasteceu em " + p.toString() + " (combustivel: " + this.combustivelDisponivel + ")");
+
+        this.tarefasRealizadas.add(t);
+    }
+
+    private void abastecerAgua(Tarefa t) throws Exception{
+        System.out.println("A ABASTECER AGUA");
+        Thread.sleep(1000);
+
+        this.aguaDisponivel = this.capacidadeMaxAgua;
+        this.disponivel = true;
+
+        //System.out.println(new Time(System.currentTimeMillis()) + ": "+this.getAID().getLocalName()  + " --- Abasteceu em " + p.toString() + " (agua: " + this.aguaDisponivel + ")");
 
         this.tarefasRealizadas.add(t);
     }
