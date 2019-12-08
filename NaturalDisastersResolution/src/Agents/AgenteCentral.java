@@ -172,115 +172,87 @@ public class AgenteCentral extends Agent {
     }
 
     private void alocaRecursos(Incendio incendio) {
+        Map<AID, Object[]> dadosAgentes = new HashMap<>();
+
         Tarefa abastecercomb, apagar, prevenir, abasteceragua;
+
         AID choosenAgent = null;
         AID secondChoosenAgent = null;
         int minTempo = 100000; // 100 segundos
         int secondMinTempo = 200000;
-        Posicao postoComb = null;
-        Posicao secondPostoComb = null;
-        Posicao postoAgua = null;
-        Posicao secondPostoAgua = null;
-        int primeiroAbastecimento = 0;
-        int secondPrimeiroAbastecimento = 0;
+
 
 
         for(Posicao p: incendio.areaAfetada) {
             int i=0;
 
             for (AgentStatus ap : this.agents.values()) {
-                PostosDecision postos = checkDisponibilidadeAgente(ap, p); // Tempo minimo, e Posicao de onde abastecer caso seja indicado a faze-lo
-                int tempoParaFicarDisponivel = postos.tempo;
-                Posicao ondeAbastecerComb = postos.postoComb;
-                Posicao ondeAbastecerAgua = postos.postoAgua;
-                int option = postos.option;
-                // second* -> segundo mais rápido -> vai ser o agente preventivo
+                Object[] dadosAgente = checkDisponibilidadeAgente(ap, p); // Tempo minimo, e Posicao de onde abastecer caso seja indicado a faze-lo
+                dadosAgentes.put(ap.aid, dadosAgente);
+
+                int tempoParaFicarDisponivel = (int) dadosAgente[0];
+
                 if (tempoParaFicarDisponivel >= minTempo && tempoParaFicarDisponivel < secondMinTempo) {
                     secondMinTempo = tempoParaFicarDisponivel;
                     secondChoosenAgent = ap.aid;
-                    secondPostoComb = ondeAbastecerComb;
-                    secondPostoAgua = ondeAbastecerAgua;
-                    secondPrimeiroAbastecimento = option;
-                } else if (tempoParaFicarDisponivel < minTempo) {
+                }
+                else if (tempoParaFicarDisponivel < minTempo) {
                     secondMinTempo = minTempo;
                     minTempo = tempoParaFicarDisponivel;
                     secondChoosenAgent = choosenAgent;
                     choosenAgent = ap.aid;
-                    secondPostoComb = postoComb;
-                    postoComb = ondeAbastecerComb;
-                    secondPostoAgua = postoAgua;
-                    postoAgua = ondeAbastecerAgua;
-                    secondPrimeiroAbastecimento = primeiroAbastecimento;
-                    primeiroAbastecimento = option;
                 }
             }
 
             //System.out.println(agents.get(closestAgent).toString() + " tempoSomaTotal FINAL: " + minTempo + " " + agents.get(closestAgent).tipo);
+            Object[] dadosAgenteEscolhido = dadosAgentes.get(choosenAgent);
+            List<Tarefa> tarefasAgenteEscolhido = new ArrayList<>();
 
-            if (postoComb != null && postoAgua != null && primeiroAbastecimento==0) {
-                abastecercomb = new Tarefa(taskId++, Tarefa.ABASTECERCOMB, postoComb);
-                this.addBehaviour(new AssignTask(choosenAgent, abastecercomb));
+            if(dadosAgenteEscolhido.length == 2){
+                AbstractMap.SimpleEntry<Integer, Posicao> tarefa = (AbstractMap.SimpleEntry<Integer, Posicao>) dadosAgenteEscolhido[1];
+                tarefasAgenteEscolhido.add( new Tarefa(taskId++, tarefa.getKey(), tarefa.getValue()));
+            }
+            if(dadosAgenteEscolhido.length == 3){
+                AbstractMap.SimpleEntry<Integer, Posicao> tarefa1 = (AbstractMap.SimpleEntry<Integer, Posicao>) dadosAgenteEscolhido[1];
+                AbstractMap.SimpleEntry<Integer, Posicao> tarefa2 = (AbstractMap.SimpleEntry<Integer, Posicao>) dadosAgenteEscolhido[2];
 
-                abasteceragua = new Tarefa(taskId++, Tarefa.ABASTECERAGUA, postoAgua);
-                this.addBehaviour(new AssignTask(choosenAgent, abasteceragua));
-
-            }else if(postoComb != null && postoAgua != null && primeiroAbastecimento==1){
-                abasteceragua = new Tarefa(taskId++, Tarefa.ABASTECERAGUA, postoAgua);
-                this.addBehaviour(new AssignTask(choosenAgent, abasteceragua));
-
-                abastecercomb = new Tarefa(taskId++, Tarefa.ABASTECERCOMB, postoComb);
-                this.addBehaviour(new AssignTask(choosenAgent, abastecercomb));
-
-            }else if(postoComb != null && postoAgua == null){
-                abastecercomb = new Tarefa(taskId++, Tarefa.ABASTECERCOMB, postoComb);
-                this.addBehaviour(new AssignTask(choosenAgent, abastecercomb));
-
-            }else if(postoComb == null && postoAgua != null){
-                abasteceragua = new Tarefa(taskId++, Tarefa.ABASTECERAGUA, postoAgua);
-                this.addBehaviour(new AssignTask(choosenAgent, abasteceragua));
+                tarefasAgenteEscolhido.add(new Tarefa(taskId++, tarefa1.getKey(), tarefa1.getValue()));
+                tarefasAgenteEscolhido.add(new Tarefa(taskId++, tarefa2.getKey(), tarefa2.getValue()));
             }
 
-            apagar = new Tarefa(taskId++, Tarefa.APAGAR, incendio.fireId, p, minTempo);
-            //System.out.println("-------------------------------------------------------------------------------- minTempo: " + minTempo);
-            this.addBehaviour(new AssignTask(choosenAgent, apagar));
+            tarefasAgenteEscolhido.add(new Tarefa(taskId++, Tarefa.APAGAR, incendio.fireId, p, minTempo));
+
+            this.addBehaviour(new AssignTask(choosenAgent, tarefasAgenteEscolhido.toArray(new Tarefa[tarefasAgenteEscolhido.size()])));
 
 
             if (mapa.floresta.contains(p)) { // caso a tarefa seja numa floresta e exiga segundo agente (agente preventivo)
 
-                List<Posicao> adjFlo;
+                List<Posicao> adjFloresta;
                 Posicao pAdjacent;
-                adjFlo = mapa.posicoesFlorestaAdjacente(p);
+                adjFloresta = mapa.posicoesFlorestaAdjacente(p);
 
-                if(!adjFlo.isEmpty()) {
+                if(!adjFloresta.isEmpty()) {
 
-                    pAdjacent = mapa.getRandAdjacentPositions(adjFlo);
+                    pAdjacent = mapa.getRandAdjacentPositions(adjFloresta);
 
+                    Object[] dadosAgentePreventivo = dadosAgentes.get(secondChoosenAgent);
+                    List<Tarefa> tarefasAgentePreventivo = new ArrayList<>();
 
-                    if (secondPostoComb != null && secondPostoAgua != null && secondPrimeiroAbastecimento==0) {
-                        abastecercomb = new Tarefa(taskId++, Tarefa.ABASTECERCOMB, secondPostoComb);
-                        this.addBehaviour(new AssignTask(secondChoosenAgent, abastecercomb));
+                    if(dadosAgentePreventivo.length == 2){
+                        AbstractMap.SimpleEntry<Integer, Posicao> tarefa = (AbstractMap.SimpleEntry<Integer, Posicao>) dadosAgentePreventivo[1];
+                        tarefasAgenteEscolhido.add( new Tarefa(taskId++, tarefa.getKey(), tarefa.getValue()));
+                    }
+                    if(dadosAgentePreventivo.length == 3){
+                        AbstractMap.SimpleEntry<Integer, Posicao> tarefa1 = (AbstractMap.SimpleEntry<Integer, Posicao>) dadosAgentePreventivo[1];
+                        AbstractMap.SimpleEntry<Integer, Posicao> tarefa2 = (AbstractMap.SimpleEntry<Integer, Posicao>) dadosAgentePreventivo[2];
 
-                        abasteceragua = new Tarefa(taskId++, Tarefa.ABASTECERAGUA, secondPostoAgua);
-                        this.addBehaviour(new AssignTask(secondChoosenAgent, abasteceragua));
-
-                    }else if(secondPostoComb != null && secondPostoAgua != null && secondPrimeiroAbastecimento==1){
-                        abasteceragua = new Tarefa(taskId++, Tarefa.ABASTECERAGUA, secondPostoAgua);
-                        this.addBehaviour(new AssignTask(secondChoosenAgent, abasteceragua));
-
-                        abastecercomb = new Tarefa(taskId++, Tarefa.ABASTECERCOMB, secondPostoComb);
-                        this.addBehaviour(new AssignTask(secondChoosenAgent, abastecercomb));
-
-                    }else if(secondPostoComb != null && secondPostoAgua == null){
-                        abastecercomb = new Tarefa(taskId++, Tarefa.ABASTECERCOMB, secondPostoComb);
-                        this.addBehaviour(new AssignTask(secondChoosenAgent, abastecercomb));
-
-                    }else if(secondPostoComb == null && secondPostoAgua != null){
-                        abasteceragua = new Tarefa(taskId++, Tarefa.ABASTECERAGUA, secondPostoAgua);
-                        this.addBehaviour(new AssignTask(secondChoosenAgent, abasteceragua));
+                        tarefasAgentePreventivo.add(new Tarefa(taskId++, tarefa1.getKey(), tarefa1.getValue()));
+                        tarefasAgentePreventivo.add(new Tarefa(taskId++, tarefa2.getKey(), tarefa2.getValue()));
                     }
 
-                    prevenir = new Tarefa(taskId++, Tarefa.PREVENIR, incendio.fireId, pAdjacent);
-                    this.addBehaviour(new AssignTask(secondChoosenAgent, prevenir));
+                    tarefasAgentePreventivo.add(new Tarefa(taskId++, Tarefa.PREVENIR, incendio.fireId, pAdjacent));
+
+                    this.addBehaviour(new AssignTask(secondChoosenAgent, tarefasAgentePreventivo.toArray(new Tarefa[tarefasAgentePreventivo.size()])));
                 }
             }
         }
@@ -288,179 +260,112 @@ public class AgenteCentral extends Agent {
     }
 
 
-    PostosDecision checkDisponibilidadeAgente(AgentStatus ap, Posicao incendio){
-        Posicao ondeAbastecerComb;
-        Posicao ondeAbastecerAgua;
-        PostosDecision postos = null;
-        int tempo = 0;
+    Object[] checkDisponibilidadeAgente(AgentStatus ap, Posicao incendio){
+        Object[] dadosAgente = new Object[3];
+
+        int tempoTotal = 0;
         // calcular combustivel e posição do agente após este realizar todas as suas tarefas
         int maxFuel = 0;
         int maxAgua = 0;
-        int combustivel = ap.combustivelDisponivel;
+        int velocidadeAgente = 1;
+        int combustivelAgente = ap.combustivelDisponivel;
         int agua = ap.aguaDisponivel;
-        Posicao posição = ap.posAtual;
+        Posicao posicaoAgente = ap.posAtual;
 
         switch (ap.tipo){
             case "Drone":
+                velocidadeAgente = Drone.velocidade;
                 maxFuel = Drone.capacidadeMaxCombustivel;
-                break;
-            case "Firetruck":
-                maxFuel = Camiao.capacidadeMaxCombustivel;
-                break;
-            case "Plane":
-                maxFuel = Aeronave.capacidadeMaxCombustivel;
-                break;
-        }
-
-        switch (ap.tipo){
-            case "Drone":
                 maxAgua = Drone.capacidadeMaxAgua;
                 break;
             case "Firetruck":
+                velocidadeAgente = Camiao.velocidade;
+                maxFuel = Camiao.capacidadeMaxCombustivel;
                 maxAgua = Camiao.capacidadeMaxAgua;
                 break;
             case "Plane":
+                velocidadeAgente = Aeronave.velocidade;
+                maxFuel = Aeronave.capacidadeMaxCombustivel;
                 maxAgua = Aeronave.capacidadeMaxAgua;
                 break;
         }
 
-        for(Tarefa t : ap.tarefas){
-            int distancia = Posicao.distanceBetween(posição, t.posicao);
-            combustivel -= distancia;
-            if(t.tipo == Tarefa.ABASTECERCOMB) combustivel = maxFuel;
-            if(t.tipo == Tarefa.ABASTECERAGUA) agua = maxAgua;
-            if(t.tipo == Tarefa.APAGAR) agua--;
-            posição = t.posicao;
-            switch (ap.tipo){
-                case "Drone":
-                    tempo += (distancia*(4/Drone.velocidade))*1000 + 1000;
+
+        for(Tarefa tarefa : ap.tarefas){
+            int distancia = Posicao.distanceBetween(posicaoAgente, tarefa.posicao);
+
+            combustivelAgente -= distancia;
+
+            switch(tarefa.tipo){
+                case Tarefa.ABASTECERCOMB:
+                    combustivelAgente = maxFuel;
                     break;
-                case "Firetruck":
-                    tempo += (distancia*(4/Camiao.velocidade))*1000 + 1000;
+                case Tarefa.ABASTECERAGUA:
+                    agua = maxAgua;
                     break;
-                case "Plane":
-                    tempo += (distancia*(4/Aeronave.velocidade))*1000 + 1000;
+                case Tarefa.APAGAR:
+                    agua--;
                     break;
             }
+
+            tempoTotal += (distancia*(4/velocidadeAgente))*1000 + 1000;
+
+            posicaoAgente = tarefa.posicao;
+
         }
 
-        int distanciaAgenteIncendio = Posicao.distanceBetween(posição, incendio);
+        int distanciaAgenteIncendio = Posicao.distanceBetween(posicaoAgente, incendio);
         int distanciaPostoCombMaisProxIncendio = getMinDistanceIncendioPostoComb(incendio);
 
-        boolean temCombustivelSuficiente = combustivel >= (distanciaAgenteIncendio + distanciaPostoCombMaisProxIncendio);
-
+        boolean temCombustivelSuficiente = combustivelAgente >= (distanciaAgenteIncendio + distanciaPostoCombMaisProxIncendio);
         boolean temAguaSuficiente = agua > 0;
 
-        if(!temCombustivelSuficiente){
-                AbstractMap.SimpleEntry<Posicao, Integer> postoCombMaisProximo = this.mapa.getPostoCombEntreAgenteIncendio(posição, incendio); // Posicao do melhor posto, e Distancia minima do agente ao incendio, passando pelo posto
-            if(temAguaSuficiente) {
-                switch (ap.tipo) {
-                    case "Drone":
-                        tempo += (postoCombMaisProximo.getValue() * (4 / Drone.velocidade)) * 1000 + 1000;
-                        break;
-                    case "Firetruck":
-                        tempo += (postoCombMaisProximo.getValue() * (4 / Camiao.velocidade)) * 1000 + 1000;
-                        break;
-                    case "Plane":
-                        tempo += (postoCombMaisProximo.getValue() * (4 / Aeronave.velocidade)) * 1000 + 1000;
-                        break;
-                }
-                ondeAbastecerComb = postoCombMaisProximo.getKey();
-                postos = new PostosDecision(tempo,ondeAbastecerComb, 2);
-            }else{
-                AbstractMap.SimpleEntry<Posicao, Integer> postoAguaMaisProximo = this.mapa.getPostoAguaEntreAgenteIncendio(posição, incendio);
-                switch (ap.tipo) {
-                    case "Drone":
-                        tempo += (postoCombMaisProximo.getValue() * (4 / Drone.velocidade)) * 1000 + 1000;
-                        tempo += (postoAguaMaisProximo.getValue() * (4 / Drone.velocidade)) * 1000 + 1000;
-                        break;
-                    case "Firetruck":
-                        tempo += (postoCombMaisProximo.getValue() * (4 / Camiao.velocidade)) * 1000 + 1000;
-                        tempo += (postoAguaMaisProximo.getValue() * (4 / Camiao.velocidade)) * 1000 + 1000;
-                        break;
-                    case "Plane":
-                        tempo += (postoCombMaisProximo.getValue() * (4 / Aeronave.velocidade)) * 1000 + 1000;
-                        tempo += (postoAguaMaisProximo.getValue() * (4 / Aeronave.velocidade)) * 1000 + 1000;
-                        break;
-                }
-                ondeAbastecerComb = postoCombMaisProximo.getKey();
-                ondeAbastecerAgua = postoAguaMaisProximo.getKey();
-                if(Posicao.distanceBetween(posição,ondeAbastecerComb) < Posicao.distanceBetween(posição,ondeAbastecerAgua)) {
-                    postos = new PostosDecision(tempo,ondeAbastecerComb,ondeAbastecerAgua,0);
-                } else{ postos = new PostosDecision(tempo,ondeAbastecerComb,ondeAbastecerAgua,1);}
+        AbstractMap.SimpleEntry<Posicao, Integer> postoCombMaisProximo = this.mapa.getPostoCombEntreAgenteIncendio(posicaoAgente, incendio); // Posicao do melhor posto, e Distancia minima do agente ao incendio, passando pelo posto
+        AbstractMap.SimpleEntry<Posicao, Integer> postoAguaMaisProximo = this.mapa.getPostoAguaEntreAgenteIncendio(posicaoAgente, incendio);
+
+        Posicao ondeAbastecerComb = postoCombMaisProximo.getKey();
+        int distAgenteCombIncendio = postoCombMaisProximo.getValue();
+        Posicao ondeAbastecerAgua = postoAguaMaisProximo.getKey();
+        int distAgenteAguaIncendio = postoAguaMaisProximo.getValue();
+
+        if(temCombustivelSuficiente && temAguaSuficiente){
+            tempoTotal += (distanciaAgenteIncendio * (4 / velocidadeAgente)) * 1000;
+
+            dadosAgente = new Object[] {tempoTotal};
+        }
+        else if(!temCombustivelSuficiente && temAguaSuficiente){
+            tempoTotal += (distAgenteCombIncendio * (4/velocidadeAgente))*1000 + 1000;
+
+            dadosAgente = new Object[] {tempoTotal, new AbstractMap.SimpleEntry<>(Tarefa.ABASTECERCOMB, ondeAbastecerComb)};
+        }
+        else if (temCombustivelSuficiente && !temAguaSuficiente){
+            tempoTotal += (distAgenteAguaIncendio * (4 / velocidadeAgente)) * 1000;
+
+            dadosAgente = new Object[] {tempoTotal, new AbstractMap.SimpleEntry<>(Tarefa.ABASTECERAGUA, ondeAbastecerAgua)};
+        }
+        else if(!temCombustivelSuficiente && !temAguaSuficiente){
+            int distAgenteCombustivel = Posicao.distanceBetween(posicaoAgente, ondeAbastecerComb);
+            int distAgenteAgua = Posicao.distanceBetween(posicaoAgente, ondeAbastecerAgua);
+            int distCombustivelIncendio = Posicao.distanceBetween(ondeAbastecerComb, incendio);
+            int distAguaIncendio = Posicao.distanceBetween(ondeAbastecerAgua, incendio);
+            int distAguaCombustivel = Posicao.distanceBetween(ondeAbastecerAgua, ondeAbastecerComb);
+
+            int tempoAbastercerCombPrimeiro = distAgenteCombustivel + distAguaCombustivel + distAguaIncendio;
+            int tempoAbastecerAguaPrimeiro = distAgenteAgua + distAguaCombustivel + distCombustivelIncendio;
+
+            if(tempoAbastercerCombPrimeiro < tempoAbastecerAguaPrimeiro) {
+                tempoTotal += tempoAbastercerCombPrimeiro;
+                dadosAgente = new Object[] {tempoTotal, new AbstractMap.SimpleEntry<>(Tarefa.ABASTECERCOMB, ondeAbastecerComb), new AbstractMap.SimpleEntry<>(Tarefa.ABASTECERAGUA, ondeAbastecerAgua)};
+            } else{
+                tempoTotal += tempoAbastecerAguaPrimeiro;
+                dadosAgente = new Object[] {tempoTotal, new AbstractMap.SimpleEntry<>(Tarefa.ABASTECERAGUA, ondeAbastecerAgua),  new AbstractMap.SimpleEntry<>(Tarefa.ABASTECERCOMB, ondeAbastecerComb)};
             }
         }
-        else {
-            if(temAguaSuficiente) {
-                switch (ap.tipo) {
-                    case "Drone":
-                        tempo += (distanciaAgenteIncendio * (4 / Drone.velocidade)) * 1000;
-                        break;
-                    case "Firetruck":
-                        tempo += (distanciaAgenteIncendio * (4 / Camiao.velocidade)) * 1000;
-                        break;
-                    case "Plane":
-                        tempo += (distanciaAgenteIncendio * (4 / Aeronave.velocidade)) * 1000;
-                        break;
-                }
-                postos = new PostosDecision(tempo);
-            }
-            else{
-                AbstractMap.SimpleEntry<Posicao, Integer> postoAguaMaisProximo = this.mapa.getPostoAguaEntreAgenteIncendio(posição, incendio);
-                switch (ap.tipo) {
-                    case "Drone":
-                        tempo += (postoAguaMaisProximo.getValue() * (4 / Drone.velocidade)) * 1000 + 1000;
-                        break;
-                    case "Firetruck":
-                        tempo += (postoAguaMaisProximo.getValue() * (4 / Camiao.velocidade)) * 1000 + 1000;
-                        break;
-                    case "Plane":
-                        tempo += (postoAguaMaisProximo.getValue() * (4 / Aeronave.velocidade)) * 1000 + 1000;
-                        break;
-                }
-                ondeAbastecerAgua = postoAguaMaisProximo.getKey();
-                postos = new PostosDecision(tempo,ondeAbastecerAgua,3);
-            }
-        }
-        return postos;
+
+        return dadosAgente;
     }
 
 
-    /*private int autonomiaCombustivel(AgentStatus ap, Posicao incendio){
-        int combSomaTotal = 0;
-
-        // apagar
-        int distAgenteIncendio;
-        if(ap.tarefas.size()==0){
-            //System.out.println(ap.toString() + " DIRETO");
-            distAgenteIncendio = Posicao.distanceBetween(ap.posAtual, incendio);
-        }
-        else{
-            //System.out.println(ap.toString() + " INDIRETO");
-            int distAgenteTarefaFinal = ap.tempoParaFicarDisponivel/((4/ap.velocidade)*1000);
-            //System.out.println(ap.toString() + " distAgenteTarefaFinal: " + distAgenteTarefaFinal + " " + ap.tipo);
-            int distTarefaFinalIncendio = Posicao.distanceBetween(ap.tarefas.get(ap.tarefas.size()-1).posicao, incendio);
-            //System.out.println(ap.toString() + " distTarefaFinalIncendio: " + distTarefaFinalIncendio + " " + ap.tipo);
-            distAgenteIncendio = distAgenteTarefaFinal + distTarefaFinalIncendio;
-        }
-
-        int minTempoAgenteIncendio = distAgenteIncendio*(4/ap.velocidade)*1000;
-
-        //System.out.println(ap.toString() + " distAgenteIncendio: " + distAgenteIncendio + " " + ap.tipo);
-        //System.out.println(ap.toString() + " minTempoAgenteIncendio: " + minTempoAgenteIncendio + " " + ap.tipo);
-        combSomaTotal += distAgenteIncendio;
-
-        // abastecer
-        int minDistIncendioPosto = getMinDistanceIncendioPosto(incendio);
-        //System.out.println(ap.toString() + " distIncendioPosto: " + minDistIncendioPosto + " " + ap.tipo);
-
-        combSomaTotal += minDistIncendioPosto;
-
-        //System.out.println(ap.toString() + " combDisponivel " + ap.combustivelDisponivel + " combSomaTotal " + combSomaTotal + " " + ap.tipo);
-
-        if(ap.combustivelDisponivel>combSomaTotal) return minTempoAgenteIncendio;
-        else return -1;
-    }*/
 
     private int getMinDistanceIncendioPostoComb(Posicao incendio){
         int minDistance = 1000;
