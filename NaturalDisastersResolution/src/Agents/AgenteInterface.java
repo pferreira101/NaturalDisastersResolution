@@ -107,11 +107,9 @@ public class AgenteInterface extends Agent {
 
 
     void updateGui(DeltaSimulationStatus stats) {
+        //System.out.println("A atualizar gui com dados da simulacao " + stats.simualtion);
+        this.gui.updateTarefasRealizadas(stats.tarefasRealizadas);
         this.gui.mapGrid.updateGridStatus(stats);
-    }
-
-    void sendTarefas (DeltaSimulationStatus stats) {
-        this.gui.tarefas(stats.tarefasRealizadas);
     }
 
 

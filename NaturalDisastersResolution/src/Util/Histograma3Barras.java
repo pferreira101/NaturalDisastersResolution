@@ -8,13 +8,14 @@ import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Histograma3Barras extends ApplicationFrame {
 
-    Map<AgentStatus,Tarefa> tarefasRealizadas;
+    Map<String,List<Tarefa>> tarefasRealizadas;
 
-    public Histograma3Barras(Map<AgentStatus,Tarefa> ts) {
+    public Histograma3Barras(Map<String, List<Tarefa>> ts) {
 
         super("Quantidade de Tarefas por Tipo de Agente");
         JFreeChart barChart = ChartFactory.createBarChart(
@@ -73,7 +74,7 @@ public class Histograma3Barras extends ApplicationFrame {
             int prevenir =0;
             int agua=0;
             if (this.tarefasRealizadas!= null) {
-            for (Map.Entry<AgentStatus,Tarefa> entry : this.tarefasRealizadas.entrySet()) {
+            for (Map.Entry<String,List<Tarefa>> entry : this.tarefasRealizadas.entrySet()) {
                 if ( entry.getKey().equals(s)){
                     if (entry.getValue().equals(1)) comb++;
                     else if (entry.getValue().equals(2)) apagar++;

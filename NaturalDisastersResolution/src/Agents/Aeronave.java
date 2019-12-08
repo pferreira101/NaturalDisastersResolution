@@ -2,7 +2,7 @@ public class Aeronave extends AgenteParticipativo {
 
     static int capacidadeMaxAgua = 15 ;
     static int capacidadeMaxCombustivel = 20;
-    static int velocidade = 2;
+    static int velocidade = 3;
 
 
     // allow tunable parameters

@@ -2,7 +2,7 @@ public class Camiao extends AgenteParticipativo {
 
     static int capacidadeMaxAgua = 10;
     static int capacidadeMaxCombustivel = 10;
-    static int velocidade = 1;
+    static int velocidade = 2;
 
 
     // allow tunable parameters

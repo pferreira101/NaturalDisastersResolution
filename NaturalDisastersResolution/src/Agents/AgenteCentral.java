@@ -138,10 +138,10 @@ public class AgenteCentral extends Agent {
 
         for(Tarefa t : status.tarefas){
 
-            dss.tarefasRealizadas.put(status,t);
+            dss.registaTarefas(status.tipo,t);
 
             if(t.tipo == Tarefa.APAGAR) {
-                if (t.minTempo <= 10000) {
+                if (t.tempoTarefa <= SimulationConfig.TEMPO_QUEIMAR_CELULA) {
                     dss.celulasApagadas.add(t.posicao);
                 } else{
 
@@ -304,7 +304,7 @@ public class AgenteCentral extends Agent {
                     break;
             }
 
-            tempoTotal += (distancia*(4/velocidadeAgente))*1000 + 1000;
+            tempoTotal += (distancia*(6 / velocidadeAgente))*1000 + 1000;
 
             posicaoAgente = tarefa.posicao;
 
@@ -325,17 +325,17 @@ public class AgenteCentral extends Agent {
         int distAgenteAguaIncendio = postoAguaMaisProximo.getValue();
 
         if(temCombustivelSuficiente && temAguaSuficiente){
-            tempoTotal += (distanciaAgenteIncendio * (4 / velocidadeAgente)) * 1000;
+            tempoTotal += (distanciaAgenteIncendio * (6 / velocidadeAgente)) * 1000;
 
             dadosAgente = new Object[] {tempoTotal};
         }
         else if(!temCombustivelSuficiente && temAguaSuficiente){
-            tempoTotal += (distAgenteCombIncendio * (4/velocidadeAgente))*1000 + 1000;
+            tempoTotal += (distAgenteCombIncendio * (6 / velocidadeAgente))*1000 + 1000;
 
             dadosAgente = new Object[] {tempoTotal, new AbstractMap.SimpleEntry<>(Tarefa.ABASTECERCOMB, ondeAbastecerComb)};
         }
         else if (temCombustivelSuficiente && !temAguaSuficiente){
-            tempoTotal += (distAgenteAguaIncendio * (4 / velocidadeAgente)) * 1000;
+            tempoTotal += (distAgenteAguaIncendio * (6 / velocidadeAgente)) * 1000;
 
             dadosAgente = new Object[] {tempoTotal, new AbstractMap.SimpleEntry<>(Tarefa.ABASTECERAGUA, ondeAbastecerAgua)};
         }

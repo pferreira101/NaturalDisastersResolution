@@ -1,7 +1,8 @@
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Map;
+import java.util.*;
+import java.util.List;
 
 import javax.swing.*;
 
@@ -16,7 +17,7 @@ public class GUI {
     MapGrid mapGrid;
     ParametersChanger inputs;
     boolean firstSimulation;
-    Map<AgentStatus,Tarefa> tarefasRealizadas;
+    Map<String,List<Tarefa>> tarefasRealizadas;
 
 
 
@@ -26,6 +27,7 @@ public class GUI {
         this.firstSimulation = true;
         this.mapGrid = new MapGrid(mapa);
         this.inputs = new ParametersChanger(this);
+        this.tarefasRealizadas = new HashMap<>();
 
         panel_3 = new JPanel();
         panel_3.setBounds(9, 660, 1095, 93);
@@ -60,16 +62,26 @@ public class GUI {
 
 
     void stopSimulation() {
+        for(String s : this.tarefasRealizadas.keySet()){
+            List<Tarefa> ts = this.tarefasRealizadas.get(s);
+            if(s != null) System.out.println(s + "  --  " + ts.size());
+        }
         this.ai.stopSimulation();
         this.mapGrid.removeVehicles();
         var histograma = new Histograma(mapa);
         histograma.setVisible(true);
         var histograma3Barras = new Histograma3Barras(this.tarefasRealizadas);
         histograma3Barras.setVisible(true);
+        SimulationConfig.incSimulationNumber();
     }
 
-    void tarefas (Map<AgentStatus,Tarefa> ts){
-        this.tarefasRealizadas = ts;
+    void updateTarefasRealizadas(Map<String, List<Tarefa>> ts){
+        for(String s : ts.keySet()){
+            List<Tarefa> tarefas = this.tarefasRealizadas.get(s);
+            if(tarefas == null) tarefas = new ArrayList<>();
+            tarefas.addAll(ts.get(s));
+            this.tarefasRealizadas.put(s, tarefas);
+        }
     }
 
 

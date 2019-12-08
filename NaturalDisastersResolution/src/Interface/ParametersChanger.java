@@ -163,16 +163,14 @@ public class ParametersChanger {
         btnGenerate.setBounds(850, 200, 100, 100);
         mainFrame.getContentPane().add(btnGenerate);
 
-        btnGenerate.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                int mapSize = Integer.parseInt(tamanhoMapa.getText());
-                int nAgua = Integer.parseInt(numPostosAgua.getText());
-                int nComb = Integer.parseInt(numPostosComb.getText());
-                int nHabitacoes = Integer.parseInt(numHab.getText());
-                int nFloresta = Integer.parseInt(numPontosFlorestais.getText());
-                SimulationConfig.changeMapSpecs(mapSize, nAgua, nComb, nHabitacoes, nFloresta);
-                gui.updateMapa(App.generateMap());
-            }
+        btnGenerate.addActionListener(e -> {
+            int mapSize = Integer.parseInt(tamanhoMapa.getText());
+            int nAgua = Integer.parseInt(numPostosAgua.getText());
+            int nComb = Integer.parseInt(numPostosComb.getText());
+            int nHabitacoes = Integer.parseInt(numHab.getText());
+            int nFloresta = Integer.parseInt(numPontosFlorestais.getText());
+            SimulationConfig.changeMapSpecs(mapSize, nAgua, nComb, nHabitacoes, nFloresta);
+            gui.updateMapa(App.generateMap());
         });
     }
 
@@ -180,33 +178,31 @@ public class ParametersChanger {
         btnStart.setBounds(1000, 200, 100, 100);
         mainFrame.getContentPane().add(btnStart);
 
-        btnStart.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                boolean sameMap = true;
-                int numDrones = Integer.parseInt(nDrones.getText());
-                int numAvioes = Integer.parseInt(nAeronaves.getText());
-                int numCamioes = Integer.parseInt(nCamioes.getText());
-                SimulationConfig.changeNumVehicles(numDrones, numCamioes, numAvioes);
+        btnStart.addActionListener(e -> {
+            boolean sameMap = true;
+            int numDrones = Integer.parseInt(nDrones.getText());
+            int numAvioes = Integer.parseInt(nAeronaves.getText());
+            int numCamioes = Integer.parseInt(nCamioes.getText());
+            SimulationConfig.changeNumVehicles(numDrones, numCamioes, numAvioes);
 
-                int mapSize = Integer.parseInt(tamanhoMapa.getText());
-                int nAgua = Integer.parseInt(numPostosAgua.getText());
-                int nComb = Integer.parseInt(numPostosComb.getText());
-                int nHabitacoes = Integer.parseInt(numHab.getText());
-                int nFloresta = Integer.parseInt(numPontosFlorestais.getText());
+            int mapSize = Integer.parseInt(tamanhoMapa.getText());
+            int nAgua = Integer.parseInt(numPostosAgua.getText());
+            int nComb = Integer.parseInt(numPostosComb.getText());
+            int nHabitacoes = Integer.parseInt(numHab.getText());
+            int nFloresta = Integer.parseInt(numPontosFlorestais.getText());
 
-                if(mapSize != SimulationConfig.TAMANHO_MAPA
-                        || nAgua != SimulationConfig.NUM_POSTOS_AGUA
-                        || nComb != SimulationConfig.NUM_POSTOS_COMB
-                        || nHabitacoes != SimulationConfig.NUM_HABITACOES
-                        || nFloresta != SimulationConfig.NUM_PONTOS_FLORESTAIS)
-                {
-                    SimulationConfig.changeMapSpecs(mapSize, nAgua, nComb, nHabitacoes, nFloresta);
-                    gui.updateMapa(App.generateMap());
-                    sameMap = false;
-                }
-                App.run();
-                gui.startSimulationDisplay(sameMap);
+            if(mapSize != SimulationConfig.TAMANHO_MAPA
+                    || nAgua != SimulationConfig.NUM_POSTOS_AGUA
+                    || nComb != SimulationConfig.NUM_POSTOS_COMB
+                    || nHabitacoes != SimulationConfig.NUM_HABITACOES
+                    || nFloresta != SimulationConfig.NUM_PONTOS_FLORESTAIS)
+            {
+                SimulationConfig.changeMapSpecs(mapSize, nAgua, nComb, nHabitacoes, nFloresta);
+                gui.updateMapa(App.generateMap());
+                sameMap = false;
             }
+            App.run();
+            gui.startSimulationDisplay(sameMap);
         });
     }
 

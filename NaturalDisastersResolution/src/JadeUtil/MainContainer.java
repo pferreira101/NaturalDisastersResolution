@@ -8,6 +8,8 @@ import jade.wrapper.ContainerController;
 
 public class MainContainer {
 
+	int agentNumber = 0;
+
 	Runtime rt;
 	ContainerController container;
 
@@ -70,15 +72,15 @@ public class MainContainer {
 	}
 
 	public void startAgenteDrone(int i, Mapa mapa, Posicao posicao){
-		this.startAgentInPlatform("Agente "+i, "Drone", new Object[] {mapa, posicao});
+		this.startAgentInPlatform("Agente "+ agentNumber++, "Drone", new Object[] {mapa, posicao});
 	}
 
 	public void startAgenteCamiao(int i, Mapa mapa, Posicao posicao){
-		this.startAgentInPlatform("Agente "+i, "Camiao", new Object[] {mapa, posicao});
+		this.startAgentInPlatform("Agente "+ agentNumber++, "Camiao", new Object[] {mapa, posicao});
 	}
 
 	public void startAgenteAeronave(int i, Mapa mapa, Posicao posicao){
-		this.startAgentInPlatform("Agente "+i, "Aeronave", new Object[] {mapa, posicao});
+		this.startAgentInPlatform("Agente "+ agentNumber++, "Aeronave", new Object[] {mapa, posicao});
 	}
 
 	public void startIncendiario(Mapa mapa) {

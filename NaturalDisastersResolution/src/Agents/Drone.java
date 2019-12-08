@@ -2,7 +2,7 @@ public class Drone extends AgenteParticipativo {
 
     static int capacidadeMaxAgua = 3;
     static int capacidadeMaxCombustivel = 5;
-    static int velocidade = 4;
+    static int velocidade = 6;
 
 
     // allow tunable parameters

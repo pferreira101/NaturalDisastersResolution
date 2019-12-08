@@ -12,8 +12,8 @@ public class AgenteIncendiario extends Agent {
     Mapa mapa;
     int fireId;
     AID centralAgent;
-    int freqIncendio = 5000; // 1 incendio novo a cada x ms
-    int freqExpansao = 5000;
+    int freqIncendio; // 1 incendio novo a cada x ms
+    int freqExpansao;
     Set<Integer> incendiosAtivos;
 
     protected void setup(){
@@ -23,6 +23,8 @@ public class AgenteIncendiario extends Agent {
         this.fireId=0;
         this.centralAgent = DFManager.findSingleAgent(this, "Central");
         this.incendiosAtivos = new TreeSet<>();
+        this.freqIncendio = SimulationConfig.FREQ_CRIACAO_INCENDIO;
+        this.freqExpansao = SimulationConfig.FREQ_EXPANSAO_INCENDIO;
 
         DFManager.registerAgent(this, "Incendiario");
 
@@ -134,11 +136,6 @@ public class AgenteIncendiario extends Agent {
                         pAdjacent = mapa.getRandAdjacentPositions(adjFlo);
                         adjFlo.remove(pAdjacent);
                         celulasIncendiadas.add(pAdjacent);
-                        do {
-                            pAdjacent = mapa.getRandAdjacentPositions(adj);
-                        } while (mapa.isWaterSource(pAdjacent));
-                        adjFlo.remove(pAdjacent);
-                        celulasIncendiadas.add(pAdjacent);
                     }
                 } else if (!mapa.floresta.contains(p) && !adjFlo.isEmpty()){ // se não é celula floresta, expande para 1 adjacente, dando prioridade a pontos de floresta
                     pAdjacent = mapa.getRandAdjacentPositions(adjFlo);
@@ -152,7 +149,7 @@ public class AgenteIncendiario extends Agent {
                     celulasIncendiadas.add(pAdjacent);
                 }
             }
-
+            System.out.println("A expandir " + celulasIncendiadas.size());
             FireAlert fa = new FireAlert(this.fireId, celulasIncendiadas);
 
             try {
