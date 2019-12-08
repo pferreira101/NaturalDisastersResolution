@@ -96,8 +96,8 @@ public class AgenteParticipativo extends Agent {
 
             if(t.tipo == Tarefa.APAGAR)
                 apagarFogo(t);
-            else if(t.tipo == Tarefa.ABASTECER)
-                abastecer(t);
+            else if(t.tipo == Tarefa.ABASTECERCOMB)
+                abastecerComb(t);
             else if(t.tipo == Tarefa.PREVENIR) {
                 if (completo == 0)
                     prevenir(t);
@@ -125,7 +125,7 @@ public class AgenteParticipativo extends Agent {
 
 
 
-    private void abastecer(Tarefa t) throws Exception{
+    private void abastecerComb(Tarefa t) throws Exception{
         System.out.println("A ABASTECER");
         Thread.sleep(1000);
 
