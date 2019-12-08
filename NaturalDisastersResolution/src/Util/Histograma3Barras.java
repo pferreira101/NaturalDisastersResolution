@@ -7,17 +7,44 @@ import org.jfree.chart.ui.ApplicationFrame;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 
+import javax.swing.*;
+import java.awt.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Histograma3Barras extends ApplicationFrame {
+public class Histograma3Barras extends JFrame {
 
     Map<String,List<Tarefa>> tarefasRealizadas;
 
-    public Histograma3Barras(Map<String, List<Tarefa>> ts) {
+    public Histograma3Barras(Map<String, List<Tarefa>> ts){
+        this.tarefasRealizadas = ts;
+        initUI();
+    }
+    private void initUI() {
+        CategoryDataset dataset = createDataset();
 
-        super("Quantidade de Tarefas por Tipo de Agente");
+        JFreeChart chart = createChart(dataset);
+
+        ChartPanel chartPanel = new ChartPanel(chart);
+        chartPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        chartPanel.setBackground(Color.white);
+
+        chartPanel.setPreferredSize(new Dimension(550,280));
+        chartPanel.setMaximumDrawWidth(550);
+        chartPanel.setMaximumDrawHeight(280);
+
+        add(chartPanel);
+
+        pack();
+        setTitle("Quantidade de Tarefas por Tipo de Agente");
+
+        setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+
+    }
+
+    private JFreeChart createChart(CategoryDataset dataset) {
+
         JFreeChart barChart = ChartFactory.createBarChart(
                 "Quantidade de Tarefas por Tipo de Agente",
                 "Tarefa",
@@ -26,11 +53,10 @@ public class Histograma3Barras extends ApplicationFrame {
                 PlotOrientation.VERTICAL,
                 true, true, false);
 
-        ChartPanel chartPanel = new ChartPanel( barChart );
-        chartPanel.setPreferredSize(new java.awt.Dimension( 560 , 367 ) );
-        setContentPane( chartPanel );
-        this.tarefasRealizadas = ts;
+
+        return barChart;
     }
+
 
     private CategoryDataset createDataset( ) {
         final String apagar = "APAGAR";
@@ -45,29 +71,29 @@ public class Histograma3Barras extends ApplicationFrame {
                 new DefaultCategoryDataset( );
 
 
-        dataset.addValue( contagem("Plane").get(1), abastecer_comb , aeronave );
-        dataset.addValue( contagem("Drone").get(1), abastecer_comb , drone );
-        dataset.addValue(  contagem("Firetruck").get(1), abastecer_comb , camiao );
+        dataset.addValue( contagemPorAgente("Plane").get(1), abastecer_comb , aeronave );
+        dataset.addValue( contagemPorAgente("Drone").get(1), abastecer_comb , drone );
+        dataset.addValue(  contagemPorAgente("Firetruck").get(1), abastecer_comb , camiao );
 
-        dataset.addValue( contagem("Plane").get(2) , apagar , aeronave );
-        dataset.addValue( contagem("Drone").get(2), apagar , drone );
-        dataset.addValue( contagem("Firetruck").get(2) , apagar , camiao );
+        dataset.addValue( contagemPorAgente("Plane").get(2) , apagar , aeronave );
+        dataset.addValue( contagemPorAgente("Drone").get(2), apagar , drone );
+        dataset.addValue( contagemPorAgente("Firetruck").get(2) , apagar , camiao );
 
-        dataset.addValue( contagem("Plane").get(3) , prevenir , aeronave );
-        dataset.addValue( contagem("Drone").get(3) , prevenir , drone );
-        dataset.addValue( contagem("Firetruck").get(3), prevenir , camiao );
+        dataset.addValue( contagemPorAgente("Plane").get(3) , prevenir , aeronave );
+        dataset.addValue( contagemPorAgente("Drone").get(3) , prevenir , drone );
+        dataset.addValue( contagemPorAgente("Firetruck").get(3), prevenir , camiao );
 
 
-        dataset.addValue( contagem("Plane").get(4), abastecer_agua , aeronave );
-        dataset.addValue( contagem("Drone").get(4), abastecer_agua , drone );
-        dataset.addValue( contagem("Firetruck").get(4), abastecer_agua , camiao );
+        dataset.addValue( contagemPorAgente("Plane").get(4), abastecer_agua , aeronave );
+        dataset.addValue( contagemPorAgente("Drone").get(4), abastecer_agua , drone );
+        dataset.addValue( contagemPorAgente("Firetruck").get(4), abastecer_agua , camiao );
 
 
 
         return dataset;
     }
 
-    public Map<Integer,Integer> contagem (String s) {
+    public Map<Integer,Integer> contagemPorAgente (String s) {
             Map<Integer,Integer> contas = new HashMap<Integer,Integer>();
             int comb=0;
             int apagar=0;
@@ -76,10 +102,12 @@ public class Histograma3Barras extends ApplicationFrame {
             if (this.tarefasRealizadas!= null) {
             for (Map.Entry<String,List<Tarefa>> entry : this.tarefasRealizadas.entrySet()) {
                 if ( entry.getKey().equals(s)){
-                    if (entry.getValue().equals(1)) comb++;
-                    else if (entry.getValue().equals(2)) apagar++;
-                    else if (entry.getValue().equals(3)) prevenir++;
-                    else if (entry.getValue().equals(4)) agua++;
+                    for ( Tarefa t : entry.getValue()) {
+                        if (t.tipo == 1) comb++;
+                        else if (t.tipo == 2) apagar++;
+                        else if (t.tipo == 3) prevenir++;
+                        else if (t.tipo == 4) agua++;
+                    }
                 }
             }
             }
