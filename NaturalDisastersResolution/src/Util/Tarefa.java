@@ -2,9 +2,10 @@ import java.io.Serializable;
 
 public class Tarefa implements Serializable {
 
-    final static int ABASTECER = 1;
+    final static int ABASTECERCOMB = 1;
     final static int APAGAR = 2;
     final static int PREVENIR = 3;
+    final static int ABASTECERAGUA = 4;
 
     int taskId;
     int tipo;
@@ -39,7 +40,7 @@ public class Tarefa implements Serializable {
 
     @Override
     public String toString() {
-        return tipo == ABASTECER? "abastecer tanques":"apagar fogo" + " em célula " + posicao.toString();
+        return tipo == ABASTECERAGUA? "abastecer tanques":"apagar fogo" + " em célula " + posicao.toString();
     }
 
     @Override

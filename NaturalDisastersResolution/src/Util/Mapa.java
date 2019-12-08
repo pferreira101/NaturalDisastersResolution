@@ -369,7 +369,7 @@ public class Mapa {
         return this.postosAgua.contains(p);
     }
 
-    public AbstractMap.SimpleEntry<Posicao, Integer> getPostoEntreAgenteIncendio(Posicao posição, Posicao incendio) {
+    public AbstractMap.SimpleEntry<Posicao, Integer> getPostoCombEntreAgenteIncendio(Posicao posição, Posicao incendio) {
         Posicao postoMaisProximo = null;
         int minDist = 10000;
         for(PostoCombustivel posto : this.postosCombustivel){
@@ -377,6 +377,20 @@ public class Mapa {
             if(posto.ativo == true && dist < minDist){
                 minDist = dist;
                 postoMaisProximo = posto.pos;
+            }
+        }
+
+        return new AbstractMap.SimpleEntry<>(postoMaisProximo, minDist);
+    }
+
+    public AbstractMap.SimpleEntry<Posicao, Integer> getPostoAguaEntreAgenteIncendio(Posicao posição, Posicao incendio) {
+        Posicao postoMaisProximo = null;
+        int minDist = 10000;
+        for(Posicao posto : this.postosAgua){
+            int dist = Posicao.distanceBetween(posição, posto) + Posicao.distanceBetween(posto, incendio);
+            if(dist < minDist){
+                minDist = dist;
+                postoMaisProximo = posto;
             }
         }
 
