@@ -86,7 +86,7 @@ public class AgenteCentral extends Agent {
                 this.tarefas.add(t);
                 registaTarefa(agent, t);
 
-                //System.out.println(new Time(System.currentTimeMillis()) +  ": "+ agent.getLocalName() + " --- mandado " + t.toString());
+                System.out.println(new Time(System.currentTimeMillis()) +  ": "+ agent.getLocalName() + " --- mandado " + t.toString());
 
             });
         }
@@ -174,14 +174,10 @@ public class AgenteCentral extends Agent {
     private void alocaRecursos(Incendio incendio) {
         Map<AID, Object[]> dadosAgentes = new HashMap<>();
 
-        Tarefa abastecercomb, apagar, prevenir, abasteceragua;
-
         AID choosenAgent = null;
         AID secondChoosenAgent = null;
         int minTempo = 100000; // 100 segundos
         int secondMinTempo = 200000;
-
-
 
         for(Posicao p: incendio.areaAfetada) {
             int i=0;

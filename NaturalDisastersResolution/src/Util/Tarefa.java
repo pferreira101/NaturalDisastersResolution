@@ -40,7 +40,8 @@ public class Tarefa implements Serializable {
 
     @Override
     public String toString() {
-        return tipo == ABASTECERAGUA? "abastecer tanques":"apagar fogo" + " em célula " + posicao.toString();
+
+        return this.tipo + " em célula " + posicao.toString();
     }
 
     @Override

@@ -1,10 +1,9 @@
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
-import jade.core.behaviours.TickerBehaviour;
+import jade.core.behaviours.OneShotBehaviour;
 import jade.lang.acl.ACLMessage;
 
-import java.sql.Time;
 import java.util.*;
 
 
@@ -17,7 +16,6 @@ public class AgenteParticipativo extends Agent {
     Posicao posAnterior;
 
     boolean disponivel;
-    boolean free;
 
     int capacidadeMaxAgua;
     int capacidadeMaxCombustivel;
@@ -86,81 +84,87 @@ public class AgenteParticipativo extends Agent {
             } else {
                 block();
             }
-
         }
 
     }
 
-    private void performTasks() throws Exception {
+    private void performTasks() {
         while(this.tarefasAgendadas.peek() != null) {
             this.disponivel = false;
+
             Tarefa t = this.tarefasAgendadas.poll();
-            int completo = moveToPosition(t.posicao,t);
+
+            boolean deslocacaoCompleta = moveToPosition(t.posicao, t, false);
 
             if(t.tipo == Tarefa.APAGAR)
                 apagarFogo(t);
             else if(t.tipo == Tarefa.ABASTECERCOMB)
-                abastecerComb(t);
+                abastecerComb();
             else if (t.tipo == Tarefa.ABASTECERAGUA)
-                abastecerAgua(t);
+                abastecerAgua();
             else if(t.tipo == Tarefa.PREVENIR) {
-                if (completo == 0)
-                    prevenir(t);
+                if (deslocacaoCompleta)
+                    prevenir();
             }
+
+            this.tarefasRealizadas.add(t);
         }
+
+        this.disponivel = true;
         sendCurrentStatus();
+        this.addBehaviour(new RefillTanks());
     }
 
-    private void apagarFogo(Tarefa t) throws Exception{
+    private void apagarFogo(Tarefa t){
         Random rand = new Random();
         int op = rand.nextInt(2);
 
-        Thread.sleep(1000);
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         this.aguaDisponivel--;
-        this.disponivel = true;
-
 
         // System.out.println(new Time(System.currentTimeMillis()) + ": "+this.getAID().getLocalName()  + " --- Apagou célula " + p.toString() + " (agua: " + this.aguaDisponivel + " ,combustivel: " + this.combustivelDisponivel + ")");
 
         //System.out.println("Agente a registar que apagou a celula " + t.posicao + ", no fogo "+t.fireId);
         this.mapa.registaCelulaApagada(t.fireId, t.posicao);
-        this.tarefasRealizadas.add(t);
     }
 
 
 
-    private void abastecerComb(Tarefa t) throws Exception{
-        System.out.println("A ABASTECER COMBUSTIVEL");
-        Thread.sleep(1000);
+    private void abastecerComb() {
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         this.combustivelDisponivel = this.capacidadeMaxCombustivel;
-        this.disponivel = true;
 
         //System.out.println(new Time(System.currentTimeMillis()) + ": "+this.getAID().getLocalName()  + " --- Abasteceu em " + p.toString() + " (combustivel: " + this.combustivelDisponivel + ")");
-
-        this.tarefasRealizadas.add(t);
     }
 
-    private void abastecerAgua(Tarefa t) throws Exception{
-        System.out.println("A ABASTECER AGUA");
-        Thread.sleep(1000);
+    private void abastecerAgua(){
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         this.aguaDisponivel = this.capacidadeMaxAgua;
-        this.disponivel = true;
 
         //System.out.println(new Time(System.currentTimeMillis()) + ": "+this.getAID().getLocalName()  + " --- Abasteceu em " + p.toString() + " (agua: " + this.aguaDisponivel + ")");
 
-        this.tarefasRealizadas.add(t);
     }
 
-    private void prevenir(Tarefa t) throws Exception{
-        System.out.println("A PREVENIR");
-        this.disponivel = true;
-        this.tarefasRealizadas.add(t);
+    private void prevenir(){
     }
 
-    private int moveToPosition(Posicao p,Tarefa t) throws InterruptedException {
+    private boolean moveToPosition(Posicao p, Tarefa t, boolean freeMode){
 
         while(!this.posAtual.equals(p)){
 
@@ -196,18 +200,27 @@ public class AgenteParticipativo extends Agent {
             }
 
             int tempoDeMovimento = (4/this.velocidade)*1000;
-            Thread.sleep(tempoDeMovimento);
+
+            try {
+                Thread.sleep(tempoDeMovimento);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
             this.combustivelDisponivel--;
 
-            if(t.tipo == Tarefa.PREVENIR && !mapa.isFireActive(t.fireId)){
-                this.disponivel = true;
-                this.tarefasRealizadas.add(t);
-                return -1;
+            if(t != null && t.tipo == Tarefa.PREVENIR && !mapa.isFireActive(t.fireId)){
+                return false;
             }
+
+            if(freeMode && this.tarefasAgendadas.size() != 0){
+                return false;
+            }
+            else System.out.println(this.getAID().getLocalName() + " ainda nao me foram atribuidas tarefas");
 
             sendCurrentStatus();
         }
-        return 0;
+        return true;
     }
 
     private void sendCurrentStatus() {
@@ -226,49 +239,71 @@ public class AgenteParticipativo extends Agent {
         this.tarefasRealizadas = new ArrayList<>();
     }
 
-    private void addOperacao(Tarefa p){
-        this.tarefasAgendadas.add(p);
-    }
+    class RefillTanks extends OneShotBehaviour {
 
-    private Tarefa nextOperacao(){
-        return this.tarefasAgendadas.poll();
-    }
+        public void action(){
+            if(aguaDisponivel < 4){
+                Posicao postoAguaMaisProxAgent = getMinDistancePostoAgua(posAtual);
+                Posicao postoCombusMaisProx = getMinDistancePostoComb(postoAguaMaisProxAgent);
+                int distanciaTotal = Posicao.distanceBetween(posAtual, postoAguaMaisProxAgent) + Posicao.distanceBetween(postoAguaMaisProxAgent, postoCombusMaisProx);
 
-    private void registaTarefaRealizada(Tarefa t){
-        this.tarefasRealizadas.add(t);
-    }
+                boolean temCombustivel = distanciaTotal <= combustivelDisponivel;
 
-    /*
-    class RefillFreeMode extends TickerBehaviour {
-        public RefillFreeMode(Agent a, long period) {
-            super(a, period);
-        }
+                if(temCombustivel){
+                    moveToPosition(postoAguaMaisProxAgent,null, true);
+                    abastecerAgua();
 
-        public void onTick() { // nova variável free
-            if(disponivel==true && combustivelDisponivel < (0.33*capacidadeMaxCombustivel)){
-                disponivel = false;
-                Posicao postoComb = getMinDistancePostoComb();
-                try {
-                    moveToPosition(postoComb,null);
-                    System.out.println("A IR METER GOTA");
-                    combustivelDisponivel = capacidadeMaxCombustivel;
-                    disponivel = true;
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    moveToPosition(postoCombusMaisProx, null, true);
+                    abastecerComb();
                 }
+                else{
+                    Posicao postoCombusMaisProxAgent = getMinDistancePostoComb(posAtual);
+                    Posicao postoAguaMaisProx = getMinDistancePostoAgua(postoCombusMaisProxAgent);
+                    Posicao postoCombMaisProx = getMinDistancePostoComb(postoAguaMaisProx);
+
+                    moveToPosition(postoCombusMaisProxAgent, null, true);
+                    abastecerComb();
+
+                    moveToPosition(postoAguaMaisProx,null, true);
+                    abastecerAgua();
+
+                    moveToPosition(postoCombMaisProx, null, true);
+                    abastecerComb();
+                }
+            }
+            else{
+                Posicao postoCombusMaisProxAgent = getMinDistancePostoComb(posAtual);
+
+                moveToPosition(postoCombusMaisProxAgent, null, true);
+                abastecerComb();
             }
         }
 
-    }*/
+    }
 
-    private Posicao getMinDistancePostoComb(){
+    private Posicao getMinDistancePostoComb(Posicao from){
         int minDistance = 1000;
         Posicao maisProximo = null;
 
         for(PostoCombustivel p : mapa.postosCombustivel){
-            int distance = Posicao.distanceBetween(this.posAtual,p.pos);
+            int distance = Posicao.distanceBetween(from, p.pos);
             if (p.ativo == true && distance < minDistance) {
                 maisProximo = p.pos;
+                minDistance = distance;
+            }
+        }
+
+        return maisProximo;
+    }
+
+    private Posicao getMinDistancePostoAgua(Posicao from){
+        int minDistance = 1000;
+        Posicao maisProximo = null;
+
+        for(Posicao p : mapa.postosAgua){
+            int distance = Posicao.distanceBetween(from, p);
+            if (distance < minDistance) {
+                maisProximo = p;
                 minDistance = distance;
             }
         }
